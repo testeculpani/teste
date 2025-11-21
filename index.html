@@ -142,21 +142,10 @@
       border-radius: 999px;
     }
 
-    .dot.income {
-      background: var(--accent2);
-    }
-
-    .dot.expense {
-      background: var(--accent4);
-    }
-
-    .dot.profit {
-      background: var(--accent1);
-    }
-
-    .dot.cost {
-      background: var(--accent3);
-    }
+    .dot.income { background: var(--accent2); }
+    .dot.expense { background: var(--accent4); }
+    .dot.profit { background: var(--accent1); }
+    .dot.cost { background: var(--accent3); }
 
     /* Seção gráficos */
     .section-title {
@@ -174,18 +163,13 @@
       margin-bottom: 16px;
     }
 
-    @media (min-width: 720px) {
-      .charts-grid {
-        grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-      }
-    }
-
     .chart-card {
       border-radius: 18px;
       background: radial-gradient(circle at top, rgba(30, 64, 175, 0.15), rgba(15, 23, 42, 0.98));
       border: 1px solid var(--border);
       padding: 10px 10px 12px;
       box-shadow: 0 18px 40px rgba(15, 23, 42, 0.9);
+      margin-bottom: 10px;
     }
 
     .chart-header {
@@ -222,12 +206,12 @@
       <div class="title-row">
         <div>
           <h1><span class="logo-dot"></span>Painel Financeiro</h1>
-          <p class="subtitle">Resumo de lucro, despesas e custo % - Novembro (dados atualizados da planilha).</p>
+          <p class="subtitle">Lucro, despesas, custo % e evolução mensal (baseado no ResumoMes).</p>
         </div>
       </div>
     </header>
 
-    <!-- Cards resumo -->
+    <!-- Cards resumo (último mês disponível = Novembro) -->
     <div class="cards-grid">
       <div class="card" id="cardReceita">
         <div class="card-header">
@@ -235,7 +219,7 @@
           <span class="pill"><span class="dot income"></span>Total</span>
         </div>
         <div class="card-value" id="receitaTotal">R$ 0,00</div>
-        <div class="card-sub">Vendas e serviços no período.</div>
+        <div class="card-sub">Receita do último mês (Nov).</div>
       </div>
 
       <div class="card" id="cardDespesa">
@@ -244,7 +228,7 @@
           <span class="pill"><span class="dot expense"></span>Total</span>
         </div>
         <div class="card-value" id="despesaTotal">R$ 0,00</div>
-        <div class="card-sub">Custos fixos e variáveis.</div>
+        <div class="card-sub">Despesas do último mês (Nov).</div>
       </div>
 
       <div class="card" id="cardLucro">
@@ -253,7 +237,7 @@
           <span class="pill"><span class="dot profit"></span>Líquido</span>
         </div>
         <div class="card-value" id="lucroTotal">R$ 0,00</div>
-        <div class="card-sub">Depois de todas as despesas.</div>
+        <div class="card-sub">Lucro do último mês (Nov).</div>
       </div>
 
       <div class="card" id="cardPercCusto">
@@ -262,7 +246,7 @@
           <span class="pill"><span class="dot cost"></span>Custo / Receita</span>
         </div>
         <div class="card-value" id="percCustoValor">0,0%</div>
-        <div class="card-sub">Percentual de despesa sobre a receita.</div>
+        <div class="card-sub">Percentual de despesa sobre a receita (Nov).</div>
       </div>
     </div>
 
@@ -273,7 +257,7 @@
       <div class="chart-card">
         <div class="chart-header">
           <strong>Lucro por mês</strong>
-          <span>Apenas Novembro (por enquanto)</span>
+          <span>ResumoMes</span>
         </div>
         <div class="chart-container">
           <canvas id="profitChart"></canvas>
@@ -282,17 +266,17 @@
 
       <div class="chart-card">
         <div class="chart-header">
-          <strong>Despesas por categoria</strong>
-          <span>Valores dentro das colunas</span>
+          <strong>Despesas por mês</strong>
+          <span>ResumoMes</span>
         </div>
         <div class="chart-container">
-          <canvas id="expenseChart"></canvas>
+          <canvas id="expenseMonthChart"></canvas>
         </div>
       </div>
     </div>
 
     <p class="footer-note">
-      Este painel usa dados fixos do mês de <strong>Novembro</strong>. Para outro mês, é só atualizar este arquivo ou me enviar nova planilha.
+      Dados carregados diretamente deste arquivo (Jul–Nov). Para novos meses, é só atualizar o ResumoMes e gerar outro index.
     </p>
   </div>
 
@@ -301,19 +285,19 @@
 
   <script>
     // ---------------------------------------------------------
-    // DADOS INTERNOS (vindos da planilha Novembro.xlsx)
+    // DADOS INTERNOS (equivalentes ao ResumoMes)
     // ---------------------------------------------------------
     const dadosFinanceiros = {
-      receita: 16487.73,
-      despesa: 2977.00,
-      lucro: 13510.73,
+      receita: 14660.00,
+      despesa: 2897.00,
+      lucro: 11763.00,
       lucroMeses: {
-        labels: ["Nov"],
-        valores: [13510.73]
+        labels: ["Jul", "Ago", "Set", "Out", "Nov"],
+        valores: [0.00,0.00,0.00,0.00,11763.00]
       },
-      despesasCategorias: {
-        labels: ["Aluguel", "Folha Salarial", "Contabil", "Trafego Pago", "Operacional"],
-        valores: [950, 1200, 100, 70, 657]
+      despesasMeses: {
+        labels: ["Jul", "Ago", "Set", "Out", "Nov"],
+        valores: [0.00,2999.00,3268.00,2895.00,2897.00]
       }
     };
 
@@ -325,40 +309,8 @@
       });
     }
 
-    // Plugin para valor DENTRO da coluna
-    const barValueInsidePlugin = {
-      id: "barValueInsidePlugin",
-      afterDatasetsDraw(chart, args, pluginOptions) {
-        const { ctx } = chart;
-        const dataset = chart.data.datasets[0];
-        const meta = chart.getDatasetMeta(0);
-
-        ctx.save();
-        meta.data.forEach((bar, index) => {
-          const value = dataset.data[index];
-          if (value == null) return;
-
-          const x = bar.x;
-          const base = bar.base;
-          const top = bar.y;
-          const centerY = top + (base - top) / 2;
-
-          ctx.font = "10px Inter, system-ui, sans-serif";
-          ctx.fillStyle = "#f9fafb";
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-
-          const text = "R$ " + value.toLocaleString("pt-BR", { minimumFractionDigits: 0 });
-          ctx.fillText(text, x, centerY);
-        });
-        ctx.restore();
-      }
-    };
-
-    Chart.register(barValueInsidePlugin);
-
     let profitChart;
-    let expenseChart;
+    let expenseMonthChart;
 
     function inicializarPainel() {
       // Atualiza cards
@@ -371,7 +323,7 @@
       document.getElementById("percCustoValor").textContent =
         percCusto.toFixed(1).replace(".", ",") + "%";
 
-      // Gráfico de lucro
+      // Gráfico de lucro por mês
       const lucroCtx = document.getElementById("profitChart");
       profitChart = new Chart(lucroCtx, {
         type: "line",
@@ -415,17 +367,20 @@
         }
       });
 
-      // Gráfico de despesas por categoria
-      const despCtx = document.getElementById("expenseChart");
-      expenseChart = new Chart(despCtx, {
-        type: "bar",
+      // Gráfico de despesas por mês
+      const despMesCtx = document.getElementById("expenseMonthChart");
+      expenseMonthChart = new Chart(despMesCtx, {
+        type: "line",
         data: {
-          labels: dadosFinanceiros.despesasCategorias.labels,
+          labels: dadosFinanceiros.despesasMeses.labels,
           datasets: [
             {
-              label: "Despesas",
-              data: dadosFinanceiros.despesasCategorias.valores,
-              borderWidth: 1
+              label: "Despesas mensais",
+              data: dadosFinanceiros.despesasMeses.valores,
+              borderWidth: 2,
+              tension: 0.3,
+              pointRadius: 3,
+              fill: true
             }
           ]
         },
@@ -433,7 +388,12 @@
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-            legend: { display: false }
+            legend: {
+              labels: {
+                color: "#e5e7eb",
+                font: { size: 11 }
+              }
+            }
           },
           scales: {
             x: {
