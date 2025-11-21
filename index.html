@@ -205,7 +205,7 @@
       <div class="title-row">
         <div>
           <h1><span class="logo-dot"></span>Painel Financeiro</h1>
-          <p class="subtitle">Lucro, despesas, custo % e evolução mensal (dados da planilha).</p>
+          <p class="subtitle">Receita, despesas, custo % e evolução mensal (dados da planilha).</p>
         </div>
       </div>
     </header>
@@ -255,11 +255,11 @@
     <div class="charts-grid">
       <div class="chart-card">
         <div class="chart-header">
-          <strong>Lucro por mês</strong>
+          <strong>Receita por mês</strong>
           <span>ResumoMes</span>
         </div>
         <div class="chart-container">
-          <canvas id="lucroChart"></canvas>
+          <canvas id="receitaChart"></canvas>
         </div>
       </div>
 
@@ -293,23 +293,25 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
   <script>
-    // Dados dos meses (Jul–Nov)
+    // Meses exibidos
     const meses = ["Jul", "Ago", "Set", "Out", "Nov"];
 
-    // Despesas por mês
+    // RECEITA POR MÊS (gráfico 1)
+    // Jul, Ago, Set = 0 | Out = 26.687 | Nov = 16.487
+    const receitasMes = [0, 0, 0, 26687, 16487];
+
+    // DESPESAS POR MÊS (gráfico 2)
+    // Ago = 2.999 | Set = 3.268 | Out = 2.895 | Nov = 2.977
     const despesasMes = [0, 2999, 3268, 2895, 2977];
 
-    // Lucro por mês (Out e Nov informados, resto 0)
-    const lucrosMes = [0, 0, 0, 26687, 11683];
-
-    // Dados categorias de Novembro
+    // DESPESAS POR CATEGORIA (Novembro)
     const catLabels = ["Aluguel", "Folha Salarial", "Contabil", "Trafego Pago", "Operacional"];
     const catValues = [950, 1200, 100, 70, 577];
 
-    // Resumo Novembro (para os cards)
-    const receitaNov = 14660;
+    // RESUMO NOVEMBRO (para os cards)
+    const receitaNov = 16487;
     const despesaNov = 2977;
-    const lucroNov = 11683;
+    const lucroNov = receitaNov - despesaNov; // 13510
     const percCustoNov = receitaNov > 0 ? (despesaNov / receitaNov) * 100 : 0;
 
     function formatCurrency(valor) {
@@ -352,7 +354,7 @@
 
     Chart.register(barValueInsidePlugin);
 
-    let lucroChart;
+    let receitaChart;
     let despMesChart;
     let catChart;
 
@@ -364,16 +366,16 @@
       document.getElementById("percCustoValor").textContent =
         percCustoNov.toFixed(1).replace(".", ",") + "%";
 
-      // Gráfico 1: Lucro por mês (colunas)
-      const lucroCtx = document.getElementById("lucroChart");
-      lucroChart = new Chart(lucroCtx, {
+      // Gráfico 1: Receita por mês (colunas)
+      const receitaCtx = document.getElementById("receitaChart");
+      receitaChart = new Chart(receitaCtx, {
         type: "bar",
         data: {
           labels: meses,
           datasets: [
             {
-              label: "Lucro líquido",
-              data: lucrosMes,
+              label: "Receita mensal",
+              data: receitasMes,
               borderWidth: 1
             }
           ]
