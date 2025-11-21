@@ -169,7 +169,6 @@
       border: 1px solid var(--border);
       padding: 10px 10px 12px;
       box-shadow: 0 18px 40px rgba(15, 23, 42, 0.9);
-      margin-bottom: 10px;
     }
 
     .chart-header {
@@ -206,7 +205,7 @@
       <div class="title-row">
         <div>
           <h1><span class="logo-dot"></span>Painel Financeiro</h1>
-          <p class="subtitle">Lucro, despesas, custo % e evolução mensal (baseado no ResumoMes).</p>
+          <p class="subtitle">Lucro, despesas, custo % e evolução mensal (dados da planilha).</p>
         </div>
       </div>
     </header>
@@ -260,7 +259,7 @@
           <span>ResumoMes</span>
         </div>
         <div class="chart-container">
-          <canvas id="profitChart"></canvas>
+          <canvas id="lucroChart"></canvas>
         </div>
       </div>
 
@@ -270,7 +269,17 @@
           <span>ResumoMes</span>
         </div>
         <div class="chart-container">
-          <canvas id="expenseMonthChart"></canvas>
+          <canvas id="despMesChart"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <strong>Despesas por categoria (mês atual)</strong>
+          <span>Baseado em Novembro</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="catChart"></canvas>
         </div>
       </div>
     </div>
@@ -285,20 +294,15 @@
 
   <script>
     // ---------------------------------------------------------
-    // DADOS INTERNOS (equivalentes ao ResumoMes)
+    // DADOS INTERNOS (equivalentes ao ResumoMes e DespesasCategorias)
     // ---------------------------------------------------------
     const dadosFinanceiros = {
-      receita: 14660.00,
-      despesa: 2897.00,
-      lucro: 11763.00,
-      lucroMeses: {
-        labels: ["Jul", "Ago", "Set", "Out", "Nov"],
-        valores: [0.00,0.00,0.00,0.00,11763.00]
-      },
-      despesasMeses: {
-        labels: ["Jul", "Ago", "Set", "Out", "Nov"],
-        valores: [0.00,2999.00,3268.00,2895.00,2897.00]
-      }
+      labelsMeses: ["Jul", "Ago", "Set", "Out", "Nov"],
+      receitasMeses: [0.00,0.00,0.00,0.00,14660.00],
+      despesasMeses: [0.00,0.00,0.00,0.00,2897.00],
+      lucrosMeses: [0.00,0.00,0.00,0.00,11763.00],
+      catLabels: ["Aluguel", "Folha Salarial", "Contabil", "Trafego Pago", "Operacional"],
+      catValues: [950.00,1200.00,100.00,70.00,577.00]
     };
 
     function formatCurrency(valor) {
@@ -309,34 +313,43 @@
       });
     }
 
-    let profitChart;
-    let expenseMonthChart;
+    let lucroChart;
+    let despMesChart;
+    let catChart;
 
     function inicializarPainel() {
-      // Atualiza cards
-      const { receita, despesa, lucro } = dadosFinanceiros;
-      const percCusto = receita > 0 ? (despesa / receita) * 100 : 0;
+      // Último mês = último índice com receita > 0 ou último da lista
+      const receitas = dadosFinanceiros.receitasMeses;
+      const despesas = dadosFinanceiros.despesasMeses;
+      const labels = dadosFinanceiros.labelsMeses;
 
-      document.getElementById("receitaTotal").textContent = formatCurrency(receita);
-      document.getElementById("despesaTotal").textContent = formatCurrency(despesa);
-      document.getElementById("lucroTotal").textContent = formatCurrency(lucro);
+      let idxUltimo = receitas.length - 1;
+      for (let i = receitas.length - 1; i >= 0; i--) {
+        if (receitas[i] > 0) { idxUltimo = i; break; }
+      }
+
+      const receitaUlt = receitas[idxUltimo] || 0;
+      const despesaUlt = despesas[idxUltimo] || 0;
+      const lucroUlt = receitaUlt - despesaUlt;
+      const percCusto = receitaUlt > 0 ? (despesaUlt / receitaUlt) * 100 : 0;
+
+      document.getElementById("receitaTotal").textContent = formatCurrency(receitaUlt);
+      document.getElementById("despesaTotal").textContent = formatCurrency(despesaUlt);
+      document.getElementById("lucroTotal").textContent = formatCurrency(lucroUlt);
       document.getElementById("percCustoValor").textContent =
         percCusto.toFixed(1).replace(".", ",") + "%";
 
-      // Gráfico de lucro por mês
-      const lucroCtx = document.getElementById("profitChart");
-      profitChart = new Chart(lucroCtx, {
-        type: "line",
+      // Gráfico 1: Lucro por mês (colunas)
+      const lucroCtx = document.getElementById("lucroChart");
+      lucroChart = new Chart(lucroCtx, {
+        type: "bar",
         data: {
-          labels: dadosFinanceiros.lucroMeses.labels,
+          labels: dadosFinanceiros.labelsMeses,
           datasets: [
             {
               label: "Lucro líquido",
-              data: dadosFinanceiros.lucroMeses.valores,
-              borderWidth: 2,
-              tension: 0.3,
-              pointRadius: 3,
-              fill: true
+              data: dadosFinanceiros.lucrosMeses,
+              borderWidth: 1
             }
           ]
         },
@@ -367,20 +380,58 @@
         }
       });
 
-      // Gráfico de despesas por mês
-      const despMesCtx = document.getElementById("expenseMonthChart");
-      expenseMonthChart = new Chart(despMesCtx, {
-        type: "line",
+      // Gráfico 2: Despesas por mês (colunas)
+      const despMesCtx = document.getElementById("despMesChart");
+      despMesChart = new Chart(despMesCtx, {
+        type: "bar",
         data: {
-          labels: dadosFinanceiros.despesasMeses.labels,
+          labels: dadosFinanceiros.labelsMeses,
           datasets: [
             {
               label: "Despesas mensais",
-              data: dadosFinanceiros.despesasMeses.valores,
-              borderWidth: 2,
-              tension: 0.3,
-              pointRadius: 3,
-              fill: true
+              data: dadosFinanceiros.despesasMeses,
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: {
+                color: "#e5e7eb",
+                font: { size: 11 }
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: "#9ca3af", font: { size: 10 } },
+              grid: { display: false }
+            },
+            y: {
+              ticks: {
+                color: "#9ca3af", font: { size: 10 },
+                callback: (value) => "R$ " + value.toLocaleString("pt-BR")
+              },
+              grid: { color: "rgba(148,163,184,0.2)" }
+            }
+          }
+        }
+      });
+
+      // Gráfico 3: Despesas por categoria (mês atual) - colunas
+      const catCtx = document.getElementById("catChart");
+      catChart = new Chart(catCtx, {
+        type: "bar",
+        data: {
+          labels: dadosFinanceiros.catLabels,
+          datasets: [
+            {
+              label: "Despesas por categoria",
+              data: dadosFinanceiros.catValues,
+              borderWidth: 1
             }
           ]
         },
