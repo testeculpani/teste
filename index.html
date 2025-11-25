@@ -297,8 +297,8 @@
     const meses = ["Jul", "Ago", "Set", "Out", "Nov"];
 
     // RECEITA POR MÊS (gráfico 1)
-    // Jul, Ago, Set = 0 | Out = 26.687 | Nov = 16.487
-    const receitasMes = [0, 0, 0, 26687, 16487];
+    // Jul, Ago, Set = 0 | Out = 26.687 | Nov = 20.190,26
+    const receitasMes = [0, 0, 0, 26687, 20190.26];
 
     // DESPESAS POR MÊS (gráfico 2)
     // Ago = 2.999 | Set = 3.268 | Out = 2.895 | Nov = 2.977
@@ -308,10 +308,10 @@
     const catLabels = ["Aluguel", "Folha Salarial", "Contabil", "Trafego Pago", "Operacional"];
     const catValues = [950, 1200, 100, 70, 577];
 
-    // RESUMO NOVEMBRO (para os cards)
-    const receitaNov = 16487;
+    // RESUMO NOVEMBRO (para os cards) – ATUALIZADO
+    const receitaNov = 20190.26;
     const despesaNov = 2977;
-    const lucroNov = receitaNov - despesaNov; // 13510
+    const lucroNov = receitaNov - despesaNov; // 17213.26
     const percCustoNov = receitaNov > 0 ? (despesaNov / receitaNov) * 100 : 0;
 
     function formatCurrency(valor) {
