@@ -104,7 +104,7 @@
       position:fixed;bottom:0;left:0;right:0;
       background:rgba(11,18,32,.92);
       border-top:1px solid var(--line);
-      display:grid;grid-template-columns:repeat(4,1fr);
+      display:grid;grid-template-columns:repeat(3,1fr);
       padding:10px;gap:10px;
     }
     .navBtn{
@@ -187,6 +187,28 @@
       background:rgba(255,255,255,.02);
     }
     .sw{width:10px;height:10px;border-radius:3px}
+
+    /* Seletor Hoje/Semana/Mês */
+    .seg{
+      display:flex; gap:8px; flex-wrap:wrap;
+      margin-bottom:12px;
+    }
+    .seg button{
+      flex:1;
+      min-width:92px;
+      padding:9px 10px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      color:var(--muted);
+      font-weight:900;
+      cursor:pointer;
+    }
+    .seg button.active{
+      color:var(--text);
+      border-color:rgba(96,165,250,.55);
+      background:linear-gradient(135deg,rgba(96,165,250,.22),rgba(167,139,250,.14));
+    }
   </style>
 </head>
 
@@ -215,19 +237,29 @@
   <section id="pageDashboard">
     <div class="card">
       <div class="hd">
-        <span>📊 Resumo do dia</span>
+        <span>📊 Resumo</span>
         <button class="btn" id="btnSync">🔄 Sync</button>
       </div>
       <div class="bd">
+
+        <!-- ✅ Seletor -->
+        <div class="seg" role="tablist" aria-label="Período do resumo">
+          <button id="segHoje" class="active" type="button">Hoje</button>
+          <button id="segSemana" type="button">Semana</button>
+          <button id="segMes" type="button">Mês</button>
+        </div>
+
+        <div class="mini" id="periodHint" style="margin:-2px 0 12px 0">—</div>
+
         <div class="kpis">
-          <div class="kpi"><div class="t">Visitas (hoje)</div><div class="v" id="k_visitas">0</div></div>
-          <div class="kpi"><div class="t">Pedidos (hoje)</div><div class="v" id="k_pedidos">0</div></div>
-          <div class="kpi"><div class="t">Promessas (hoje)</div><div class="v" id="k_promessas">0</div></div>
-          <div class="kpi"><div class="t">Potencial total (hoje)</div><div class="v" id="k_potencial">R$ 0</div></div>
+          <div class="kpi"><div class="t" id="k_t_visitas">Visitas</div><div class="v" id="k_visitas">0</div></div>
+          <div class="kpi"><div class="t" id="k_t_pedidos">Pedidos</div><div class="v" id="k_pedidos">0</div></div>
+          <div class="kpi"><div class="t" id="k_t_promessas">Promessas</div><div class="v" id="k_promessas">0</div></div>
+          <div class="kpi"><div class="t" id="k_t_potencial">Potencial</div><div class="v" id="k_potencial">R$ 0</div></div>
         </div>
 
         <div class="chartWrap">
-          <div class="chartTitle">📈 Potencial (restante) x Pedido tirado x Baixa Probabilidade — Hoje (R$)</div>
+          <div class="chartTitle" id="chartTitle">📈 Operação — (R$)</div>
           <canvas id="chartResumo" width="900" height="360"></canvas>
 
           <div class="legend">
@@ -253,21 +285,9 @@
 
   <section id="pageVisits" style="display:none">
     <div class="card">
-      <div class="hd">📋 Visitas (do Firebase)</div>
+      <div class="hd">📋 Visitas (mês atual)</div>
       <div class="bd">
         <div class="list" id="lista"></div>
-      </div>
-    </div>
-  </section>
-
-  <section id="pageConfig" style="display:none">
-    <div class="card">
-      <div class="hd">⚙️ Config</div>
-      <div class="bd">
-        <div class="mini">
-          Grupo fixo atual: <b>GERAL</b> (todos usam o mesmo).<br>
-          Se quiser mudar, altere a constante <b>GROUP_KEY</b> no código.
-        </div>
       </div>
     </div>
   </section>
@@ -277,7 +297,6 @@
   <button class="navBtn active" id="navDash">📊<br>Resumo</button>
   <button class="navBtn" id="navNew">➕<br>Nova</button>
   <button class="navBtn" id="navList">📋<br>Lista</button>
-  <button class="navBtn" id="navCfg">⚙️<br>Config</button>
 </nav>
 
 <div class="modal" id="modal">
@@ -321,7 +340,8 @@
   const GROUP_KEY = "GERAL";
   $("groupLabel").textContent = GROUP_KEY;
 
-  const CACHE_KEY = "visitas_cache_geral_v3";
+  const CACHE_KEY = "visitas_cache_geral_v4";
+  const PERIOD_KEY = "visitas_period_v1";
 
   function today(){ return new Date().toISOString().slice(0,10); }
   function ym(d){ return (d || today()).slice(0,7); }
@@ -347,15 +367,14 @@
   window.addEventListener("offline", conn);
   conn();
 
-  // navegação
+  // navegação (3 abas)
   function show(p){
-    ["pageDashboard","pageVisits","pageConfig"].forEach(id=>$(id).style.display="none");
+    ["pageDashboard","pageVisits"].forEach(id=>$(id).style.display="none");
     $(p).style.display="block";
     document.querySelectorAll(".navBtn").forEach(b=>b.classList.remove("active"));
   }
   $("navDash").onclick=()=>{ show("pageDashboard"); $("navDash").classList.add("active"); };
   $("navList").onclick=()=>{ show("pageVisits"); $("navList").classList.add("active"); };
-  $("navCfg").onclick=()=>{ show("pageConfig"); $("navCfg").classList.add("active"); };
 
   // modal
   function openModal(){ $("modal").classList.add("show"); }
@@ -368,6 +387,59 @@
   // dados (cache local)
   let visits = [];
   try{ visits = JSON.parse(localStorage.getItem(CACHE_KEY) || "[]"); }catch{ visits = []; }
+
+  // -------- Períodos: hoje / semana / mês --------
+  function toDateLocal(iso){
+    const [y,m,d] = String(iso||"").split("-").map(Number);
+    return new Date(y, (m||1)-1, d||1, 12, 0, 0, 0);
+  }
+  function startOfWeekISO(date){
+    // semana começa na segunda
+    const d = new Date(date);
+    const day = d.getDay(); // 0 domingo ... 6 sábado
+    const diff = (day === 0) ? -6 : (1 - day);
+    d.setDate(d.getDate() + diff);
+    d.setHours(0,0,0,0);
+    return d;
+  }
+  function endOfWeekISO(date){
+    const s = startOfWeekISO(date);
+    const e = new Date(s);
+    e.setDate(e.getDate() + 6);
+    e.setHours(23,59,59,999);
+    return e;
+  }
+  function startOfMonth(date){
+    const d = new Date(date);
+    d.setDate(1); d.setHours(0,0,0,0);
+    return d;
+  }
+  function endOfMonth(date){
+    const d = new Date(date);
+    d.setMonth(d.getMonth()+1, 0);
+    d.setHours(23,59,59,999);
+    return d;
+  }
+  function fmtBRDate(date){
+    return date.toLocaleDateString("pt-BR");
+  }
+
+  let period = localStorage.getItem(PERIOD_KEY) || "HOJE"; // HOJE | SEMANA | MES
+
+  function setPeriod(p){
+    period = p;
+    localStorage.setItem(PERIOD_KEY, period);
+
+    $("segHoje").classList.toggle("active", period==="HOJE");
+    $("segSemana").classList.toggle("active", period==="SEMANA");
+    $("segMes").classList.toggle("active", period==="MES");
+
+    render();
+  }
+
+  $("segHoje").onclick = ()=>setPeriod("HOJE");
+  $("segSemana").onclick = ()=>setPeriod("SEMANA");
+  $("segMes").onclick = ()=>setPeriod("MES");
 
   // -------- Gráfico horizontal bonito (valor dentro) --------
   function formatBRL(v){
@@ -474,24 +546,87 @@
     });
   }
 
+  function filterRowsByPeriod(allRows){
+    const now = new Date();
+    const dToday = today();
+
+    if(period === "HOJE"){
+      $("periodHint").textContent = `Período: Hoje (${dToday})`;
+      return allRows.filter(v => v.data === dToday);
+    }
+
+    if(period === "SEMANA"){
+      const s = startOfWeekISO(now);
+      const e = endOfWeekISO(now);
+      $("periodHint").textContent = `Período: Semana (${fmtBRDate(s)} a ${fmtBRDate(e)})`;
+      return allRows.filter(v=>{
+        const dt = toDateLocal(v.data);
+        return dt >= s && dt <= e;
+      });
+    }
+
+    // MÊS (mês atual)
+    const s = startOfMonth(now);
+    const e = endOfMonth(now);
+    $("periodHint").textContent = `Período: Mês (${fmtBRDate(s)} a ${fmtBRDate(e)})`;
+    return allRows.filter(v=>{
+      const dt = toDateLocal(v.data);
+      return dt >= s && dt <= e;
+    });
+  }
+
   // -------- Render / KPIs / Lista / Gráfico --------
   function render(){
-    const d = today();
-    const todayRows = visits.filter(v => v.data === d);
+    // Seletor persistido
+    $("segHoje").classList.toggle("active", period==="HOJE");
+    $("segSemana").classList.toggle("active", period==="SEMANA");
+    $("segMes").classList.toggle("active", period==="MES");
 
-    // KPIs (hoje)
+    const rows = filterRowsByPeriod(visits);
+
+    // KPIs
     let potTotal=0, pedidos=0, promessas=0;
-    for(const v of todayRows){
+    for(const v of rows){
       potTotal += Number(v.potencial||0);
       if(v.pedido==="Sim") pedidos++;
       if(v.promessa==="Sim") promessas++;
     }
-    $("k_visitas").textContent = todayRows.length;
+
+    $("k_t_visitas").textContent = `Visitas (${period==="HOJE"?"hoje":period==="SEMANA"?"semana":"mês"})`;
+    $("k_t_pedidos").textContent = `Pedidos (${period==="HOJE"?"hoje":period==="SEMANA"?"semana":"mês"})`;
+    $("k_t_promessas").textContent = `Promessas (${period==="HOJE"?"hoje":period==="SEMANA"?"semana":"mês"})`;
+    $("k_t_potencial").textContent = `Potencial (${period==="HOJE"?"hoje":period==="SEMANA"?"semana":"mês"})`;
+
+    $("k_visitas").textContent = rows.length;
     $("k_pedidos").textContent = pedidos;
     $("k_promessas").textContent = promessas;
     $("k_potencial").textContent = money(potTotal);
 
-    // Lista (mês atual)
+    // Gráfico (Potencial restante = total - pedidos)
+    const potPedido = rows.filter(x=>x.pedido==="Sim").reduce((a,x)=>a+Number(x.potencial||0),0);
+    const potBaixa  = rows
+      .filter(x=>x.pedido!=="Sim" && x.promessa==="Não")
+      .reduce((a,x)=>a+Number(x.potencial||0),0);
+
+    let potRestante = potTotal - potPedido;
+    if(potRestante < 0) potRestante = 0;
+
+    const titlePeriod = (period==="HOJE" ? "Hoje" : (period==="SEMANA" ? "Semana" : "Mês"));
+    $("chartTitle").textContent = `📈 Operação — ${titlePeriod} (R$)`;
+
+    drawHorizontalBarChart(
+      $("chartResumo"),
+      [
+        { label: "Potencial (restante)", value: potRestante, color: "rgba(96,165,250,.95)" },
+        { label: "Pedido tirado",        value: potPedido,   color: "rgba(34,197,94,.95)" },
+        { label: "Baixa Probabilidade",  value: potBaixa,    color: "rgba(245,158,11,.95)" }
+      ]
+    );
+
+    $("chartHint").textContent =
+      `${titlePeriod}: Potencial restante ${money(potRestante)} • Pedido ${money(potPedido)} • Baixa Probabilidade ${money(potBaixa)} (Promessa=Não e Pedido=Não)`;
+
+    // Lista: mês atual (fixo) pra acompanhar histórico
     const list = $("lista");
     list.innerHTML = "";
     const monthRows = visits
@@ -518,30 +653,11 @@
       });
     }
 
-    // ✅ Gráfico (HOJE) com desconto do pedido no potencial
-    const potPedido = todayRows.filter(x=>x.pedido==="Sim").reduce((a,x)=>a+Number(x.potencial||0),0);
-    const potBaixa  = todayRows
-      .filter(x=>x.pedido!=="Sim" && x.promessa==="Não")
-      .reduce((a,x)=>a+Number(x.potencial||0),0);
-
-    let potRestante = potTotal - potPedido;
-    if(potRestante < 0) potRestante = 0;
-
-    drawHorizontalBarChart(
-      $("chartResumo"),
-      [
-        { label: "Potencial (restante)", value: potRestante, color: "rgba(96,165,250,.95)" },
-        { label: "Pedido tirado",        value: potPedido,   color: "rgba(34,197,94,.95)" },
-        { label: "Baixa Probabilidade",  value: potBaixa,    color: "rgba(245,158,11,.95)" }
-      ]
-    );
-
-    $("chartHint").textContent =
-      `Hoje: Potencial restante ${money(potRestante)} • Pedido ${money(potPedido)} • Baixa Probabilidade ${money(potBaixa)} (Promessa=Não e Pedido=Não)`;
-
     localStorage.setItem(CACHE_KEY, JSON.stringify(visits));
   }
-  render();
+
+  // inicia com período salvo
+  setPeriod(localStorage.getItem(PERIOD_KEY) || "HOJE");
 
   // -------- Firebase RTDB (SEM AUTH) + tempo real --------
   let firebaseReady = false;
