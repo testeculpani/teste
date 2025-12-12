@@ -6,11 +6,7 @@
   <title>Visitas — Vendedor</title>
   <meta name="theme-color" content="#0b1220">
   <style>
-    :root{
-      --bg:#0b1220; --card:#101a30; --muted:#a6b6d6; --text:#eaf1ff;
-      --ok:#22c55e; --warn:#f59e0b; --bad:#ef4444; --line:rgba(255,255,255,.12);
-      --r:18px; --r2:14px;
-    }
+    :root{--bg:#0b1220;--card:#101a30;--muted:#a6b6d6;--text:#eaf1ff;--ok:#22c55e;--bad:#ef4444;--line:rgba(255,255,255,.12);--r:18px;--r2:14px}
     *{box-sizing:border-box}
     body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,#070b14,var(--bg));color:var(--text);padding-bottom:90px}
     header{position:sticky;top:0;z-index:10;backdrop-filter:blur(10px);background:rgba(11,18,32,.85);border-bottom:1px solid var(--line)}
@@ -32,11 +28,10 @@
     .btn.full{width:100%} .btn:active{transform:scale(.99)}
     .list{display:flex;flex-direction:column;gap:10px}
     .visit{border:1px solid var(--line);border-radius:var(--r2);padding:12px;background:rgba(255,255,255,.03)}
-    .visit h4{margin:0;font-size:14px} .visit .m{font-size:12px;color:var(--muted);margin-top:4px}
+    .visit h4{margin:0;font-size:14px} .visit .m{font-size:12px;color:var(--muted);margin-top:4px;white-space:pre-wrap}
     .badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
     .tag{font-size:11px;padding:4px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
     .tag.ok{border-color:rgba(34,197,94,.4);color:#c8f7d7}
-    .tag.warn{border-color:rgba(245,158,11,.4);color:#ffe6ba}
     nav{position:fixed;bottom:0;left:0;right:0;background:rgba(11,18,32,.92);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:10px;gap:10px}
     .navBtn{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:14px;color:var(--muted);font-size:12px;padding:10px;cursor:pointer}
     .navBtn.active{color:var(--text);border-color:rgba(96,165,250,.5);background:linear-gradient(135deg,rgba(96,165,250,.25),rgba(167,139,250,.15))}
@@ -66,7 +61,7 @@
         <span id="connTxt">Offline</span>
       </div>
       <div class="chip">
-        <span class="muted">Vendedor:</span>&nbsp;<strong id="sellerLabel">—</strong>
+        <span class="muted">Grupo:</span>&nbsp;<strong id="groupLabel">GERAL</strong>
       </div>
     </div>
   </div>
@@ -94,7 +89,8 @@
         </div>
 
         <div class="mini" style="margin-top:10px">
-          ✅ Offline: salva no celular. <br>🔄 Sync: manda tudo pro Firebase quando tiver internet.
+          ✅ Todos os celulares veem o mesmo (Firebase). <br>
+          📶 Sem internet? salva em cache e sincroniza depois.
         </div>
       </div>
     </div>
@@ -102,7 +98,7 @@
 
   <section id="pageVisits" style="display:none">
     <div class="card">
-      <div class="hd">📋 Visitas do dia</div>
+      <div class="hd">📋 Visitas (do Firebase)</div>
       <div class="bd">
         <div class="list" id="lista"></div>
       </div>
@@ -111,11 +107,11 @@
 
   <section id="pageConfig" style="display:none">
     <div class="card">
-      <div class="hd">⚙️ Configurações</div>
+      <div class="hd">⚙️ Config</div>
       <div class="bd">
-        <button class="btn full" id="btnVendedor">✏️ Definir vendedor</button>
-        <div class="mini" style="margin-top:10px">
-          Se não definir, salva como “SEM_VENDEDOR”.
+        <div class="mini">
+          Grupo fixo atual: <b>GERAL</b> (todos usam o mesmo).<br>
+          Se quiser mudar, eu ajusto no código em 1 linha.
         </div>
       </div>
     </div>
@@ -125,7 +121,7 @@
 <nav>
   <button class="navBtn active" id="navDash">📊<br>Resumo</button>
   <button class="navBtn" id="navNew">➕<br>Nova</button>
-  <button class="navBtn" id="navList">📋<br>Visitas</button>
+  <button class="navBtn" id="navList">📋<br>Lista</button>
   <button class="navBtn" id="navCfg">⚙️<br>Config</button>
 </nav>
 
@@ -159,10 +155,6 @@
       <textarea id="f_obs" placeholder="Preço, prazo, concorrente, retorno, etc."></textarea>
 
       <button class="btn primary full" id="btnSalvar">Salvar visita</button>
-
-      <div class="mini" style="margin-top:10px">
-        Dica: anote a objeção principal do cliente. Isso vira follow-up.
-      </div>
     </div>
   </div>
 </div>
@@ -170,124 +162,27 @@
 <script type="module">
   const $ = (id)=>document.getElementById(id);
 
-  const LS = "visitas_local_sem_auth_v1";
-  const LS_SELLER = "visitas_seller_sem_auth_v1";
+  // ✅ GRUPO ÚNICO (todos compartilham o mesmo caminho)
+  const GROUP_KEY = "GERAL"; // pode trocar por "CRISTIANO" ou "EQUIPE" etc.
+  $("groupLabel").textContent = GROUP_KEY;
+
+  const CACHE_KEY = "visitas_cache_geral_v1";
 
   function today(){ return new Date().toISOString().slice(0,10); }
+  function ym(d){ return (d || today()).slice(0,7); }
   function money(v){ return Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"}); }
   function num(v){
     return Number(String(v||"").replace(/[^\d.,-]/g,"").replace(/\./g,"").replace(",", ".")) || 0;
   }
-
-  $("todayLabel").textContent = `Hoje: ${today()}`;
-
-  let vendedor = localStorage.getItem(LS_SELLER) || "";
-  function refreshSeller(){
-    $("sellerLabel").textContent = vendedor?.trim() ? vendedor.trim() : "—";
-  }
-  refreshSeller();
-
-  let visitas = [];
-  try{ visitas = JSON.parse(localStorage.getItem(LS) || "[]"); }catch{ visitas=[]; }
-
-  // Firebase (SEM AUTH)
-  let firebaseReady = false;
-  let pushVisitFn = null;
-
-  function showFbAlert(msg){
+  function showAlert(msg){
     const a = $("fbAlert");
     a.textContent = msg;
     a.classList.add("show");
   }
 
-  async function initFirebase(){
-    try{
-      const { initializeApp } = await import("https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js");
-      const { getDatabase, ref, push } = await import("https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js");
+  $("todayLabel").textContent = `Hoje: ${today()}`;
 
-      const firebaseConfig = {
-        apiKey: "AIzaSyBccM__hS_OMso2ipnKPUYycfVCfvfz9f8",
-        authDomain: "visitas-affdb.firebaseapp.com",
-        // ⚠️ COLE A URL DO REALTIME DATABASE AQUI:
-        // exemplo: https://visitas-affdb-default-rtdb.firebaseio.com
-        databaseURL: "https://visitas-affdb-default-rtdb.firebaseio.com/",
-        projectId: "visitas-affdb",
-        storageBucket: "visitas-affdb.firebasestorage.app",
-        messagingSenderId: "356562078458",
-        appId: "1:356562078458:web:5e4da3c7c9ffa7b90e1743"
-      };
-
-      if(!firebaseConfig.databaseURL || firebaseConfig.databaseURL.includes("COLE_AQUI")){
-        showFbAlert("⚠️ Falta preencher databaseURL do Realtime Database. (Local ok, sem sync)");
-        return;
-      }
-
-      const app = initializeApp(firebaseConfig);
-      const db = getDatabase(app);
-
-      pushVisitFn = async (visit)=>{
-        const sellerKey = (visit.vendedor||"SEM_VENDEDOR").toUpperCase().replace(/\s+/g,"_");
-        const ym = (visit.data||today()).slice(0,7);
-        await push(ref(db, `visitas/${sellerKey}/${ym}`), visit);
-      };
-
-      firebaseReady = true;
-    }catch(err){
-      console.error(err);
-      showFbAlert("⚠️ Firebase não iniciou. Verifique databaseURL e regras do RTDB.");
-    }
-  }
-
-  async function tryPushFirebase(visit){
-    if(!firebaseReady || !pushVisitFn) return;
-    if(!navigator.onLine) return;
-    try{
-      await pushVisitFn(visit);
-    }catch(err){
-      console.error(err);
-      showFbAlert("⚠️ Não sincronizou agora (regras/URL). Ficou salvo local.");
-    }
-  }
-
-  function render(){
-    let pot=0, pedidos=0, promessas=0;
-    for(const v of visitas){
-      pot += Number(v.potencial||0);
-      if(v.pedido==="Sim") pedidos++;
-      if(v.promessa==="Sim") promessas++;
-    }
-    $("k_visitas").textContent = visitas.length;
-    $("k_pedidos").textContent = pedidos;
-    $("k_promessas").textContent = promessas;
-    $("k_potencial").textContent = money(pot);
-
-    const list = $("lista");
-    list.innerHTML = "";
-    if(visitas.length===0){
-      list.innerHTML = `<div class="mini">Nenhuma visita registrada ainda.</div>`;
-    }else{
-      [...visitas].reverse().forEach(v=>{
-        const div = document.createElement("div");
-        div.className = "visit";
-        div.innerHTML = `
-          <h4>${(v.cliente||"").replace(/</g,"&lt;")}</h4>
-          <div class="m">${v.vendedor || "SEM_VENDEDOR"} • ${v.data}</div>
-          <div class="badges">
-            <span class="tag">Potencial: <b>${money(v.potencial)}</b></span>
-            <span class="tag ${v.promessa==="Sim"?"ok":(v.promessa==="Talvez"?"warn":"")}">Promessa: ${v.promessa}</span>
-            <span class="tag ${v.pedido==="Sim"?"ok":""}">Pedido: ${v.pedido}</span>
-          </div>
-          ${v.obs ? `<div class="m" style="margin-top:8px; white-space:pre-wrap">${(v.obs||"").replace(/</g,"&lt;")}</div>` : ``}
-        `;
-        list.appendChild(div);
-      });
-    }
-
-    localStorage.setItem(LS, JSON.stringify(visitas));
-  }
-  render();
-
-  // Online/offline status
+  // status online/offline (isso é só internet do celular, não é "firebase conectado")
   function conn(){
     const on = navigator.onLine;
     $("connTxt").textContent = on ? "Online" : "Offline";
@@ -297,7 +192,7 @@
   window.addEventListener("offline", conn);
   conn();
 
-  // Navigation
+  // navegação
   function show(p){
     ["pageDashboard","pageVisits","pageConfig"].forEach(id=>$(id).style.display="none");
     $(p).style.display="block";
@@ -307,7 +202,7 @@
   $("navList").onclick=()=>{ show("pageVisits"); $("navList").classList.add("active"); };
   $("navCfg").onclick=()=>{ show("pageConfig"); $("navCfg").classList.add("active"); };
 
-  // Modal
+  // modal
   function openModal(){ $("modal").classList.add("show"); }
   function closeModal(){ $("modal").classList.remove("show"); }
   $("btnNova").onclick=openModal;
@@ -315,23 +210,157 @@
   $("btnFechar").onclick=closeModal;
   $("modal").addEventListener("click",(e)=>{ if(e.target===$("modal")) closeModal(); });
 
-  // Seller
-  $("btnVendedor").onclick=()=>{
-    const n = prompt("Nome do vendedor:", vendedor || "");
-    if(n===null) return;
-    vendedor = (n||"").trim();
-    localStorage.setItem(LS_SELLER, vendedor);
-    refreshSeller();
-  };
+  // dados em memória (sempre renderiza a partir daqui)
+  let visits = [];
+  try{ visits = JSON.parse(localStorage.getItem(CACHE_KEY) || "[]"); }catch{ visits = []; }
 
-  // Save local + try sync
-  $("btnSalvar").onclick=async()=>{
+  function render(){
+    // KPIs do dia
+    const d = today();
+    const todayRows = visits.filter(v => v.data === d);
+
+    let pot=0, pedidos=0, promessas=0;
+    for(const v of todayRows){
+      pot += Number(v.potencial||0);
+      if(v.pedido==="Sim") pedidos++;
+      if(v.promessa==="Sim") promessas++;
+    }
+    $("k_visitas").textContent = todayRows.length;
+    $("k_pedidos").textContent = pedidos;
+    $("k_promessas").textContent = promessas;
+    $("k_potencial").textContent = money(pot);
+
+    // Lista (mês atual)
+    const list = $("lista");
+    list.innerHTML = "";
+    const monthRows = visits
+      .filter(v => (v.data||"").slice(0,7) === ym())
+      .sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||""));
+
+    if(monthRows.length===0){
+      list.innerHTML = `<div class="mini">Nenhum registro no mês ainda.</div>`;
+    }else{
+      monthRows.forEach(v=>{
+        const div = document.createElement("div");
+        div.className = "visit";
+        const safe = (s)=>String(s||"").replace(/</g,"&lt;");
+        div.innerHTML = `
+          <h4>${safe(v.cliente)}</h4>
+          <div class="m">${safe(v.data)} • ${money(v.potencial)}</div>
+          <div class="badges">
+            <span class="tag ${v.promessa==="Sim"?"ok":""}">Promessa: ${safe(v.promessa)}</span>
+            <span class="tag ${v.pedido==="Sim"?"ok":""}">Pedido: ${safe(v.pedido)}</span>
+          </div>
+          ${v.obs ? `<div class="m" style="margin-top:8px">${safe(v.obs)}</div>` : ``}
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    localStorage.setItem(CACHE_KEY, JSON.stringify(visits));
+  }
+  render();
+
+  // -------- Firebase (SEM AUTH) + LEITURA GLOBAL --------
+  let firebaseReady = false;
+  let api = null;
+
+  async function initFirebase(){
+    try{
+      const { initializeApp } = await import("https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js");
+      const {
+        getDatabase, ref, set, get, child,
+        onValue
+      } = await import("https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js");
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBccM__hS_OMso2ipnKPUYycfVCfvfz9f8",
+        authDomain: "visitas-affdb.firebaseapp.com",
+        // ✅ COLE A URL DO SEU REALTIME DATABASE:
+        databaseURL: "COLE_AQUI_A_DATABASE_URL",
+        projectId: "visitas-affdb",
+        storageBucket: "visitas-affdb.firebasestorage.app",
+        messagingSenderId: "356562078458",
+        appId: "1:356562078458:web:5e4da3c7c9ffa7b90e1743"
+      };
+
+      if(!firebaseConfig.databaseURL || firebaseConfig.databaseURL.includes("COLE_AQUI")){
+        showAlert("⚠️ Falta preencher databaseURL do Realtime Database.");
+        return;
+      }
+
+      const app = initializeApp(firebaseConfig);
+      const db = getDatabase(app);
+
+      api = { db, ref, set, get, child, onValue };
+      firebaseReady = true;
+
+      // ✅ LISTENER: sempre que alguém salvar, todos recebem
+      listenMonth(ym());
+
+    }catch(err){
+      console.error(err);
+      showAlert("⚠️ Firebase não iniciou. Verifique databaseURL + regras abertas.");
+    }
+  }
+
+  function monthPath(yyyymm){
+    return `visitas/${GROUP_KEY}/${yyyymm}`;
+  }
+
+  function flattenMonth(obj){
+    const out = [];
+    if(!obj) return out;
+    for(const id of Object.keys(obj)){
+      const v = obj[id];
+      if(v && typeof v === "object") out.push({ ...v, id });
+    }
+    return out;
+  }
+
+  function mergeMonth(yyyymm, monthRows){
+    // mantém meses antigos no cache e substitui o mês atual pelo que veio do firebase
+    const keep = visits.filter(v => (v.data||"").slice(0,7) !== yyyymm);
+    visits = [...keep, ...monthRows];
+    render();
+  }
+
+  function listenMonth(yyyymm){
+    if(!firebaseReady) return;
+    const p = api.ref(api.db, monthPath(yyyymm));
+    api.onValue(p, (snap)=>{
+      const obj = snap.exists() ? snap.val() : {};
+      const rows = flattenMonth(obj);
+      mergeMonth(yyyymm, rows);
+    }, (err)=>{
+      console.error(err);
+      showAlert("⚠️ Erro ao ouvir dados do Firebase (Rules/URL).");
+    });
+  }
+
+  function newId(){
+    // id determinístico por dispositivo+hora (evita duplicar quando apertar sync)
+    const rnd = Math.random().toString(16).slice(2);
+    return `${Date.now()}_${rnd}`;
+  }
+
+  async function saveToFirebase(visit){
+    if(!firebaseReady) return false;
+    const id = visit.id || newId();
+    visit.id = id;
+    const p = api.ref(api.db, `${monthPath(ym(visit.data))}/${id}`);
+    await api.set(p, visit);
+    return true;
+  }
+
+  // salvar visita: salva local e tenta salvar no Firebase
+  $("btnSalvar").onclick = async ()=>{
     const cliente = $("f_cliente").value.trim();
     if(!cliente){ alert("Informe o nome do cliente."); return; }
 
-    const v = {
+    const visit = {
+      id: newId(),
       data: today(),
-      vendedor: vendedor || "SEM_VENDEDOR",
       cliente,
       potencial: num($("f_potencial").value),
       promessa: $("f_promessa").value,
@@ -340,9 +369,11 @@
       createdAt: new Date().toISOString()
     };
 
-    visitas.push(v);
+    // salva local (pra funcionar offline)
+    visits.push(visit);
     render();
 
+    // limpa e fecha
     $("f_cliente").value="";
     $("f_potencial").value="";
     $("f_promessa").value="Não";
@@ -350,27 +381,37 @@
     $("f_obs").value="";
     closeModal();
 
-    await tryPushFirebase(v);
+    // tenta mandar pro firebase
+    if(navigator.onLine){
+      try{
+        await saveToFirebase(visit);
+      }catch(e){
+        console.error(e);
+        showAlert("⚠️ Salvo no celular. Não consegui enviar pro Firebase agora.");
+      }
+    }
   };
 
-  // Sync: envia tudo (duplicar é possível sem Auth; se quiser deduplicar eu ajusto com ID fixo)
+  // Sync: reenvia o mês atual (bom quando ficou offline)
   $("btnSync").onclick = async ()=>{
-    if(!firebaseReady || !pushVisitFn){
-      showFbAlert("⚠️ Sync indisponível: faltou databaseURL ou regras não estão abertas.");
+    if(!firebaseReady){
+      showAlert("⚠️ Sync indisponível: preencha databaseURL e deixe Rules abertas.");
       return;
     }
     if(!navigator.onLine){
-      showFbAlert("⚠️ Sem internet agora. Sync precisa estar Online.");
+      showAlert("⚠️ Sem internet. Sync precisa estar Online.");
       return;
     }
-    let ok=0;
-    for(const v of visitas){
-      try{ await pushVisitFn(v); ok++; }catch{}
+
+    const monthRows = visits.filter(v => (v.data||"").slice(0,7) === ym());
+    let ok = 0;
+
+    for(const v of monthRows){
+      try{ await saveToFirebase(v); ok++; }catch{}
     }
-    showFbAlert(`✅ Sync concluído (enviado ${ok}/${visitas.length}).`);
+    showAlert(`✅ Sync concluído: enviado ${ok}/${monthRows.length} do mês.`);
   };
 
-  // init firebase
   initFirebase();
 </script>
 </body>
