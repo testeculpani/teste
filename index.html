@@ -419,14 +419,14 @@
       const firebaseConfig = {
         apiKey: "AIzaSyBccM__hS_OMso2ipnKPUYycfVCfvfz9f8",
         authDomain: "visitas-affdb.firebaseapp.com",
-        databaseURL: "https://visitas-affdb-default-rtdb.firebaseio.com/",
+        databaseURL: "https://visitas-affdb-default-rtdb.firebaseio.com",
         projectId: "visitas-affdb",
         storageBucket: "visitas-affdb.firebasestorage.app",
         messagingSenderId: "356562078458",
         appId: "1:356562078458:web:5e4da3c7c9ffa7b90e1743"
       };
 
-      if(!firebaseConfig.databaseURL || firebaseConfig.databaseURL.includes("https://visitas-affdb-default-rtdb.firebaseio.com/")){
+      if(!firebaseConfig.databaseURL || firebaseConfig.databaseURL.includes("https://visitas-affdb-default-rtdb.firebaseio.com")){
         showAlert("⚠️ Falta preencher databaseURL do Realtime Database.");
         return;
       }
