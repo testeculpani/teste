@@ -1,1444 +1,377 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Visitas — Vendedor Externo</title>
-  <meta name="theme-color" content="#0b1220" />
-
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Visitas — Vendedor</title>
+  <meta name="theme-color" content="#0b1220">
   <style>
     :root{
-      --bg:#0b1220;
-      --card:#101a30;
-      --card2:#0f1a33;
-      --muted:#a6b6d6;
-      --text:#eaf1ff;
-      --ok:#22c55e;
-      --warn:#f59e0b;
-      --bad:#ef4444;
-      --line:rgba(255,255,255,.10);
-      --accent:#60a5fa;
-      --accent2:#a78bfa;
-      --shadow: 0 18px 50px rgba(0,0,0,.35);
-      --r:18px;
-      --r2:14px;
-      --tap: 44px;
+      --bg:#0b1220; --card:#101a30; --muted:#a6b6d6; --text:#eaf1ff;
+      --ok:#22c55e; --warn:#f59e0b; --bad:#ef4444; --line:rgba(255,255,255,.12);
+      --r:18px; --r2:14px;
     }
-
     *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Helvetica Neue", sans-serif;
-      background: radial-gradient(1200px 700px at 20% -10%, rgba(96,165,250,.22), transparent 60%),
-                  radial-gradient(900px 600px at 120% 10%, rgba(167,139,250,.20), transparent 55%),
-                  linear-gradient(180deg, #070b14, var(--bg));
-      color:var(--text);
-      -webkit-font-smoothing: antialiased;
-      padding-bottom: calc(76px + env(safe-area-inset-bottom));
-    }
-
-    .wrap{
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 14px 14px 18px;
-    }
-
-    /* Header compacto mobile */
-    header{
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      background: linear-gradient(180deg, rgba(11,18,32,.92), rgba(11,18,32,.62));
-      border-bottom: 1px solid var(--line);
-    }
-
-    .topbar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      padding: 12px 14px;
-      max-width: 980px;
-      margin: 0 auto;
-    }
-
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      min-width: 0;
-    }
-    .logo{
-      width:38px; height:38px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, rgba(96,165,250,.95), rgba(167,139,250,.95));
-      box-shadow: 0 12px 35px rgba(96,165,250,.20);
-      flex: 0 0 auto;
-    }
-    .titleBox{min-width:0}
-    .title{
-      margin:0;
-      font-size: 14px;
-      letter-spacing: .2px;
-      font-weight: 900;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .subtitle{
-      margin-top: 2px;
-      font-size: 11px;
-      color: var(--muted);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .chipRow{
-      display:flex; align-items:center; gap:8px; flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-    .chip{
-      display:inline-flex; align-items:center; gap:8px;
-      padding: 8px 10px;
-      border-radius: 999px;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.03);
-      font-size: 12px;
-      color: var(--muted);
-    }
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,#070b14,var(--bg));color:var(--text);padding-bottom:90px}
+    header{position:sticky;top:0;z-index:10;backdrop-filter:blur(10px);background:rgba(11,18,32,.85);border-bottom:1px solid var(--line)}
+    .top{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;gap:12px}
+    .title{font-weight:900;font-size:14px}
+    .sub{font-size:11px;color:var(--muted)}
+    .chip{display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid var(--line);font-size:12px;color:var(--muted);white-space:nowrap}
     .dot{width:8px;height:8px;border-radius:50%}
-    .dot.ok{background:var(--ok)}
-    .dot.bad{background:var(--bad)}
-
-    /* Buttons */
-    .btn{
-      min-height: var(--tap);
-      padding: 10px 12px;
-      border-radius: 14px;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.04);
-      color: var(--text);
-      font-weight: 800;
-      font-size: 13px;
-      cursor: pointer;
-      user-select:none;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:8px;
-      transition: .15s ease;
-      width: fit-content;
-    }
-    .btn:active{transform: scale(.99)}
-    .btn.primary{
-      border-color: rgba(96,165,250,.45);
-      background: linear-gradient(135deg, rgba(96,165,250,.24), rgba(167,139,250,.14));
-    }
-    .btn.danger{
-      border-color: rgba(239,68,68,.35);
-      background: rgba(239,68,68,.10);
-    }
-    .btn.ghost{
-      background: transparent;
-    }
-    .btn.full{width:100%}
-
-    /* Cards */
-    .card{
-      background: linear-gradient(180deg, rgba(16,26,48,.95), rgba(16,26,48,.78));
-      border:1px solid var(--line);
-      border-radius: var(--r);
-      box-shadow: var(--shadow);
-      overflow:hidden;
-    }
-    .card .hd{
-      padding: 14px 14px;
-      border-bottom:1px solid var(--line);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-    }
-    .card .hd h2{
-      margin:0;
-      font-size: 14px;
-      font-weight: 900;
-      letter-spacing: .2px;
-    }
-    .card .bd{padding: 14px}
-
-    /* KPIs */
-    .kpis{
-      display:grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap:10px;
-    }
-    @media(min-width: 900px){
-      .kpis{grid-template-columns: repeat(4, 1fr);}
-    }
-    .kpi{
-      background: linear-gradient(180deg, rgba(15,26,51,.90), rgba(15,26,51,.55));
-      border:1px solid var(--line);
-      border-radius: var(--r2);
-      padding: 12px 12px;
-    }
-    .kpi .t{font-size: 11px; color: var(--muted); font-weight: 700}
-    .kpi .v{font-size: 18px; font-weight: 1000; margin-top: 6px}
-    .kpi .s{font-size: 11px; color: var(--muted); margin-top: 2px}
-
-    /* Inputs */
-    label{display:block; font-size: 11px; color: var(--muted); margin-bottom: 6px; font-weight: 800}
-    input, select, textarea{
-      width:100%;
-      min-height: var(--tap);
-      background: rgba(255,255,255,.03);
-      border:1px solid var(--line);
-      color: var(--text);
-      padding: 10px 12px;
-      border-radius: 14px;
-      outline: none;
-      font-size: 14px;
-    }
-    textarea{
-      min-height: 96px;
-      resize: vertical;
-      padding-top: 12px;
-    }
-    input:focus, select:focus, textarea:focus{
-      border-color: rgba(96,165,250,.55);
-      box-shadow: 0 0 0 4px rgba(96,165,250,.10);
-    }
-    .form{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:12px;
-    }
-    @media(min-width: 820px){
-      .form{grid-template-columns: 1fr 1fr;}
-      .span2{grid-column: 1 / -1;}
-    }
-    .help{font-size: 11px; color: var(--muted); margin-top: 8px; line-height:1.35}
-
-    /* Pills/Tags */
-    .tag{
-      display:inline-flex; align-items:center; gap:6px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border:1px solid var(--line);
-      font-size: 12px;
-      color: var(--muted);
-      background: rgba(255,255,255,.03);
-      white-space: nowrap;
-      font-weight: 800;
-    }
-    .tag.ok{border-color: rgba(34,197,94,.35); background: rgba(34,197,94,.10); color:#c8f7d7}
-    .tag.warn{border-color: rgba(245,158,11,.35); background: rgba(245,158,11,.10); color:#ffe6ba}
-    .tag.bad{border-color: rgba(239,68,68,.35); background: rgba(239,68,68,.10); color:#ffd1d1}
-
-    /* Sections (tabs) */
-    .page{display:none}
-    .page.active{display:block}
-
-    /* List view for visits */
-    .list{
-      display:flex;
-      flex-direction: column;
-      gap:10px;
-    }
-    .visitCard{
-      border:1px solid var(--line);
-      border-radius: var(--r2);
-      background: rgba(255,255,255,.03);
-      padding: 12px;
-    }
-    .visitTop{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:10px;
-    }
-    .visitName{
-      font-size: 14px;
-      font-weight: 1000;
-      line-height:1.15;
-    }
-    .visitMeta{
-      margin-top:4px;
-      font-size: 12px;
-      color: var(--muted);
-      font-weight: 700;
-    }
-    .visitBadges{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      margin-top: 10px;
-    }
-    .visitNote{
-      margin-top:10px;
-      color: var(--muted);
-      font-size: 12px;
-      line-height:1.35;
-      white-space: pre-wrap;
-    }
-    .visitActions{
-      display:flex;
-      gap:10px;
-      margin-top: 12px;
-    }
-    .visitActions .btn{min-height: 40px; border-radius: 12px; padding: 8px 10px; font-size: 12px}
-
-    /* Bottom nav */
-    .nav{
-      position: fixed;
-      left: 0; right: 0;
-      bottom: 0;
-      z-index: 60;
-      padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
-      background: linear-gradient(180deg, rgba(11,18,32,.10), rgba(11,18,32,.92));
-      border-top:1px solid var(--line);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-    }
-    .nav .bar{
-      max-width: 980px;
-      margin: 0 auto;
-      display:grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-    }
-    .navBtn{
-      min-height: 52px;
-      border-radius: 16px;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.03);
-      color: var(--muted);
-      font-weight: 1000;
-      font-size: 12px;
-      cursor:pointer;
-      display:flex;
-      flex-direction: column;
-      align-items:center;
-      justify-content:center;
-      gap:4px;
-      user-select:none;
-    }
-    .navBtn.active{
-      color: var(--text);
-      border-color: rgba(96,165,250,.45);
-      background: linear-gradient(135deg, rgba(96,165,250,.22), rgba(167,139,250,.12));
-    }
-    .navBtn span.icon{font-size: 16px}
-
-    /* Modal for Nova Visita */
-    .modal{
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.52);
-      z-index: 80;
-      display:none;
-      padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
-    }
+    .dot.ok{background:var(--ok)} .dot.bad{background:var(--bad)}
+    main{padding:14px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);margin-bottom:14px;overflow:hidden}
+    .hd{padding:14px;border-bottom:1px solid var(--line);font-weight:900;display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .bd{padding:14px}
+    .kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .kpi{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:var(--r2);padding:12px}
+    .kpi .t{font-size:11px;color:var(--muted)} .kpi .v{font-size:18px;font-weight:900;margin-top:6px}
+    .btn{border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--text);border-radius:14px;padding:10px 12px;font-weight:900;cursor:pointer}
+    .btn.primary{background:linear-gradient(135deg,rgba(96,165,250,.25),rgba(167,139,250,.18));border-color:rgba(96,165,250,.5)}
+    .btn.full{width:100%} .btn:active{transform:scale(.99)}
+    .list{display:flex;flex-direction:column;gap:10px}
+    .visit{border:1px solid var(--line);border-radius:var(--r2);padding:12px;background:rgba(255,255,255,.03)}
+    .visit h4{margin:0;font-size:14px} .visit .m{font-size:12px;color:var(--muted);margin-top:4px}
+    .badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    .tag{font-size:11px;padding:4px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+    .tag.ok{border-color:rgba(34,197,94,.4);color:#c8f7d7}
+    .tag.warn{border-color:rgba(245,158,11,.4);color:#ffe6ba}
+    nav{position:fixed;bottom:0;left:0;right:0;background:rgba(11,18,32,.92);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:10px;gap:10px}
+    .navBtn{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:14px;color:var(--muted);font-size:12px;padding:10px;cursor:pointer}
+    .navBtn.active{color:var(--text);border-color:rgba(96,165,250,.5);background:linear-gradient(135deg,rgba(96,165,250,.25),rgba(167,139,250,.15))}
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;z-index:50;padding:12px}
     .modal.show{display:block}
-    .modalSheet{
-      max-width: 980px;
-      margin: 0 auto;
-      height: calc(100% - 10px);
-      display:flex;
-      flex-direction: column;
-    }
-    .sheet{
-      margin-top: auto;
-      background: linear-gradient(180deg, rgba(16,26,48,.98), rgba(16,26,48,.92));
-      border:1px solid var(--line);
-      border-radius: 22px;
-      box-shadow: var(--shadow);
-      overflow:hidden;
-      max-height: 100%;
-      display:flex;
-      flex-direction: column;
-    }
-    .sheetHd{
-      padding: 14px 14px;
-      border-bottom:1px solid var(--line);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-    }
-    .sheetHd h3{
-      margin:0;
-      font-size: 14px;
-      font-weight: 1000;
-    }
-    .sheetBd{
-      padding: 14px;
-      overflow:auto;
-    }
-    .sheetFooter{
-      padding: 12px 14px;
-      border-top:1px solid var(--line);
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-    .sheetFooter .btn{flex:1}
-
-    /* Toast */
-    .toast{
-      position: fixed;
-      left: 14px;
-      right: 14px;
-      bottom: calc(90px + env(safe-area-inset-bottom));
-      z-index: 200;
-      max-width: 520px;
-      margin: 0 auto;
-      background: rgba(16,26,48,.95);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 12px 12px;
-      box-shadow: var(--shadow);
-      display:none;
-    }
-    .toast.show{display:block}
-    .toast .t{font-weight: 1000; font-size: 13px}
-    .toast .m{font-size: 12px; color: var(--muted); margin-top: 4px; line-height:1.35}
-
-    .miniRow{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
-    .hr{height:1px; background: var(--line); margin: 12px 0}
-    .muted{color:var(--muted)}
+    .sheet{background:var(--card);border-radius:22px;border:1px solid var(--line);max-width:520px;margin:40px auto;overflow:hidden}
+    .sheet .hd{display:flex;justify-content:space-between;align-items:center}
+    label{font-size:11px;color:var(--muted);font-weight:900}
+    input,select,textarea{width:100%;margin-top:4px;margin-bottom:10px;padding:10px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--text);outline:none}
+    textarea{min-height:80px}
+    .mini{font-size:11px;color:var(--muted);line-height:1.35}
+    .alert{border:1px solid rgba(245,158,11,.35);background:rgba(245,158,11,.08);border-radius:14px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:#ffe6ba;display:none}
+    .alert.show{display:block}
   </style>
 </head>
 
 <body>
-  <header>
-    <div class="topbar">
-      <div class="brand">
-        <div class="logo" aria-hidden="true"></div>
-        <div class="titleBox">
-          <div class="title">Visitas — Vendedor Externo</div>
-          <div class="subtitle" id="subtitleLine">Hoje: — • Offline-first</div>
-        </div>
-      </div>
-
-      <div class="chipRow">
-        <div class="chip" id="pillConn"><span class="dot bad" id="connDot"></span><span id="connTxt">Offline</span></div>
-        <div class="chip"><span class="muted">Vendedor:</span>&nbsp;<strong id="sellerName">—</strong></div>
-      </div>
+<header>
+  <div class="top">
+    <div>
+      <div class="title">Visitas — Vendedor</div>
+      <div class="sub" id="todayLabel">—</div>
     </div>
-  </header>
-
-  <main class="wrap">
-    <!-- DASHBOARD -->
-    <section class="page active" id="pageDashboard">
-      <div class="card">
-        <div class="hd">
-          <h2>📊 Dashboard do dia</h2>
-          <div class="miniRow">
-            <input type="date" id="visitDate" />
-            <button class="btn" id="btnSync">🔄 Sync</button>
-          </div>
-        </div>
-        <div class="bd">
-          <div class="kpis">
-            <div class="kpi">
-              <div class="t">Clientes visitados (dia)</div>
-              <div class="v" id="kpiVisited">0</div>
-              <div class="s" id="kpiVisitedS">—</div>
-            </div>
-            <div class="kpi">
-              <div class="t">Pedidos tirados (dia)</div>
-              <div class="v" id="kpiOrders">0</div>
-              <div class="s">“Tirou pedido?”</div>
-            </div>
-            <div class="kpi">
-              <div class="t">Promessa de compra (dia)</div>
-              <div class="v" id="kpiPromise">0</div>
-              <div class="s">“Vai comprar?”</div>
-            </div>
-            <div class="kpi">
-              <div class="t">Potencial total (dia)</div>
-              <div class="v" id="kpiPotential">R$ 0</div>
-              <div class="s">Soma estimada</div>
-            </div>
-          </div>
-
-          <div class="hr"></div>
-
-          <div class="card" style="background: rgba(255,255,255,.02); border-radius: var(--r2); box-shadow:none;">
-            <div class="bd" style="padding:12px">
-              <div class="miniRow" style="justify-content:space-between">
-                <div>
-                  <div style="font-weight:1000">Resumo rápido</div>
-                  <div class="muted" style="font-size:12px; margin-top:2px" id="dashHint">—</div>
-                </div>
-                <button class="btn primary" id="btnOpenNewFromDash">➕ Nova Visita</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="hr"></div>
-
-          <div class="miniRow" style="gap:10px">
-            <button class="btn" id="btnToday">Hoje</button>
-            <button class="btn" id="btnWeek">Semana</button>
-            <button class="btn" id="btnMonth">Mês</button>
-            <button class="btn" id="btnExportPeriod">⬇️ CSV (período)</button>
-          </div>
-
-          <div class="hr"></div>
-
-          <div class="card" style="background: rgba(255,255,255,.02); border-radius: var(--r2); box-shadow:none;">
-            <div class="bd" style="padding:12px">
-              <div class="muted" style="font-size:12px; font-weight:1000; margin-bottom:8px;">⭐ Top clientes por potencial (período)</div>
-              <div id="topClients" class="muted" style="font-size:12px; line-height:1.6">—</div>
-
-              <div class="hr"></div>
-
-              <div class="muted" style="font-size:12px; font-weight:1000; margin-bottom:8px;">📌 Próximos retornos</div>
-              <div id="followUps" class="muted" style="font-size:12px; line-height:1.6">—</div>
-            </div>
-          </div>
-
-        </div>
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end">
+      <div class="chip">
+        <span class="dot bad" id="connDot"></span>
+        <span id="connTxt">Offline</span>
       </div>
-    </section>
-
-    <!-- VISITAS -->
-    <section class="page" id="pageVisits">
-      <div class="card">
-        <div class="hd">
-          <h2>📋 Visitas do dia</h2>
-          <div class="miniRow">
-            <button class="btn" id="btnExportDay">⬇️ CSV (dia)</button>
-          </div>
-        </div>
-        <div class="bd">
-          <div class="form">
-            <div>
-              <label>Buscar</label>
-              <input id="search" placeholder="Ex.: mercado, realeza, prazo..." />
-            </div>
-            <div>
-              <label>Filtro rápido</label>
-              <select id="filterQuick">
-                <option value="all">Todos</option>
-                <option value="orders">Somente com pedido</option>
-                <option value="promise">Somente promessa de compra</option>
-                <option value="potentialHigh">Potencial alto (>= 3000)</option>
-                <option value="noShow">Não atendeu</option>
-                <option value="resched">Remarcar</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="hr"></div>
-
-          <div class="list" id="visitList"></div>
-
-          <div class="help">
-            💡 Dica: se o cliente travou por preço/prazo, anote isso. No follow-up você já volta com a resposta certa.
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- CONFIG -->
-    <section class="page" id="pageConfig">
-      <div class="card">
-        <div class="hd">
-          <h2>⚙️ Configurações</h2>
-          <div class="miniRow">
-            <button class="btn" id="btnSetSeller">✏️ Vendedor</button>
-            <button class="btn" id="btnBackup">💾 Backup</button>
-            <button class="btn" id="btnRestore">📥 Restaurar</button>
-            <input type="file" id="restoreFile" accept="application/json" style="display:none" />
-          </div>
-        </div>
-        <div class="bd">
-          <div class="card" style="background: rgba(255,255,255,.02); border-radius: var(--r2); box-shadow:none;">
-            <div class="bd" style="padding:12px">
-              <div class="miniRow" style="justify-content:space-between">
-                <div>
-                  <div style="font-weight:1000">ID do aparelho</div>
-                  <div class="muted" style="font-size:12px">Use isso pra identificar qual celular registrou.</div>
-                </div>
-                <span class="tag" id="deviceId">—</span>
-              </div>
-              <div class="hr"></div>
-              <button class="btn danger full" id="btnResetDay">🗑️ Apagar registros do dia (somente local)</button>
-              <div class="help">Isso não apaga o que já foi sincronizado no Firebase.</div>
-            </div>
-          </div>
-
-          <div class="hr"></div>
-
-          <div class="help">
-            ✅ Offline-first: mesmo sem internet dá pra registrar. <br/>
-            🔄 Quando tiver sinal, clique em <b>Sync</b> pra enviar.
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- Bottom navigation -->
-  <nav class="nav" aria-label="Menu">
-    <div class="bar">
-      <button class="navBtn active" data-go="Dashboard" id="navDashboard"><span class="icon">📊</span><span>Dashboard</span></button>
-      <button class="navBtn" data-go="New" id="navNew"><span class="icon">➕</span><span>Nova visita</span></button>
-      <button class="navBtn" data-go="Visits" id="navVisits"><span class="icon">📋</span><span>Visitas</span></button>
-      <button class="navBtn" data-go="Config" id="navConfig"><span class="icon">⚙️</span><span>Config</span></button>
-    </div>
-  </nav>
-
-  <!-- Modal Nova Visita -->
-  <div class="modal" id="modalNew">
-    <div class="modalSheet">
-      <div class="sheet">
-        <div class="sheetHd">
-          <h3 id="newTitle">➕ Nova visita</h3>
-          <button class="btn ghost" id="btnCloseNew">✖️</button>
-        </div>
-        <div class="sheetBd">
-          <div class="form">
-            <div class="span2">
-              <label>Data da visita</label>
-              <input type="date" id="f_date" />
-            </div>
-
-            <div>
-              <label>Nome do cliente *</label>
-              <input id="f_clientName" placeholder="Ex.: Mercado São João" />
-            </div>
-            <div>
-              <label>Cidade / Região</label>
-              <input id="f_city" placeholder="Ex.: Realeza - PR" />
-            </div>
-
-            <div>
-              <label>Status da visita</label>
-              <select id="f_status">
-                <option value="Visitado">Visitado</option>
-                <option value="Não atendeu">Não atendeu</option>
-                <option value="Remarcar">Remarcar</option>
-                <option value="Somente prospecção">Somente prospecção</option>
-              </select>
-            </div>
-
-            <div>
-              <label>Potencial do cliente (R$)</label>
-              <input id="f_potential" inputmode="decimal" placeholder="Ex.: 2500" />
-            </div>
-
-            <div>
-              <label>Tem potencial de compra?</label>
-              <select id="f_hasPotential">
-                <option value="Sim">Sim</option>
-                <option value="Talvez">Talvez</option>
-                <option value="Não">Não</option>
-              </select>
-            </div>
-
-            <div>
-              <label>Falou que vai comprar?</label>
-              <select id="f_willBuy">
-                <option value="Não">Não</option>
-                <option value="Sim">Sim</option>
-                <option value="Talvez">Talvez</option>
-              </select>
-            </div>
-
-            <div>
-              <label>Tirou pedido?</label>
-              <select id="f_tookOrder">
-                <option value="Não">Não</option>
-                <option value="Sim">Sim</option>
-              </select>
-            </div>
-
-            <div>
-              <label>Valor do pedido (R$)</label>
-              <input id="f_orderValue" inputmode="decimal" placeholder="Ex.: 1800" />
-            </div>
-
-            <div>
-              <label>Próximo passo</label>
-              <select id="f_nextStep">
-                <option value="Retornar ligação">Retornar ligação</option>
-                <option value="Enviar proposta">Enviar proposta</option>
-                <option value="Enviar catálogo/Whats">Enviar catálogo/Whats</option>
-                <option value="Aguardar decisão">Aguardar decisão</option>
-                <option value="Nova visita">Nova visita</option>
-                <option value="Sem próximo passo">Sem próximo passo</option>
-              </select>
-            </div>
-
-            <div>
-              <label>Data de retorno</label>
-              <input type="date" id="f_followUp" />
-            </div>
-
-            <div class="span2">
-              <label>Observações / o que o cliente falou</label>
-              <textarea id="f_notes" placeholder="Ex.: cliente comparou com concorrente, pediu prazo, quer visitar mês que vem..."></textarea>
-              <div class="help">Seja curto e direto: isso vira histórico pro follow-up.</div>
-            </div>
-          </div>
-        </div>
-        <div class="sheetFooter">
-          <button class="btn" id="btnClearForm">🧹 Limpar</button>
-          <button class="btn primary" id="btnSaveVisit">✅ Salvar</button>
-        </div>
+      <div class="chip">
+        <span class="muted">Vendedor:</span>&nbsp;<strong id="sellerLabel">—</strong>
       </div>
     </div>
   </div>
+</header>
 
-  <!-- Toast -->
-  <div class="toast" id="toast">
-    <div class="t" id="toastT">Ok</div>
-    <div class="m" id="toastM">—</div>
+<main>
+  <div class="alert" id="fbAlert"></div>
+
+  <section id="pageDashboard">
+    <div class="card">
+      <div class="hd">
+        <span>📊 Resumo do dia</span>
+        <button class="btn" id="btnSync">🔄 Sync</button>
+      </div>
+      <div class="bd">
+        <div class="kpis">
+          <div class="kpi"><div class="t">Visitas</div><div class="v" id="k_visitas">0</div></div>
+          <div class="kpi"><div class="t">Pedidos</div><div class="v" id="k_pedidos">0</div></div>
+          <div class="kpi"><div class="t">Promessas</div><div class="v" id="k_promessas">0</div></div>
+          <div class="kpi"><div class="t">Potencial</div><div class="v" id="k_potencial">R$ 0</div></div>
+        </div>
+
+        <div style="margin-top:14px">
+          <button class="btn primary full" id="btnNova">➕ Nova visita</button>
+        </div>
+
+        <div class="mini" style="margin-top:10px">
+          ✅ Offline: salva no celular. <br>🔄 Sync: manda tudo pro Firebase quando tiver internet.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pageVisits" style="display:none">
+    <div class="card">
+      <div class="hd">📋 Visitas do dia</div>
+      <div class="bd">
+        <div class="list" id="lista"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pageConfig" style="display:none">
+    <div class="card">
+      <div class="hd">⚙️ Configurações</div>
+      <div class="bd">
+        <button class="btn full" id="btnVendedor">✏️ Definir vendedor</button>
+        <div class="mini" style="margin-top:10px">
+          Se não definir, salva como “SEM_VENDEDOR”.
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<nav>
+  <button class="navBtn active" id="navDash">📊<br>Resumo</button>
+  <button class="navBtn" id="navNew">➕<br>Nova</button>
+  <button class="navBtn" id="navList">📋<br>Visitas</button>
+  <button class="navBtn" id="navCfg">⚙️<br>Config</button>
+</nav>
+
+<div class="modal" id="modal">
+  <div class="sheet">
+    <div class="hd">
+      <div>➕ Nova visita</div>
+      <button class="btn" id="btnFechar">✖</button>
+    </div>
+    <div class="bd">
+      <label>Cliente *</label>
+      <input id="f_cliente" placeholder="Ex.: Mercado São João">
+
+      <label>Potencial (R$)</label>
+      <input id="f_potencial" inputmode="decimal" placeholder="Ex.: 2500">
+
+      <label>Falou que vai comprar?</label>
+      <select id="f_promessa">
+        <option>Não</option>
+        <option>Sim</option>
+        <option>Talvez</option>
+      </select>
+
+      <label>Tirou pedido?</label>
+      <select id="f_pedido">
+        <option>Não</option>
+        <option>Sim</option>
+      </select>
+
+      <label>Observações</label>
+      <textarea id="f_obs" placeholder="Preço, prazo, concorrente, retorno, etc."></textarea>
+
+      <button class="btn primary full" id="btnSalvar">Salvar visita</button>
+
+      <div class="mini" style="margin-top:10px">
+        Dica: anote a objeção principal do cliente. Isso vira follow-up.
+      </div>
+    </div>
   </div>
+</div>
 
 <script type="module">
-  /***********************
-   * CONFIG — Firebase
-   ***********************/
-  const firebaseConfig = {
-    apiKey: "COLE_AQUI",
-    authDomain: "COLE_AQUI",
-    databaseURL: "COLE_AQUI",
-    projectId: "COLE_AQUI",
-    storageBucket: "COLE_AQUI",
-    messagingSenderId: "COLE_AQUI",
-    appId: "COLE_AQUI"
-  };
-
-  // Se quiser só local/offline, coloque false
-  const enableFirebase = true;
-
-  /***********************
-   * Firebase imports
-   ***********************/
-  let db, auth, ref, set, update, get, child, signInAnonymously;
-  if(enableFirebase){
-    const { initializeApp } = await import("https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js");
-    const { getDatabase, ref: _ref, set: _set, update: _update, get: _get, child: _child } =
-      await import("https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js");
-    const { getAuth, signInAnonymously: _signInAnonymously } =
-      await import("https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js");
-
-    const app = initializeApp(firebaseConfig);
-    db = getDatabase(app);
-    auth = getAuth(app);
-    ref = _ref; set = _set; update = _update; get = _get; child = _child;
-    signInAnonymously = _signInAnonymously;
-  }
-
-  /***********************
-   * Helpers
-   ***********************/
   const $ = (id)=>document.getElementById(id);
 
-  const LS_KEY    = "visitas_vendedor_v2";
-  const LS_QUEUE  = "visitas_queue_v2";
-  const LS_SELLER = "visitas_seller_v2";
-  const LS_DEVICE = "visitas_device_v2";
+  const LS = "visitas_local_sem_auth_v1";
+  const LS_SELLER = "visitas_seller_sem_auth_v1";
 
-  function uuid(){
-    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c=>{
-      const r = (crypto.getRandomValues(new Uint8Array(1))[0] % 16) | 0;
-      const v = c === "x" ? r : (r & 0x3) | 0x8;
-      return v.toString(16);
-    });
-  }
-  function nowISO(){ return new Date().toISOString(); }
-  function todayStr(d=new Date()){
-    const off = d.getTimezoneOffset();
-    const dt = new Date(d.getTime() - off*60000);
-    return dt.toISOString().slice(0,10);
-  }
-  function num(n){
-    return Number(String(n||"").replace(/[^\d.,-]/g,"").replace(/\./g,"").replace(",", ".")) || 0;
-  }
-  function money(n){
-    const v = Number(n || 0);
-    return v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
-  }
-  function escapeHtml(str){
-    return String(str||"").replace(/[&<>"']/g, s=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[s]));
-  }
-  function toast(t,m){
-    $("toastT").textContent=t;
-    $("toastM").textContent=m;
-    $("toast").classList.add("show");
-    setTimeout(()=>$("toast").classList.remove("show"), 3200);
-  }
-  function connUI(){
-    const online = navigator.onLine;
-    $("connDot").className = "dot " + (online ? "ok":"bad");
-    $("connTxt").textContent = online ? "Online" : "Offline";
-  }
-  window.addEventListener("online", ()=>{ connUI(); });
-  window.addEventListener("offline", ()=>{ connUI(); });
-  connUI();
-
-  // device id
-  let deviceId = localStorage.getItem(LS_DEVICE);
-  if(!deviceId){ deviceId = uuid(); localStorage.setItem(LS_DEVICE, deviceId); }
-  $("deviceId").textContent = deviceId.slice(0,8);
-
-  // seller
-  function getSeller(){ return localStorage.getItem(LS_SELLER) || ""; }
-  function setSeller(name){
-    localStorage.setItem(LS_SELLER, name.trim());
-    $("sellerName").textContent = name.trim() || "—";
-  }
-  setSeller(getSeller());
-
-  // date defaults
-  $("visitDate").value = todayStr();
-  $("f_date").value = todayStr();
-
-  function updateSubtitle(){
-    const d = $("visitDate").value;
-    $("subtitleLine").textContent = `Hoje: ${d} • Offline-first`;
-  }
-  updateSubtitle();
-
-  /***********************
-   * Storage
-   ***********************/
-  function loadLocal(){ try{return JSON.parse(localStorage.getItem(LS_KEY)||"[]");}catch{return []} }
-  function saveLocal(arr){ localStorage.setItem(LS_KEY, JSON.stringify(arr)); }
-  function loadQueue(){ try{return JSON.parse(localStorage.getItem(LS_QUEUE)||"[]");}catch{return []} }
-  function saveQueue(q){ localStorage.setItem(LS_QUEUE, JSON.stringify(q)); }
-
-  let all = loadLocal();
-  let editingId = null;
-
-  /***********************
-   * Navigation
-   ***********************/
-  const pages = {
-    Dashboard: $("pageDashboard"),
-    Visits: $("pageVisits"),
-    Config: $("pageConfig"),
-  };
-  const navBtns = {
-    Dashboard: $("navDashboard"),
-    New: $("navNew"),
-    Visits: $("navVisits"),
-    Config: $("navConfig"),
-  };
-
-  function setActiveNav(key){
-    Object.values(navBtns).forEach(b=>b.classList.remove("active"));
-    if(navBtns[key]) navBtns[key].classList.add("active");
-  }
-  function showPage(key){
-    Object.values(pages).forEach(p=>p.classList.remove("active"));
-    pages[key].classList.add("active");
-    setActiveNav(key);
+  function today(){ return new Date().toISOString().slice(0,10); }
+  function money(v){ return Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"}); }
+  function num(v){
+    return Number(String(v||"").replace(/[^\d.,-]/g,"").replace(/\./g,"").replace(",", ".")) || 0;
   }
 
-  $("navDashboard").addEventListener("click", ()=>{ showPage("Dashboard"); renderAll(); });
-  $("navVisits").addEventListener("click", ()=>{ showPage("Visits"); renderAll(); });
-  $("navConfig").addEventListener("click", ()=>{ showPage("Config"); });
-  $("navNew").addEventListener("click", ()=> openNewModal());
-  $("btnOpenNewFromDash").addEventListener("click", ()=> openNewModal());
+  $("todayLabel").textContent = `Hoje: ${today()}`;
 
-  /***********************
-   * Modal Nova Visita
-   ***********************/
-  function openNewModal(){
-    if(!getSeller().trim()){
-      toast("Falta vendedor", "Defina o nome do vendedor primeiro (Config).");
-      showPage("Config");
-      return;
+  let vendedor = localStorage.getItem(LS_SELLER) || "";
+  function refreshSeller(){
+    $("sellerLabel").textContent = vendedor?.trim() ? vendedor.trim() : "—";
+  }
+  refreshSeller();
+
+  let visitas = [];
+  try{ visitas = JSON.parse(localStorage.getItem(LS) || "[]"); }catch{ visitas=[]; }
+
+  // Firebase (SEM AUTH)
+  let firebaseReady = false;
+  let pushVisitFn = null;
+
+  function showFbAlert(msg){
+    const a = $("fbAlert");
+    a.textContent = msg;
+    a.classList.add("show");
+  }
+
+  async function initFirebase(){
+    try{
+      const { initializeApp } = await import("https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js");
+      const { getDatabase, ref, push } = await import("https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js");
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBccM__hS_OMso2ipnKPUYycfVCfvfz9f8",
+        authDomain: "visitas-affdb.firebaseapp.com",
+        // ⚠️ COLE A URL DO REALTIME DATABASE AQUI:
+        // exemplo: https://visitas-affdb-default-rtdb.firebaseio.com
+        databaseURL: "COLE_AQUI_A_DATABASE_URL",
+        projectId: "visitas-affdb",
+        storageBucket: "visitas-affdb.firebasestorage.app",
+        messagingSenderId: "356562078458",
+        appId: "1:356562078458:web:5e4da3c7c9ffa7b90e1743"
+      };
+
+      if(!firebaseConfig.databaseURL || firebaseConfig.databaseURL.includes("COLE_AQUI")){
+        showFbAlert("⚠️ Falta preencher databaseURL do Realtime Database. (Local ok, sem sync)");
+        return;
+      }
+
+      const app = initializeApp(firebaseConfig);
+      const db = getDatabase(app);
+
+      pushVisitFn = async (visit)=>{
+        const sellerKey = (visit.vendedor||"SEM_VENDEDOR").toUpperCase().replace(/\s+/g,"_");
+        const ym = (visit.data||today()).slice(0,7);
+        await push(ref(db, `visitas/${sellerKey}/${ym}`), visit);
+      };
+
+      firebaseReady = true;
+    }catch(err){
+      console.error(err);
+      showFbAlert("⚠️ Firebase não iniciou. Verifique databaseURL e regras do RTDB.");
     }
-    $("modalNew").classList.add("show");
-    $("f_date").value = $("visitDate").value || todayStr();
-    $("newTitle").textContent = editingId ? "✏️ Editar visita" : "➕ Nova visita";
-  }
-  function closeNewModal(){
-    $("modalNew").classList.remove("show");
-    editingId = null;
-  }
-  $("btnCloseNew").addEventListener("click", closeNewModal);
-  $("modalNew").addEventListener("click", (e)=>{
-    if(e.target === $("modalNew")) closeNewModal();
-  });
-
-  function clearForm(){
-    editingId = null;
-    $("f_date").value = $("visitDate").value || todayStr();
-    $("f_clientName").value="";
-    $("f_city").value="";
-    $("f_status").value="Visitado";
-    $("f_potential").value="";
-    $("f_hasPotential").value="Sim";
-    $("f_willBuy").value="Não";
-    $("f_tookOrder").value="Não";
-    $("f_orderValue").value="";
-    $("f_nextStep").value="Retornar ligação";
-    $("f_followUp").value="";
-    $("f_notes").value="";
-    $("newTitle").textContent = "➕ Nova visita";
-  }
-  $("btnClearForm").addEventListener("click", clearForm);
-
-  function enqueueForSync(item){
-    const q = loadQueue();
-    const i = q.findIndex(x=>x.id===item.id);
-    if(i>=0) q[i]=item; else q.push(item);
-    saveQueue(q);
   }
 
-  $("btnSaveVisit").addEventListener("click", ()=>{
-    const seller = getSeller().trim();
-    if(!seller){ toast("Falta vendedor", "Defina o vendedor primeiro."); return; }
+  async function tryPushFirebase(visit){
+    if(!firebaseReady || !pushVisitFn) return;
+    if(!navigator.onLine) return;
+    try{
+      await pushVisitFn(visit);
+    }catch(err){
+      console.error(err);
+      showFbAlert("⚠️ Não sincronizou agora (regras/URL). Ficou salvo local.");
+    }
+  }
 
-    const date = $("f_date").value || todayStr();
-    const clientName = $("f_clientName").value.trim();
-    if(!clientName){ toast("Falta cliente", "Informe o nome do cliente."); return; }
+  function render(){
+    let pot=0, pedidos=0, promessas=0;
+    for(const v of visitas){
+      pot += Number(v.potencial||0);
+      if(v.pedido==="Sim") pedidos++;
+      if(v.promessa==="Sim") promessas++;
+    }
+    $("k_visitas").textContent = visitas.length;
+    $("k_pedidos").textContent = pedidos;
+    $("k_promessas").textContent = promessas;
+    $("k_potencial").textContent = money(pot);
 
-    const item = {
-      id: editingId || uuid(),
-      date,
-      seller,
-      clientName,
-      city: $("f_city").value.trim(),
-      status: $("f_status").value,
-      potentialValue: num($("f_potential").value),
-      hasPotential: $("f_hasPotential").value,
-      willBuy: $("f_willBuy").value,
-      tookOrder: $("f_tookOrder").value,
-      orderValue: num($("f_orderValue").value),
-      nextStep: $("f_nextStep").value,
-      followUpDate: $("f_followUp").value || "",
-      notes: $("f_notes").value.trim(),
-      sourceDevice: deviceId,
-      updatedAt: nowISO(),
-      createdAt: nowISO(),
-      synced: false
+    const list = $("lista");
+    list.innerHTML = "";
+    if(visitas.length===0){
+      list.innerHTML = `<div class="mini">Nenhuma visita registrada ainda.</div>`;
+    }else{
+      [...visitas].reverse().forEach(v=>{
+        const div = document.createElement("div");
+        div.className = "visit";
+        div.innerHTML = `
+          <h4>${(v.cliente||"").replace(/</g,"&lt;")}</h4>
+          <div class="m">${v.vendedor || "SEM_VENDEDOR"} • ${v.data}</div>
+          <div class="badges">
+            <span class="tag">Potencial: <b>${money(v.potencial)}</b></span>
+            <span class="tag ${v.promessa==="Sim"?"ok":(v.promessa==="Talvez"?"warn":"")}">Promessa: ${v.promessa}</span>
+            <span class="tag ${v.pedido==="Sim"?"ok":""}">Pedido: ${v.pedido}</span>
+          </div>
+          ${v.obs ? `<div class="m" style="margin-top:8px; white-space:pre-wrap">${(v.obs||"").replace(/</g,"&lt;")}</div>` : ``}
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    localStorage.setItem(LS, JSON.stringify(visitas));
+  }
+  render();
+
+  // Online/offline status
+  function conn(){
+    const on = navigator.onLine;
+    $("connTxt").textContent = on ? "Online" : "Offline";
+    $("connDot").className = "dot " + (on ? "ok":"bad");
+  }
+  window.addEventListener("online", conn);
+  window.addEventListener("offline", conn);
+  conn();
+
+  // Navigation
+  function show(p){
+    ["pageDashboard","pageVisits","pageConfig"].forEach(id=>$(id).style.display="none");
+    $(p).style.display="block";
+    document.querySelectorAll(".navBtn").forEach(b=>b.classList.remove("active"));
+  }
+  $("navDash").onclick=()=>{ show("pageDashboard"); $("navDash").classList.add("active"); };
+  $("navList").onclick=()=>{ show("pageVisits"); $("navList").classList.add("active"); };
+  $("navCfg").onclick=()=>{ show("pageConfig"); $("navCfg").classList.add("active"); };
+
+  // Modal
+  function openModal(){ $("modal").classList.add("show"); }
+  function closeModal(){ $("modal").classList.remove("show"); }
+  $("btnNova").onclick=openModal;
+  $("navNew").onclick=openModal;
+  $("btnFechar").onclick=closeModal;
+  $("modal").addEventListener("click",(e)=>{ if(e.target===$("modal")) closeModal(); });
+
+  // Seller
+  $("btnVendedor").onclick=()=>{
+    const n = prompt("Nome do vendedor:", vendedor || "");
+    if(n===null) return;
+    vendedor = (n||"").trim();
+    localStorage.setItem(LS_SELLER, vendedor);
+    refreshSeller();
+  };
+
+  // Save local + try sync
+  $("btnSalvar").onclick=async()=>{
+    const cliente = $("f_cliente").value.trim();
+    if(!cliente){ alert("Informe o nome do cliente."); return; }
+
+    const v = {
+      data: today(),
+      vendedor: vendedor || "SEM_VENDEDOR",
+      cliente,
+      potencial: num($("f_potencial").value),
+      promessa: $("f_promessa").value,
+      pedido: $("f_pedido").value,
+      obs: $("f_obs").value.trim(),
+      createdAt: new Date().toISOString()
     };
 
-    if(item.tookOrder !== "Sim") item.orderValue = 0;
+    visitas.push(v);
+    render();
 
-    const idx = all.findIndex(x=>x.id===item.id);
-    if(idx>=0){
-      item.createdAt = all[idx].createdAt || item.createdAt;
-      all[idx] = {...all[idx], ...item};
-      toast("Atualizado", `Visita atualizada: ${item.clientName}`);
-    }else{
-      all.unshift(item);
-      toast("Salvo", `Visita registrada: ${item.clientName}`);
-    }
-    saveLocal(all);
-    enqueueForSync(item);
+    $("f_cliente").value="";
+    $("f_potencial").value="";
+    $("f_promessa").value="Não";
+    $("f_pedido").value="Não";
+    $("f_obs").value="";
+    closeModal();
 
-    // Ajusta data principal pra mesma do registro
-    $("visitDate").value = date;
-    updateSubtitle();
+    await tryPushFirebase(v);
+  };
 
-    clearForm();
-    closeNewModal();
-    renderAll();
-    showPage("Dashboard");
-  });
-
-  /***********************
-   * Filters & Day rows
-   ***********************/
-  function filteredDay(){
-    const d = $("visitDate").value;
-    let rows = all.filter(x=>x.date===d);
-
-    const q = $("search").value.trim().toLowerCase();
-    if(q){
-      rows = rows.filter(x=>{
-        const blob = `${x.clientName} ${x.city} ${x.notes} ${x.nextStep}`.toLowerCase();
-        return blob.includes(q);
-      });
-    }
-
-    const f = $("filterQuick").value;
-    if(f==="orders") rows = rows.filter(x=>x.tookOrder==="Sim");
-    if(f==="promise") rows = rows.filter(x=>x.willBuy==="Sim");
-    if(f==="potentialHigh") rows = rows.filter(x=>Number(x.potentialValue||0) >= 3000);
-    if(f==="noShow") rows = rows.filter(x=>x.status==="Não atendeu");
-    if(f==="resched") rows = rows.filter(x=>x.status==="Remarcar");
-
-    return rows;
-  }
-
-  function tagVisitStatus(s){
-    if(s==="Visitado") return "ok";
-    if(s==="Não atendeu") return "bad";
-    if(s==="Remarcar") return "warn";
-    return "";
-  }
-  function tagTri(v){
-    if(v==="Sim") return "ok";
-    if(v==="Talvez") return "warn";
-    return "";
-  }
-
-  function renderVisitsList(){
-    const rows = filteredDay();
-    const list = $("visitList");
-    list.innerHTML = "";
-
-    if(rows.length===0){
-      list.innerHTML = `<div class="muted" style="padding:10px">Nenhuma visita no dia com os filtros atuais.</div>`;
+  // Sync: envia tudo (duplicar é possível sem Auth; se quiser deduplicar eu ajusto com ID fixo)
+  $("btnSync").onclick = async ()=>{
+    if(!firebaseReady || !pushVisitFn){
+      showFbAlert("⚠️ Sync indisponível: faltou databaseURL ou regras não estão abertas.");
       return;
     }
-
-    for(const v of rows){
-      const pot = money(v.potentialValue||0);
-      const ord = money(v.orderValue||0);
-      const willClass = v.willBuy==="Sim" ? "ok" : (v.willBuy==="Talvez" ? "warn" : "");
-      const orderClass = v.tookOrder==="Sim" ? "ok" : "";
-
-      const el = document.createElement("div");
-      el.className = "visitCard";
-      el.innerHTML = `
-        <div class="visitTop">
-          <div>
-            <div class="visitName">${escapeHtml(v.clientName)}</div>
-            <div class="visitMeta">${escapeHtml(v.city||"—")} • <span class="muted">${escapeHtml(v.seller)}</span></div>
-          </div>
-          <div>
-            <span class="tag ${v.synced ? "ok" : "warn"}">${v.synced ? "✅ Sync" : "⏳ Pendente"}</span>
-          </div>
-        </div>
-
-        <div class="visitBadges">
-          <span class="tag ${tagVisitStatus(v.status)}">${escapeHtml(v.status)}</span>
-          <span class="tag">Potencial: <b>${pot}</b></span>
-          <span class="tag ${tagTri(v.hasPotential)}">Potencial? ${escapeHtml(v.hasPotential)}</span>
-          <span class="tag ${willClass}">Vai comprar? ${escapeHtml(v.willBuy)}</span>
-          <span class="tag ${orderClass}">Pedido? ${escapeHtml(v.tookOrder)}</span>
-          ${v.tookOrder==="Sim" ? `<span class="tag ok">R$ Pedido: <b>${ord}</b></span>` : ``}
-          ${v.followUpDate ? `<span class="tag warn">Retorno: <b>${escapeHtml(v.followUpDate)}</b></span>` : ``}
-        </div>
-
-        ${v.nextStep ? `<div class="visitNote"><b>Próximo passo:</b> ${escapeHtml(v.nextStep)}</div>` : ``}
-        ${v.notes ? `<div class="visitNote">${escapeHtml(v.notes)}</div>` : ``}
-
-        <div class="visitActions">
-          <button class="btn" data-act="edit" data-id="${v.id}">✏️ Editar</button>
-          <button class="btn danger" data-act="del" data-id="${v.id}">🗑️ Excluir</button>
-        </div>
-      `;
-
-      list.appendChild(el);
+    if(!navigator.onLine){
+      showFbAlert("⚠️ Sem internet agora. Sync precisa estar Online.");
+      return;
     }
-
-    list.querySelectorAll("button[data-act]").forEach(b=>{
-      b.addEventListener("click", ()=>{
-        const id = b.getAttribute("data-id");
-        const act = b.getAttribute("data-act");
-        if(act==="edit") editVisit(id);
-        if(act==="del") delVisit(id);
-      });
-    });
-  }
-
-  function editVisit(id){
-    const v = all.find(x=>x.id===id);
-    if(!v) return;
-
-    editingId = v.id;
-    $("f_date").value = v.date;
-    $("f_clientName").value = v.clientName || "";
-    $("f_city").value = v.city || "";
-    $("f_status").value = v.status || "Visitado";
-    $("f_potential").value = (v.potentialValue||"");
-    $("f_hasPotential").value = v.hasPotential || "Sim";
-    $("f_willBuy").value = v.willBuy || "Não";
-    $("f_tookOrder").value = v.tookOrder || "Não";
-    $("f_orderValue").value = (v.orderValue||"");
-    $("f_nextStep").value = v.nextStep || "Retornar ligação";
-    $("f_followUp").value = v.followUpDate || "";
-    $("f_notes").value = v.notes || "";
-
-    $("newTitle").textContent = "✏️ Editar visita";
-    openNewModal();
-  }
-
-  function delVisit(id){
-    const v = all.find(x=>x.id===id);
-    if(!v) return;
-    if(!confirm(`Excluir a visita de "${v.clientName}" deste aparelho?`)) return;
-
-    all = all.filter(x=>x.id!==id);
-    saveLocal(all);
-
-    // tombstone pra sync
-    const t = { id, _deleted:true, seller:getSeller().trim(), date: v.date, updatedAt: nowISO(), sourceDevice: deviceId };
-    const q = loadQueue();
-    q.push(t);
-    saveQueue(q);
-
-    renderAll();
-    toast("Removido", "Excluído localmente (vai refletir no sync).");
-  }
-
-  /***********************
-   * KPIs + period summary
-   ***********************/
-  let periodMode = "today"; // today/week/month
-  function inPeriod(v){
-    const d = new Date(v.date + "T00:00:00");
-    const base = new Date($("visitDate").value + "T00:00:00");
-    if(periodMode === "today") return v.date === $("visitDate").value;
-
-    if(periodMode === "week"){
-      const day = (base.getDay()+6)%7; // Mon=0
-      const start = new Date(base); start.setDate(base.getDate()-day);
-      const end = new Date(start); end.setDate(start.getDate()+7);
-      return d >= start && d < end;
+    let ok=0;
+    for(const v of visitas){
+      try{ await pushVisitFn(v); ok++; }catch{}
     }
-    if(periodMode === "month"){
-      return v.date.slice(0,7) === $("visitDate").value.slice(0,7);
-    }
-    return true;
-  }
-  function weekStartLabel(dateStr){
-    const base = new Date(dateStr + "T00:00:00");
-    const day = (base.getDay()+6)%7;
-    const start = new Date(base); start.setDate(base.getDate()-day);
-    return todayStr(start);
-  }
+    showFbAlert(`✅ Sync concluído (enviado ${ok}/${visitas.length}).`);
+  };
 
-  function renderKpisDay(){
-    const d = $("visitDate").value;
-    const rows = all.filter(x=>x.date===d);
-    const visited = rows.length;
-    const orders = rows.filter(x=>x.tookOrder==="Sim").length;
-    const promise = rows.filter(x=>x.willBuy==="Sim").length;
-    const potSum = rows.reduce((a,x)=>a+(Number(x.potentialValue)||0),0);
-
-    $("kpiVisited").textContent = visited;
-    $("kpiOrders").textContent = orders;
-    $("kpiPromise").textContent = promise;
-    $("kpiPotential").textContent = money(potSum);
-    $("kpiVisitedS").textContent = d;
-
-    const pend = loadQueue().length;
-    $("dashHint").textContent = pend ? `Você tem ${pend} registro(s) pendente(s) para sincronizar.` : "Sem pendências. Tudo certo.";
-  }
-
-  function renderPeriodPanels(){
-    const rows = all.filter(inPeriod);
-    const map = new Map();
-    for(const v of rows){
-      const key = `${v.clientName}||${v.city||""}`;
-      map.set(key, (map.get(key)||0) + (Number(v.potentialValue)||0));
-    }
-    const top = [...map.entries()]
-      .map(([k,val])=>({k,val}))
-      .sort((a,b)=>b.val-a.val)
-      .slice(0,6);
-
-    $("topClients").innerHTML = top.length
-      ? top.map(x=>{
-          const [name, city] = x.k.split("||");
-          return `• <strong>${escapeHtml(name)}</strong> <span class="muted">(${escapeHtml(city||"—")})</span> — <span class="tag">${money(x.val)}</span>`;
-        }).join("<br>")
-      : "—";
-
-    const follow = rows
-      .filter(v=>v.followUpDate)
-      .sort((a,b)=> (a.followUpDate||"").localeCompare(b.followUpDate||""))
-      .slice(0,10);
-
-    $("followUps").innerHTML = follow.length
-      ? follow.map(v=>{
-          return `• <span class="tag warn">${escapeHtml(v.followUpDate)}</span> <strong>${escapeHtml(v.clientName)}</strong> <span class="muted">• ${escapeHtml(v.nextStep||"")}</span>`;
-        }).join("<br>")
-      : "—";
-  }
-
-  /***********************
-   * Export CSV
-   ***********************/
-  function toCSV(rows){
-    const head = ["Data","Vendedor","Cliente","Cidade","Status","Potencial_R$","TemPotencial","VaiComprar","TirouPedido","ValorPedido_R$","ProximoPasso","Retorno","Obs"];
-    const lines = [head.join(";")];
-    for(const v of rows){
-      const line = [
-        v.date, v.seller, v.clientName, v.city||"",
-        v.status||"", (v.potentialValue||0),
-        v.hasPotential||"", v.willBuy||"", v.tookOrder||"", (v.orderValue||0),
-        v.nextStep||"", v.followUpDate||"", (v.notes||"").replace(/\n/g," ")
-      ].map(x=>String(x).replace(/;/g,","));
-      lines.push(line.join(";"));
-    }
-    return lines.join("\n");
-  }
-  function download(name, content, type="text/plain"){
-    const blob = new Blob([content], {type});
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = name;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
-  }
-
-  $("btnExportDay").addEventListener("click", ()=>{
-    const d = $("visitDate").value;
-    const rows = all.filter(x=>x.date===d);
-    download(`visitas_${d}.csv`, toCSV(rows), "text/csv;charset=utf-8");
-    toast("Exportado", `CSV do dia ${d} gerado.`);
-  });
-
-  $("btnExportPeriod").addEventListener("click", ()=>{
-    const d = $("visitDate").value;
-    const rows = all.filter(inPeriod);
-    const tag = periodMode==="today" ? d : (periodMode==="week" ? `semana_${weekStartLabel(d)}` : `mes_${d.slice(0,7)}`);
-    download(`visitas_${tag}.csv`, toCSV(rows), "text/csv;charset=utf-8");
-    toast("Exportado", "CSV do período gerado.");
-  });
-
-  /***********************
-   * Backup / Restore JSON
-   ***********************/
-  $("btnBackup").addEventListener("click", ()=>{
-    const payload = { deviceId, seller: getSeller(), exportedAt: nowISO(), data: all };
-    download(`backup_visitas_${todayStr()}.json`, JSON.stringify(payload,null,2), "application/json");
-    toast("Backup", "Arquivo baixado.");
-  });
-
-  $("btnRestore").addEventListener("click", ()=> $("restoreFile").click());
-
-  $("restoreFile").addEventListener("change", async (e)=>{
-    const file = e.target.files?.[0];
-    if(!file) return;
-    const txt = await file.text();
-    try{
-      const payload = JSON.parse(txt);
-      if(!payload?.data || !Array.isArray(payload.data)) throw new Error("Formato inválido");
-      if(!confirm("Restaurar vai MESCLAR com os dados atuais. Continuar?")) return;
-
-      const map = new Map(all.map(x=>[x.id,x]));
-      for(const v of payload.data){
-        if(!v?.id) continue;
-        map.set(v.id, {...map.get(v.id), ...v, synced:false});
-        enqueueForSync(v);
-      }
-      all = [...map.values()].sort((a,b)=> (b.updatedAt||"").localeCompare(a.updatedAt||""));
-      saveLocal(all);
-      renderAll();
-      toast("Restaurado", "Backup mesclado com sucesso.");
-    }catch{
-      toast("Erro", "Não consegui ler esse backup.");
-    }finally{
-      e.target.value = "";
-    }
-  });
-
-  /***********************
-   * Config / Seller
-   ***********************/
-  $("btnSetSeller").addEventListener("click", ()=>{
-    const cur = getSeller();
-    const name = prompt("Nome do vendedor (ex.: Cristiano):", cur || "");
-    if(name === null) return;
-    setSeller(name);
-    toast("Vendedor", name.trim() ? `Agora: ${name.trim()}` : "Sem nome definido");
-  });
-
-  /***********************
-   * Reset local day
-   ***********************/
-  $("btnResetDay").addEventListener("click", ()=>{
-    const d = $("visitDate").value;
-    if(!confirm("Apagar registros do dia (somente LOCAL)?")) return;
-    all = all.filter(x=>x.date !== d);
-    saveLocal(all);
-    const q = loadQueue().filter(x=>x.date !== d);
-    saveQueue(q);
-    renderAll();
-    toast("Ok", "Registros do dia removidos do aparelho.");
-  });
-
-  /***********************
-   * Search / filter events
-   ***********************/
-  $("search").addEventListener("input", renderVisitsList);
-  $("filterQuick").addEventListener("change", renderVisitsList);
-
-  /***********************
-   * Period buttons
-   ***********************/
-  $("btnToday").addEventListener("click", ()=>{ periodMode="today"; toast("Período", "Hoje"); renderPeriodPanels(); });
-  $("btnWeek").addEventListener("click", ()=>{ periodMode="week"; toast("Período", "Semana"); renderPeriodPanels(); });
-  $("btnMonth").addEventListener("click", ()=>{ periodMode="month"; toast("Período", "Mês"); renderPeriodPanels(); });
-
-  /***********************
-   * Date change
-   ***********************/
-  $("visitDate").addEventListener("change", ()=>{
-    updateSubtitle();
-    $("f_date").value = $("visitDate").value;
-    renderAll();
-  });
-
-  /***********************
-   * Firebase sync
-   ***********************/
-  async function ensureAuth(){
-    if(!enableFirebase) return true;
-    try{
-      await signInAnonymously(auth);
-      return true;
-    }catch(err){
-      console.error(err);
-      toast("Firebase", "Falha no login anônimo. Verifique Auth/Regras.");
-      return false;
-    }
-  }
-
-  function pathForVisit(v){
-    const ym = (v.date || todayStr()).slice(0,7);
-    const sellerKey = (v.seller || "SEM_VENDEDOR").toUpperCase().replace(/\s+/g,"_");
-    return `visitas/${sellerKey}/${ym}/${v.id}`;
-  }
-
-  async function pushQueue(){
-    if(!enableFirebase) return;
-    if(!navigator.onLine){ toast("Offline", "Sem internet. Vou sincronizar quando voltar."); return; }
-    const ok = await ensureAuth();
-    if(!ok) return;
-
-    const q = loadQueue();
-    if(q.length===0){ toast("Sync", "Nada pendente para enviar."); return; }
-
-    let sent = 0;
-    for(const item of q){
-      try{
-        if(item._deleted){
-          const sellerKey = (item.seller || "SEM_VENDEDOR").toUpperCase().replace(/\s+/g,"_");
-          const ym = (item.date || todayStr()).slice(0,7);
-          const p = `visitas/${sellerKey}/${ym}/${item.id}`;
-          await update(ref(db, p), { _deleted:true, updatedAt: item.updatedAt || nowISO(), sourceDevice: deviceId });
-          sent++; continue;
-        }
-        const p = pathForVisit(item);
-        await set(ref(db, p), { ...item, synced:true });
-        sent++;
-      }catch(err){
-        console.error("sync item err", err);
-      }
-    }
-
-    saveQueue([]);
-
-    const ids = new Set(q.filter(x=>x && x.id && !x._deleted).map(x=>x.id));
-    all = all.map(v=> ids.has(v.id) ? {...v, synced:true} : v );
-    saveLocal(all);
-
-    toast("Sincronizado", `Enviei ${sent} registro(s) pro Firebase.`);
-    renderAll();
-  }
-
-  async function pullMonth(){
-    if(!enableFirebase) return;
-    if(!navigator.onLine) return;
-
-    const ok = await ensureAuth();
-    if(!ok) return;
-
-    const seller = getSeller().trim();
-    if(!seller) return;
-
-    const sellerKey = seller.toUpperCase().replace(/\s+/g,"_");
-    const ym = $("visitDate").value.slice(0,7);
-
-    try{
-      const snap = await get(child(ref(db), `visitas/${sellerKey}/${ym}`));
-      if(!snap.exists()) return;
-
-      const obj = snap.val() || {};
-      const list = Object.values(obj).filter(Boolean).filter(v=>!v._deleted);
-
-      const map = new Map(all.map(x=>[x.id,x]));
-      for(const v of list){
-        map.set(v.id, {...map.get(v.id), ...v, synced:true});
-      }
-      all = [...map.values()].sort((a,b)=> (b.updatedAt||"").localeCompare(a.updatedAt||""));
-      saveLocal(all);
-      renderAll();
-      toast("Atualizado", "Dados do mês atual carregados.");
-    }catch(err){
-      console.error(err);
-    }
-  }
-
-  $("btnSync").addEventListener("click", async ()=>{
-    await pushQueue();
-    await pullMonth();
-  });
-
-  // auto-sync leve
-  setInterval(async ()=>{
-    if(!enableFirebase) return;
-    if(!navigator.onLine) return;
-    const q = loadQueue();
-    if(q.length>0) await pushQueue();
-  }, 15000);
-
-  /***********************
-   * Render all
-   ***********************/
-  function renderAll(){
-    renderKpisDay();
-    renderPeriodPanels();
-    renderVisitsList();
-
-    const d = $("visitDate").value;
-    // hint no dashboard
-    const rows = all.filter(x=>x.date===d);
-    const pot = rows.reduce((a,x)=>a+(Number(x.potentialValue)||0),0);
-    const orders = rows.reduce((a,x)=>a+(Number(x.orderValue)||0),0);
-    const p = rows.filter(x=>x.willBuy==="Sim").length;
-
-    const pend = loadQueue().length;
-    const pendText = pend ? ` • ⏳ ${pend} pendente(s)` : "";
-    $("dashHint").textContent = `Potencial ${money(pot)} • Pedidos ${money(orders)} • Promessas ${p}${pendText}`;
-  }
-
-  // init
-  renderAll();
-  pullMonth();
-
+  // init firebase
+  initFirebase();
 </script>
-
-<!--
-REGRAS SUGERIDAS (Realtime Database) — simples (ajuste depois):
-{
-  "rules": {
-    "visitas": {
-      "$seller": {
-        "$ym": {
-          "$id": {
-            ".read": true,
-            ".write": true
-          }
-        }
-      }
-    }
-  }
-}
--->
 </body>
 </html>
