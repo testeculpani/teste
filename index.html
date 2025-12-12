@@ -1,499 +1,1151 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <title>Painel Financeiro - Lucro e Despesas</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <!-- Fonte (opcional) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Visitas — Vendedor Externo</title>
+  <meta name="theme-color" content="#0b1220" />
   <style>
-    :root {
-      --bg-body: #0f172a;
-      --bg-card: #020617;
-      --accent1: #0ea5e9;
-      --accent2: #22c55e;
-      --accent3: #f97316;
-      --accent4: #ef4444;
-      --border: #1e293b;
-      --text-main: #e5e7eb;
-      --text-soft: #9ca3af;
+    :root{
+      --bg:#0b1220;
+      --card:#101a30;
+      --card2:#0f1a33;
+      --muted:#9fb0d0;
+      --text:#e9f0ff;
+      --ok:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --line:rgba(255,255,255,.10);
+      --accent:#60a5fa;
+      --accent2:#a78bfa;
+      --shadow: 0 18px 50px rgba(0,0,0,.35);
+      --radius:18px;
+      --radius2:14px;
+      --pad:16px;
     }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Helvetica Neue", sans-serif;
+      background: radial-gradient(1200px 700px at 20% -10%, rgba(96,165,250,.22), transparent 60%),
+                  radial-gradient(900px 600px at 120% 10%, rgba(167,139,250,.20), transparent 55%),
+                  linear-gradient(180deg, #070b14, var(--bg));
+      color:var(--text);
+      min-height:100vh;
     }
-
-    body {
-      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background: radial-gradient(circle at top, #0f172a, #020617 55%);
-      color: var(--text-main);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
+    header{
+      position:sticky; top:0; z-index:10;
+      backdrop-filter: blur(10px);
+      background: linear-gradient(180deg, rgba(11,18,32,.90), rgba(11,18,32,.50));
+      border-bottom:1px solid var(--line);
     }
-
-    .app {
-      width: 100%;
-      max-width: 960px;
-      padding: 16px 12px 24px;
+    .wrap{max-width:1150px; margin:0 auto; padding:14px 16px;}
+    .top{
+      display:flex; gap:12px; align-items:center; justify-content:space-between;
+      flex-wrap:wrap;
     }
-
-    header {
-      margin-bottom: 16px;
+    .brand{
+      display:flex; align-items:center; gap:12px;
     }
-
-    .title-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
+    .logo{
+      width:40px; height:40px; border-radius:14px;
+      background: linear-gradient(135deg, rgba(96,165,250,.9), rgba(167,139,250,.9));
+      box-shadow: 0 12px 35px rgba(96,165,250,.25);
     }
-
-    h1 {
-      font-size: 1.25rem;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    h1{margin:0; font-size:16px; letter-spacing:.3px}
+    .sub{margin:2px 0 0; font-size:12px; color:var(--muted)}
+    .row{display:flex; gap:12px; flex-wrap:wrap; align-items:center}
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 12px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      border-radius:999px;
+      font-size:12px;
+      color:var(--muted);
     }
-
-    .logo-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, var(--accent1), var(--accent2));
-      box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.2);
+    .dot{width:8px; height:8px; border-radius:50%;}
+    .dot.ok{background:var(--ok)}
+    .dot.bad{background:var(--bad)}
+    .btn{
+      cursor:pointer;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      font-weight:600;
+      font-size:13px;
+      display:inline-flex; align-items:center; gap:8px;
+      transition:.15s ease;
+      user-select:none;
     }
-
-    .subtitle {
-      font-size: 0.8rem;
-      color: var(--text-soft);
-      margin-top: 4px;
+    .btn:hover{transform: translateY(-1px); background: rgba(255,255,255,.06)}
+    .btn.primary{
+      border-color: rgba(96,165,250,.45);
+      background: linear-gradient(135deg, rgba(96,165,250,.22), rgba(167,139,250,.16));
     }
-
-    /* Cards */
-    .cards-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-      margin-bottom: 16px;
+    .btn.danger{
+      border-color: rgba(239,68,68,.35);
+      background: rgba(239,68,68,.10);
     }
-
-    @media (min-width: 720px) {
-      .cards-grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-      }
+    main{padding:18px 0 30px}
+    .grid{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:14px;
     }
-
-    .card {
-      border-radius: 18px;
-      background: radial-gradient(circle at top left, rgba(148, 163, 184, 0.08), rgba(15, 23, 42, 0.95));
-      border: 1px solid var(--border);
-      padding: 10px 10px 12px;
-      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.8);
+    @media (max-width: 980px){
+      .grid{grid-template-columns: 1fr}
     }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 4px;
+    .card{
+      background: linear-gradient(180deg, rgba(16,26,48,.95), rgba(16,26,48,.78));
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
     }
-
-    .card-label {
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-soft);
+    .card .hd{
+      padding:14px 16px;
+      border-bottom:1px solid var(--line);
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
     }
-
-    .pill {
-      font-size: 0.65rem;
-      padding: 2px 6px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      color: var(--text-soft);
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
+    .card .hd h2{
+      margin:0; font-size:14px; letter-spacing:.2px;
     }
-
-    .card-value {
-      font-size: 1rem;
-      font-weight: 600;
-      margin-bottom: 2px;
+    .card .bd{padding:16px}
+    .kpis{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap:10px;
     }
-
-    .card-sub {
-      font-size: 0.75rem;
-      color: var(--text-soft);
+    @media (max-width: 980px){
+      .kpis{grid-template-columns: repeat(2, 1fr);}
     }
-
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
+    .kpi{
+      background: linear-gradient(180deg, rgba(15,26,51,.9), rgba(15,26,51,.55));
+      border:1px solid var(--line);
+      border-radius: var(--radius2);
+      padding:12px 12px;
     }
-
-    .dot.income { background: var(--accent2); }
-    .dot.expense { background: var(--accent4); }
-    .dot.profit { background: var(--accent1); }
-    .dot.cost { background: var(--accent3); }
-
-    /* Seção gráficos */
-    .section-title {
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--text-soft);
-      margin: 4px 2px 8px;
+    .kpi .t{font-size:11px; color:var(--muted)}
+    .kpi .v{font-size:18px; font-weight:800; margin-top:6px}
+    .kpi .s{font-size:11px; color:var(--muted); margin-top:2px}
+    .form{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
     }
-
-    .charts-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr);
-      gap: 12px;
-      margin-bottom: 16px;
+    @media (max-width: 700px){
+      .form{grid-template-columns: 1fr;}
     }
-
-    .chart-card {
-      border-radius: 18px;
-      background: radial-gradient(circle at top, rgba(30, 64, 175, 0.15), rgba(15, 23, 42, 0.98));
-      border: 1px solid var(--border);
-      padding: 10px 10px 12px;
-      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.9);
+    label{display:block; font-size:11px; color:var(--muted); margin-bottom:6px}
+    input, select, textarea{
+      width:100%;
+      background: rgba(255,255,255,.03);
+      border:1px solid var(--line);
+      color:var(--text);
+      padding:11px 12px;
+      border-radius: 12px;
+      outline:none;
+      font-size:13px;
     }
-
-    .chart-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 6px;
-      font-size: 0.8rem;
+    textarea{min-height:92px; resize:vertical}
+    input:focus, select:focus, textarea:focus{
+      border-color: rgba(96,165,250,.55);
+      box-shadow: 0 0 0 4px rgba(96,165,250,.10);
     }
-
-    .chart-header span {
-      color: var(--text-soft);
-      font-size: 0.75rem;
+    .help{font-size:11px; color:var(--muted); margin-top:8px}
+    .actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
+    .tableWrap{overflow:auto; border-radius: var(--radius2); border:1px solid var(--line)}
+    table{width:100%; border-collapse:collapse; min-width: 860px;}
+    th, td{padding:10px 10px; border-bottom:1px solid var(--line); font-size:12px; text-align:left; vertical-align:top}
+    th{position:sticky; top:0; background: rgba(11,18,32,.85); color:var(--muted); font-weight:700}
+    tr:hover td{background: rgba(255,255,255,.02)}
+    .tag{
+      display:inline-flex; align-items:center; gap:6px;
+      padding:4px 8px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      font-size:11px;
+      color:var(--muted);
+      background: rgba(255,255,255,.03);
+      white-space:nowrap;
     }
-
-    .chart-container {
-      position: relative;
-      width: 100%;
-      height: 190px;
+    .tag.ok{border-color: rgba(34,197,94,.35); background: rgba(34,197,94,.10); color:#bff4cf}
+    .tag.warn{border-color: rgba(245,158,11,.35); background: rgba(245,158,11,.10); color:#ffe1b0}
+    .tag.bad{border-color: rgba(239,68,68,.35); background: rgba(239,68,68,.10); color:#ffd1d1}
+    .smallRow{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    .searchBar{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    .searchBar input{max-width:360px}
+    .hr{height:1px; background: var(--line); margin:12px 0}
+    .muted{color:var(--muted)}
+    .rightActions{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end}
+    .mini{font-size:11px; color:var(--muted)}
+    .toast{
+      position: fixed;
+      right: 14px;
+      bottom: 14px;
+      z-index: 999;
+      max-width: 360px;
+      background: rgba(16,26,48,.95);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px 12px;
+      box-shadow: var(--shadow);
+      display:none;
     }
-
-    .footer-note {
-      margin-top: 8px;
-      font-size: 0.7rem;
-      color: var(--text-soft);
-      text-align: center;
-      opacity: 0.8;
+    .toast.show{display:block}
+    .toast .t{font-weight:800; font-size:13px}
+    .toast .m{font-size:12px; color:var(--muted); margin-top:4px; line-height:1.35}
+    .footer{
+      padding:14px 16px;
+      color:var(--muted);
+      font-size:11px;
+      border-top:1px solid var(--line);
+      background: rgba(255,255,255,.02);
     }
   </style>
 </head>
 <body>
-  <div class="app">
-    <header>
-      <div class="title-row">
+<header>
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
         <div>
-          <h1><span class="logo-dot"></span>Painel Financeiro</h1>
-          <p class="subtitle">Receita, despesas, custo % e evolução mensal (dados da planilha).</p>
+          <h1>Visitas — Vendedor Externo</h1>
+          <div class="sub">Registro de clientes visitados, potencial, pedidos e promessas • Offline + Sync</div>
         </div>
       </div>
-    </header>
-
-    <!-- Cards resumo - Novembro -->
-    <div class="cards-grid">
-      <div class="card" id="cardReceita">
-        <div class="card-header">
-          <span class="card-label">Receitas</span>
-          <span class="pill"><span class="dot income"></span>Total</span>
-        </div>
-        <div class="card-value" id="receitaTotal">R$ 0,00</div>
-        <div class="card-sub">Receita do último mês (Nov).</div>
-      </div>
-
-      <div class="card" id="cardDespesa">
-        <div class="card-header">
-          <span class="card-label">Despesas</span>
-          <span class="pill"><span class="dot expense"></span>Total</span>
-        </div>
-        <div class="card-value" id="despesaTotal">R$ 0,00</div>
-        <div class="card-sub">Despesas do último mês (Nov).</div>
-      </div>
-
-      <div class="card" id="cardLucro">
-        <div class="card-header">
-          <span class="card-label">Lucro</span>
-          <span class="pill"><span class="dot profit"></span>Líquido</span>
-        </div>
-        <div class="card-value" id="lucroTotal">R$ 0,00</div>
-        <div class="card-sub">Lucro do último mês (Nov).</div>
-      </div>
-
-      <div class="card" id="cardPercCusto">
-        <div class="card-header">
-          <span class="card-label">% Custo</span>
-          <span class="pill"><span class="dot cost"></span>Custo / Receita</span>
-        </div>
-        <div class="card-value" id="percCustoValor">0,0%</div>
-        <div class="card-sub">Percentual de despesa sobre a receita (Nov).</div>
+      <div class="row">
+        <div class="pill" id="pillConn"><span class="dot bad" id="connDot"></span><span id="connTxt">Offline</span></div>
+        <div class="pill"><span class="muted">Vendedor:</span> <strong id="sellerName">—</strong></div>
+        <button class="btn" id="btnSetSeller">✏️ Definir vendedor</button>
+        <button class="btn primary" id="btnSync">🔄 Sincronizar</button>
       </div>
     </div>
-
-    <div class="section-title">Visão gráfica</div>
-
-    <!-- Gráficos -->
-    <div class="charts-grid">
-      <div class="chart-card">
-        <div class="chart-header">
-          <strong>Receita por mês</strong>
-          <span>ResumoMes</span>
-        </div>
-        <div class="chart-container">
-          <canvas id="receitaChart"></canvas>
-        </div>
-      </div>
-
-      <div class="chart-card">
-        <div class="chart-header">
-          <strong>Despesas por mês</strong>
-          <span>ResumoMes</span>
-        </div>
-        <div class="chart-container">
-          <canvas id="despMesChart"></canvas>
-        </div>
-      </div>
-
-      <div class="chart-card">
-        <div class="chart-header">
-          <strong>Despesas por categoria (mês atual)</strong>
-          <span>Baseado em Novembro</span>
-        </div>
-        <div class="chart-container">
-          <canvas id="catChart"></canvas>
-        </div>
-      </div>
-    </div>
-
-    <p class="footer-note">
-      Dados carregados diretamente deste arquivo. Para novos meses, é só atualizar a planilha e gerar outro index.
-    </p>
   </div>
+</header>
 
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<main>
+  <div class="wrap">
+    <div class="grid">
+      <!-- ESQUERDA -->
+      <section class="card">
+        <div class="hd">
+          <h2>📝 Nova visita</h2>
+          <div class="smallRow">
+            <span class="mini">Data:</span>
+            <input type="date" id="visitDate" />
+          </div>
+        </div>
+        <div class="bd">
+          <div class="kpis" style="margin-bottom:12px;">
+            <div class="kpi">
+              <div class="t">Clientes visitados (dia)</div>
+              <div class="v" id="kpiVisited">0</div>
+              <div class="s" id="kpiVisitedS">—</div>
+            </div>
+            <div class="kpi">
+              <div class="t">Pedidos tirados (dia)</div>
+              <div class="v" id="kpiOrders">0</div>
+              <div class="s">Conta: “Tirou pedido?”</div>
+            </div>
+            <div class="kpi">
+              <div class="t">Promessa de compra (dia)</div>
+              <div class="v" id="kpiPromise">0</div>
+              <div class="s">Conta: “Falou que vai comprar?”</div>
+            </div>
+            <div class="kpi">
+              <div class="t">Potencial total (dia)</div>
+              <div class="v" id="kpiPotential">R$ 0</div>
+              <div class="s">Soma do potencial estimado</div>
+            </div>
+          </div>
 
-  <script>
-    // Meses exibidos
-    const meses = ["Jul", "Ago", "Set", "Out", "Nov"];
+          <div class="form">
+            <div>
+              <label>Nome do cliente *</label>
+              <input id="clientName" placeholder="Ex.: Mercado São João" />
+            </div>
+            <div>
+              <label>Cidade / Região</label>
+              <input id="clientCity" placeholder="Ex.: Realeza - PR" />
+            </div>
 
-    // RECEITA POR MÊS (gráfico 1)
-    // Jul, Ago, Set = 0 | Out = 26.687 | Nov = 20.190,26
-    const receitasMes = [0, 0, 0, 26687, 21189.00];
+            <div>
+              <label>Status da visita</label>
+              <select id="visitStatus">
+                <option value="Visitado">Visitado</option>
+                <option value="Não atendeu">Não atendeu</option>
+                <option value="Remarcar">Remarcar</option>
+                <option value="Somente prospecção">Somente prospecção</option>
+              </select>
+            </div>
+            <div>
+              <label>Potencial do cliente (estimado) — R$</label>
+              <input id="potentialValue" inputmode="decimal" placeholder="Ex.: 2500" />
+            </div>
 
-    // DESPESAS POR MÊS (gráfico 2)
-    // Ago = 2.999 | Set = 3.268 | Out = 2.895 | Nov = 2.977
-    const despesasMes = [0, 2999, 3268, 2895, 3451];
+            <div>
+              <label>Tem potencial de compra?</label>
+              <select id="hasPotential">
+                <option value="Sim">Sim</option>
+                <option value="Talvez">Talvez</option>
+                <option value="Não">Não</option>
+              </select>
+            </div>
+            <div>
+              <label>Falou que vai comprar?</label>
+              <select id="willBuy">
+                <option value="Não">Não</option>
+                <option value="Sim">Sim</option>
+                <option value="Talvez">Talvez</option>
+              </select>
+            </div>
 
-    // DESPESAS POR CATEGORIA (Novembro)
-    const catLabels = ["Aluguel", "Folha Salarial", "Contabil", "Trafego Pago", "Operacional"];
-    const catValues = [950, 1200, 100, 70, 577];
+            <div>
+              <label>Tirou pedido?</label>
+              <select id="tookOrder">
+                <option value="Não">Não</option>
+                <option value="Sim">Sim</option>
+              </select>
+            </div>
+            <div>
+              <label>Valor do pedido — R$ (se tirou)</label>
+              <input id="orderValue" inputmode="decimal" placeholder="Ex.: 1800" />
+            </div>
 
-    // RESUMO NOVEMBRO (para os cards) – ATUALIZADO
-    const receitaNov = 21189.00;
-    const despesaNov = 3451;
-    const lucroNov = receitaNov - despesaNov; // 17213.26
-    const percCustoNov = receitaNov > 0 ? (despesaNov / receitaNov) * 100 : 0;
+            <div>
+              <label>Próximo passo</label>
+              <select id="nextStep">
+                <option value="Retornar ligação">Retornar ligação</option>
+                <option value="Enviar proposta">Enviar proposta</option>
+                <option value="Enviar catálogo/Whats">Enviar catálogo/Whats</option>
+                <option value="Aguardar decisão">Aguardar decisão</option>
+                <option value="Nova visita">Nova visita</option>
+                <option value="Sem próximo passo">Sem próximo passo</option>
+              </select>
+            </div>
+            <div>
+              <label>Data de retorno (se necessário)</label>
+              <input type="date" id="followUpDate" />
+            </div>
 
-    function formatCurrency(valor) {
-      return valor.toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-        minimumFractionDigits: 2
-      });
+            <div style="grid-column:1/-1">
+              <label>Observações / O que o cliente falou</label>
+              <textarea id="notes" placeholder="Ex.: Cliente quer comprar mês que vem, pediu prazo, mostrou concorrente mais barato…"></textarea>
+              <div class="help">Dica: seja objetivo. Isso vira seu histórico para fechar venda depois.</div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn primary" id="btnAdd">✅ Salvar visita</button>
+            <button class="btn" id="btnClear">🧹 Limpar</button>
+            <button class="btn danger" id="btnResetDay">🗑️ Apagar registros do dia (apenas local)</button>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="searchBar">
+            <input id="search" placeholder="🔎 Buscar por cliente/cidade/nota..." />
+            <select id="filterQuick">
+              <option value="all">Filtro rápido: Todos</option>
+              <option value="orders">Somente com pedido</option>
+              <option value="promise">Somente promessa de compra</option>
+              <option value="potentialHigh">Potencial alto (>= 3000)</option>
+              <option value="noShow">Não atendeu</option>
+              <option value="resched">Remarcar</option>
+            </select>
+            <div class="rightActions" style="margin-left:auto">
+              <button class="btn" id="btnExport">⬇️ Exportar CSV (dia)</button>
+            </div>
+          </div>
+
+          <div style="margin-top:12px" class="tableWrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Cliente</th>
+                  <th>Cidade</th>
+                  <th>Status</th>
+                  <th>Potencial</th>
+                  <th>Potencial?</th>
+                  <th>Vai comprar?</th>
+                  <th>Pedido?</th>
+                  <th>R$ Pedido</th>
+                  <th>Próximo passo</th>
+                  <th>Retorno</th>
+                  <th>Obs.</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tbody"></tbody>
+            </table>
+          </div>
+
+        </div>
+        <div class="footer">
+          <span class="muted">Offline primeiro:</span> salva local e sincroniza quando tiver internet • <span class="muted">ID do aparelho:</span> <span id="deviceId"></span>
+        </div>
+      </section>
+
+      <!-- DIREITA -->
+      <aside class="card">
+        <div class="hd">
+          <h2>📊 Resumo rápido</h2>
+          <div class="smallRow">
+            <button class="btn" id="btnToday">Hoje</button>
+            <button class="btn" id="btnWeek">Semana</button>
+            <button class="btn" id="btnMonth">Mês</button>
+          </div>
+        </div>
+        <div class="bd">
+          <div class="kpis" style="grid-template-columns: 1fr 1fr; margin-bottom:12px;">
+            <div class="kpi">
+              <div class="t">Visitas (período)</div>
+              <div class="v" id="kpiP_visits">0</div>
+              <div class="s" id="kpiP_visitsS">—</div>
+            </div>
+            <div class="kpi">
+              <div class="t">Potencial total</div>
+              <div class="v" id="kpiP_potential">R$ 0</div>
+              <div class="s">Soma potencial estimado</div>
+            </div>
+            <div class="kpi">
+              <div class="t">Pedidos tirados</div>
+              <div class="v" id="kpiP_orders">0</div>
+              <div class="s">Qtd no período</div>
+            </div>
+            <div class="kpi">
+              <div class="t">R$ em pedidos</div>
+              <div class="v" id="kpiP_orderValue">R$ 0</div>
+              <div class="s">Soma valor pedido</div>
+            </div>
+          </div>
+
+          <div class="hr"></div>
+
+          <div>
+            <div class="muted" style="font-size:12px; font-weight:700; margin-bottom:8px;">⭐ Top clientes por potencial</div>
+            <div id="topClients" class="muted" style="font-size:12px; line-height:1.6">—</div>
+          </div>
+
+          <div class="hr"></div>
+
+          <div>
+            <div class="muted" style="font-size:12px; font-weight:700; margin-bottom:8px;">📌 Próximos retornos</div>
+            <div id="followUps" class="muted" style="font-size:12px; line-height:1.6">—</div>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="actions">
+            <button class="btn" id="btnExportAll">⬇️ Exportar CSV (período)</button>
+            <button class="btn" id="btnBackup">💾 Backup JSON (local)</button>
+            <button class="btn" id="btnRestore">📥 Restaurar JSON</button>
+            <input type="file" id="restoreFile" accept="application/json" style="display:none" />
+          </div>
+
+          <div class="help">
+            💡 Dica de vendas: registre o que o cliente comparou e qual objeção apareceu (preço, prazo, marca). Isso vira munição pro follow-up.
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast">
+  <div class="t" id="toastT">Ok</div>
+  <div class="m" id="toastM">—</div>
+</div>
+
+<script type="module">
+  /***********************
+   * CONFIG — Firebase
+   ***********************/
+  // ✅ Cole aqui o firebaseConfig do seu projeto (o mesmo que você usa nos outros apps)
+  const firebaseConfig = {
+    apiKey: "COLE_AQUI",
+    authDomain: "COLE_AQUI",
+    databaseURL: "COLE_AQUI",
+    projectId: "COLE_AQUI",
+    storageBucket: "COLE_AQUI",
+    messagingSenderId: "COLE_AQUI",
+    appId: "COLE_AQUI"
+  };
+
+  // Para funcionar SEM Firebase, deixe enableFirebase=false (vai ficar só local/offline)
+  const enableFirebase = true;
+
+  /***********************
+   * IMPORTS Firebase
+   ***********************/
+  let app, db, auth, onValue, ref, set, update, get, child, signInAnonymously;
+  if(enableFirebase){
+    const { initializeApp } = await import("https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js");
+    const { getDatabase, ref: _ref, set: _set, update: _update, get: _get, child: _child, onValue: _onValue } =
+      await import("https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js");
+    const { getAuth, signInAnonymously: _signInAnonymously } =
+      await import("https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js");
+
+    app = initializeApp(firebaseConfig);
+    db = getDatabase(app);
+    auth = getAuth(app);
+    ref = _ref; set = _set; update = _update; get = _get; child = _child; onValue = _onValue;
+    signInAnonymously = _signInAnonymously;
+  }
+
+  /***********************
+   * Helpers
+   ***********************/
+  const $ = (id)=>document.getElementById(id);
+  const LS_KEY = "visitas_vendedor_v1";
+  const LS_QUEUE = "visitas_queue_v1";
+  const LS_SELLER = "visitas_seller_v1";
+  const LS_DEVICE = "visitas_device_v1";
+
+  function uuid(){
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c=>{
+      const r = (crypto.getRandomValues(new Uint8Array(1))[0] % 16) | 0;
+      const v = c === "x" ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
+  }
+  function nowISO(){ return new Date().toISOString(); }
+  function todayStr(d=new Date()){
+    const off = d.getTimezoneOffset();
+    const dt = new Date(d.getTime() - off*60000);
+    return dt.toISOString().slice(0,10);
+  }
+  function money(n){
+    const v = Number(n || 0);
+    return v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+  }
+  function num(n){ return Number(String(n||"").replace(/[^\d.,-]/g,"").replace(/\./g,"").replace(",", ".")) || 0; }
+  function toast(t,m){
+    $("toastT").textContent=t;
+    $("toastM").textContent=m;
+    $("toast").classList.add("show");
+    setTimeout(()=>$("toast").classList.remove("show"), 3200);
+  }
+  function connUI(){
+    const online = navigator.onLine;
+    $("connDot").className = "dot " + (online ? "ok":"bad");
+    $("connTxt").textContent = online ? "Online" : "Offline";
+  }
+  window.addEventListener("online", ()=>{ connUI(); });
+  window.addEventListener("offline", ()=>{ connUI(); });
+  connUI();
+
+  // device id
+  let deviceId = localStorage.getItem(LS_DEVICE);
+  if(!deviceId){ deviceId = uuid(); localStorage.setItem(LS_DEVICE, deviceId); }
+  $("deviceId").textContent = deviceId.slice(0,8);
+
+  // seller
+  function getSeller(){
+    return localStorage.getItem(LS_SELLER) || "";
+  }
+  function setSeller(name){
+    localStorage.setItem(LS_SELLER, name.trim());
+    $("sellerName").textContent = name.trim() || "—";
+  }
+  setSeller(getSeller());
+
+  $("btnSetSeller").addEventListener("click", ()=>{
+    const cur = getSeller();
+    const name = prompt("Nome do vendedor (ex.: Cristiano):", cur || "");
+    if(name === null) return;
+    setSeller(name);
+    toast("Vendedor atualizado", name.trim() ? `Agora registrando como: ${name.trim()}` : "Sem nome definido");
+  });
+
+  // date default
+  $("visitDate").value = todayStr();
+
+  /***********************
+   * Data model
+   ***********************/
+  // Visit:
+  // { id, date(YYYY-MM-DD), seller, clientName, city, status, potentialValue, hasPotential, willBuy, tookOrder, orderValue, nextStep, followUpDate, notes, createdAt, updatedAt, sourceDevice, synced:boolean }
+  function loadLocal(){
+    try{ return JSON.parse(localStorage.getItem(LS_KEY) || "[]"); }catch{ return []; }
+  }
+  function saveLocal(arr){
+    localStorage.setItem(LS_KEY, JSON.stringify(arr));
+  }
+  function loadQueue(){
+    try{ return JSON.parse(localStorage.getItem(LS_QUEUE) || "[]"); }catch{ return []; }
+  }
+  function saveQueue(q){
+    localStorage.setItem(LS_QUEUE, JSON.stringify(q));
+  }
+
+  let all = loadLocal();
+
+  /***********************
+   * Period filter (right panel)
+   ***********************/
+  let periodMode = "today"; // today/week/month
+  function inPeriod(v){
+    const d = new Date(v.date + "T00:00:00");
+    const base = new Date($("visitDate").value + "T00:00:00");
+    if(periodMode === "today"){
+      return v.date === $("visitDate").value;
+    }
+    if(periodMode === "week"){
+      // week starting Monday
+      const day = (base.getDay()+6)%7; // Mon=0
+      const start = new Date(base); start.setDate(base.getDate()-day);
+      const end = new Date(start); end.setDate(start.getDate()+7);
+      return d >= start && d < end;
+    }
+    if(periodMode === "month"){
+      return v.date.slice(0,7) === $("visitDate").value.slice(0,7);
+    }
+    return true;
+  }
+
+  $("btnToday").addEventListener("click", ()=>{ periodMode="today"; toast("Período", "Resumo de hoje"); renderAll(); });
+  $("btnWeek").addEventListener("click", ()=>{ periodMode="week"; toast("Período", "Resumo da semana"); renderAll(); });
+  $("btnMonth").addEventListener("click", ()=>{ periodMode="month"; toast("Período", "Resumo do mês"); renderAll(); });
+
+  $("visitDate").addEventListener("change", ()=>{ renderAll(); });
+
+  /***********************
+   * Add / Edit / Delete
+   ***********************/
+  let editingId = null;
+
+  function clearForm(){
+    editingId = null;
+    $("clientName").value="";
+    $("clientCity").value="";
+    $("visitStatus").value="Visitado";
+    $("potentialValue").value="";
+    $("hasPotential").value="Sim";
+    $("willBuy").value="Não";
+    $("tookOrder").value="Não";
+    $("orderValue").value="";
+    $("nextStep").value="Retornar ligação";
+    $("followUpDate").value="";
+    $("notes").value="";
+  }
+  $("btnClear").addEventListener("click", clearForm);
+
+  $("btnAdd").addEventListener("click", ()=>{
+    const seller = getSeller().trim();
+    if(!seller){
+      toast("Falta vendedor", "Defina o nome do vendedor antes.");
+      return;
+    }
+    const date = $("visitDate").value || todayStr();
+    const clientName = $("clientName").value.trim();
+    if(!clientName){
+      toast("Falta cliente", "Informe o nome do cliente.");
+      return;
     }
 
-    // Plugin para mostrar os valores dentro das colunas
-    const barValueInsidePlugin = {
-      id: "barValueInsidePlugin",
-      afterDatasetsDraw(chart, args, pluginOptions) {
-        const { ctx } = chart;
-        const meta = chart.getDatasetMeta(0);
-        const dataset = chart.data.datasets[0];
-
-        ctx.save();
-        meta.data.forEach((bar, index) => {
-          const value = dataset.data[index];
-          if (value == null) return;
-
-          const x = bar.x;
-          const base = bar.base;
-          const top = bar.y;
-          const centerY = top + (base - top) / 2;
-
-          ctx.font = "10px Inter, system-ui, sans-serif";
-          ctx.fillStyle = "#f9fafb";
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-
-          const text = value.toLocaleString("pt-BR");
-          ctx.fillText(text, x, centerY);
-        });
-        ctx.restore();
-      }
+    const item = {
+      id: editingId || uuid(),
+      date,
+      seller,
+      clientName,
+      city: $("clientCity").value.trim(),
+      status: $("visitStatus").value,
+      potentialValue: num($("potentialValue").value),
+      hasPotential: $("hasPotential").value,
+      willBuy: $("willBuy").value,
+      tookOrder: $("tookOrder").value,
+      orderValue: num($("orderValue").value),
+      nextStep: $("nextStep").value,
+      followUpDate: $("followUpDate").value || "",
+      notes: $("notes").value.trim(),
+      sourceDevice: deviceId,
+      updatedAt: nowISO(),
+      createdAt: nowISO(),
+      synced: false
     };
 
-    Chart.register(barValueInsidePlugin);
+    // normalize if not order
+    if(item.tookOrder !== "Sim") item.orderValue = 0;
 
-    let receitaChart;
-    let despMesChart;
-    let catChart;
+    // upsert local
+    const idx = all.findIndex(x=>x.id===item.id);
+    if(idx>=0){
+      item.createdAt = all[idx].createdAt || item.createdAt;
+      all[idx] = {...all[idx], ...item};
+      toast("Atualizado", `Visita atualizada: ${item.clientName}`);
+    }else{
+      all.unshift(item);
+      toast("Salvo", `Visita registrada: ${item.clientName}`);
+    }
+    saveLocal(all);
 
-    function inicializarPainel() {
-      // Atualiza cards de Novembro
-      document.getElementById("receitaTotal").textContent = formatCurrency(receitaNov);
-      document.getElementById("despesaTotal").textContent = formatCurrency(despesaNov);
-      document.getElementById("lucroTotal").textContent = formatCurrency(lucroNov);
-      document.getElementById("percCustoValor").textContent =
-        percCustoNov.toFixed(1).replace(".", ",") + "%";
+    // enqueue for sync
+    const q = loadQueue();
+    const qidx = q.findIndex(x=>x.id===item.id);
+    if(qidx>=0) q[qidx] = item; else q.push(item);
+    saveQueue(q);
 
-      // Gráfico 1: Receita por mês (colunas)
-      const receitaCtx = document.getElementById("receitaChart");
-      receitaChart = new Chart(receitaCtx, {
-        type: "bar",
-        data: {
-          labels: meses,
-          datasets: [
-            {
-              label: "Receita mensal",
-              data: receitasMes,
-              borderWidth: 1
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              labels: {
-                color: "#e5e7eb",
-                font: { size: 11 }
-              }
-            }
-          },
-          scales: {
-            x: {
-              ticks: { color: "#9ca3af", font: { size: 10 } },
-              grid: { display: false }
-            },
-            y: {
-              ticks: {
-                color: "#9ca3af",
-                font: { size: 10 },
-                callback: (value) => "R$ " + value.toLocaleString("pt-BR")
-              },
-              grid: { color: "rgba(148,163,184,0.2)" }
-            }
-          }
-        }
-      });
+    clearForm();
+    renderAll();
+  });
 
-      // Gráfico 2: Despesas por mês (colunas)
-      const despMesCtx = document.getElementById("despMesChart");
-      despMesChart = new Chart(despMesCtx, {
-        type: "bar",
-        data: {
-          labels: meses,
-          datasets: [
-            {
-              label: "Despesas mensais",
-              data: despesasMes,
-              borderWidth: 1
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              labels: {
-                color: "#e5e7eb",
-                font: { size: 11 }
-              }
-            }
-          },
-          scales: {
-            x: {
-              ticks: { color: "#9ca3af", font: { size: 10 } },
-              grid: { display: false }
-            },
-            y: {
-              ticks: {
-                color: "#9ca3af",
-                font: { size: 10 },
-                callback: (value) => "R$ " + value.toLocaleString("pt-BR")
-              },
-              grid: { color: "rgba(148,163,184,0.2)" }
-            }
-          }
-        }
-      });
+  $("btnResetDay").addEventListener("click", ()=>{
+    const d = $("visitDate").value;
+    if(!confirm("Apagar registros do dia (somente LOCAL)? Isso não apaga do Firebase se já sincronizou.")) return;
+    all = all.filter(x=>x.date !== d);
+    saveLocal(all);
+    // também remove da fila itens desse dia
+    const q = loadQueue().filter(x=>x.date !== d);
+    saveQueue(q);
+    renderAll();
+    toast("Ok", "Registros do dia removidos do aparelho.");
+  });
 
-      // Gráfico 3: Despesas por categoria (Novembro)
-      const catCtx = document.getElementById("catChart");
-      catChart = new Chart(catCtx, {
-        type: "bar",
-        data: {
-          labels: catLabels,
-          datasets: [
-            {
-              label: "Despesas por categoria",
-              data: catValues,
-              borderWidth: 1
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              labels: {
-                color: "#e5e7eb",
-                font: { size: 11 }
-              }
-            }
-          },
-          scales: {
-            x: {
-              ticks: { color: "#9ca3af", font: { size: 10 } },
-              grid: { display: false }
-            },
-            y: {
-              ticks: {
-                color: "#9ca3af",
-                font: { size: 10 },
-                callback: (value) => "R$ " + value.toLocaleString("pt-BR")
-              },
-              grid: { color: "rgba(148,163,184,0.2)" }
-            }
-          }
-        }
+  /***********************
+   * Render table + KPIs
+   ***********************/
+  function tagStatus(v){
+    if(v==="Sim") return "ok";
+    if(v==="Talvez") return "warn";
+    return "";
+  }
+  function tagVisitStatus(s){
+    if(s==="Visitado") return "ok";
+    if(s==="Não atendeu") return "bad";
+    if(s==="Remarcar") return "warn";
+    return "";
+  }
+  function escapeHtml(str){
+    return String(str||"").replace(/[&<>"']/g, s=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[s]));
+  }
+  function filteredDay(){
+    const d = $("visitDate").value;
+    let rows = all.filter(x=>x.date===d);
+
+    // search
+    const q = $("search").value.trim().toLowerCase();
+    if(q){
+      rows = rows.filter(x=>{
+        const blob = `${x.clientName} ${x.city} ${x.notes} ${x.nextStep}`.toLowerCase();
+        return blob.includes(q);
       });
     }
 
-    document.addEventListener("DOMContentLoaded", inicializarPainel);
-  </script>
+    // quick filters
+    const f = $("filterQuick").value;
+    if(f==="orders") rows = rows.filter(x=>x.tookOrder==="Sim");
+    if(f==="promise") rows = rows.filter(x=>x.willBuy==="Sim");
+    if(f==="potentialHigh") rows = rows.filter(x=>Number(x.potentialValue||0) >= 3000);
+    if(f==="noShow") rows = rows.filter(x=>x.status==="Não atendeu");
+    if(f==="resched") rows = rows.filter(x=>x.status==="Remarcar");
+
+    return rows;
+  }
+
+  function renderTable(){
+    const rows = filteredDay();
+    const tb = $("tbody");
+    tb.innerHTML = "";
+
+    if(rows.length===0){
+      tb.innerHTML = `<tr><td colspan="12" class="muted">Nenhum registro para esse dia com os filtros atuais.</td></tr>`;
+      return;
+    }
+
+    for(const v of rows){
+      const pot = money(v.potentialValue||0);
+      const ord = money(v.orderValue||0);
+      const willClass = v.willBuy==="Sim" ? "ok" : (v.willBuy==="Talvez" ? "warn" : "");
+      const ordClass = v.tookOrder==="Sim" ? "ok" : "";
+      const row = document.createElement("tr");
+
+      row.innerHTML = `
+        <td><strong>${escapeHtml(v.clientName)}</strong><div class="mini">${escapeHtml(v.seller)}</div></td>
+        <td>${escapeHtml(v.city||"—")}</td>
+        <td><span class="tag ${tagVisitStatus(v.status)}">${escapeHtml(v.status)}</span></td>
+        <td><span class="tag">${pot}</span></td>
+        <td><span class="tag ${tagStatus(v.hasPotential)}">${escapeHtml(v.hasPotential)}</span></td>
+        <td><span class="tag ${willClass}">${escapeHtml(v.willBuy)}</span></td>
+        <td><span class="tag ${ordClass}">${escapeHtml(v.tookOrder)}</span></td>
+        <td>${v.tookOrder==="Sim" ? `<span class="tag ok">${ord}</span>` : `<span class="muted">—</span>`}</td>
+        <td>${escapeHtml(v.nextStep||"—")}</td>
+        <td>${v.followUpDate ? `<span class="tag warn">${escapeHtml(v.followUpDate)}</span>` : `<span class="muted">—</span>`}</td>
+        <td class="muted" style="max-width:260px">${escapeHtml(v.notes||"—")}</td>
+        <td>
+          <div class="smallRow">
+            <button class="btn" data-act="edit" data-id="${v.id}">✏️</button>
+            <button class="btn danger" data-act="del" data-id="${v.id}">🗑️</button>
+          </div>
+          <div class="mini">${v.synced ? "✅ Sync" : "⏳ Pendente"}</div>
+        </td>
+      `;
+      tb.appendChild(row);
+    }
+
+    tb.querySelectorAll("button[data-act]").forEach(b=>{
+      b.addEventListener("click", ()=>{
+        const id = b.getAttribute("data-id");
+        const act = b.getAttribute("data-act");
+        if(act==="edit") editVisit(id);
+        if(act==="del") delVisit(id);
+      });
+    });
+  }
+
+  function renderKpisDay(){
+    const d = $("visitDate").value;
+    const rows = all.filter(x=>x.date===d);
+    const visited = rows.length;
+    const orders = rows.filter(x=>x.tookOrder==="Sim").length;
+    const promise = rows.filter(x=>x.willBuy==="Sim").length;
+    const potSum = rows.reduce((a,x)=>a+(Number(x.potentialValue)||0),0);
+    $("kpiVisited").textContent = visited;
+    $("kpiOrders").textContent = orders;
+    $("kpiPromise").textContent = promise;
+    $("kpiPotential").textContent = money(potSum);
+    $("kpiVisitedS").textContent = d;
+  }
+
+  function renderKpisPeriod(){
+    const rows = all.filter(inPeriod);
+    const visits = rows.length;
+    const pot = rows.reduce((a,x)=>a+(Number(x.potentialValue)||0),0);
+    const orders = rows.filter(x=>x.tookOrder==="Sim").length;
+    const ordValue = rows.reduce((a,x)=>a+(Number(x.orderValue)||0),0);
+
+    $("kpiP_visits").textContent = visits;
+    $("kpiP_potential").textContent = money(pot);
+    $("kpiP_orders").textContent = orders;
+    $("kpiP_orderValue").textContent = money(ordValue);
+
+    const d = $("visitDate").value;
+    let label = d;
+    if(periodMode==="week") label = "Semana de " + weekStartLabel(d);
+    if(periodMode==="month") label = "Mês " + d.slice(0,7);
+    $("kpiP_visitsS").textContent = label;
+
+    // top clients by potential
+    const map = new Map();
+    for(const v of rows){
+      const key = `${v.clientName}||${v.city||""}`;
+      map.set(key, (map.get(key)||0) + (Number(v.potentialValue)||0));
+    }
+    const top = [...map.entries()]
+      .map(([k,val])=>({k,val}))
+      .sort((a,b)=>b.val-a.val)
+      .slice(0,6);
+
+    $("topClients").innerHTML = top.length
+      ? top.map(x=>{
+          const [name, city] = x.k.split("||");
+          return `• <strong>${escapeHtml(name)}</strong> <span class="mini">(${escapeHtml(city||"—")})</span> — <span class="tag">${money(x.val)}</span>`;
+        }).join("<br>")
+      : "—";
+
+    // upcoming follow-ups
+    const follow = rows
+      .filter(v=>v.followUpDate)
+      .sort((a,b)=> (a.followUpDate||"").localeCompare(b.followUpDate||""))
+      .slice(0,8);
+
+    $("followUps").innerHTML = follow.length
+      ? follow.map(v=>{
+          const badge = `<span class="tag warn">${escapeHtml(v.followUpDate)}</span>`;
+          const extra = v.nextStep ? ` <span class="mini">• ${escapeHtml(v.nextStep)}</span>` : "";
+          return `• ${badge} <strong>${escapeHtml(v.clientName)}</strong>${extra}`;
+        }).join("<br>")
+      : "—";
+  }
+
+  function weekStartLabel(dateStr){
+    const base = new Date(dateStr + "T00:00:00");
+    const day = (base.getDay()+6)%7;
+    const start = new Date(base); start.setDate(base.getDate()-day);
+    return todayStr(start);
+  }
+
+  function renderAll(){
+    renderKpisDay();
+    renderTable();
+    renderKpisPeriod();
+  }
+
+  $("search").addEventListener("input", renderTable);
+  $("filterQuick").addEventListener("change", renderTable);
+
+  function editVisit(id){
+    const v = all.find(x=>x.id===id);
+    if(!v) return;
+    editingId = v.id;
+    $("visitDate").value = v.date;
+    $("clientName").value = v.clientName || "";
+    $("clientCity").value = v.city || "";
+    $("visitStatus").value = v.status || "Visitado";
+    $("potentialValue").value = (v.potentialValue||"");
+    $("hasPotential").value = v.hasPotential || "Sim";
+    $("willBuy").value = v.willBuy || "Não";
+    $("tookOrder").value = v.tookOrder || "Não";
+    $("orderValue").value = (v.orderValue||"");
+    $("nextStep").value = v.nextStep || "Retornar ligação";
+    $("followUpDate").value = v.followUpDate || "";
+    $("notes").value = v.notes || "";
+    toast("Editando", `Atualize e clique em “Salvar visita” (${v.clientName})`);
+  }
+
+  function delVisit(id){
+    const v = all.find(x=>x.id===id);
+    if(!v) return;
+    if(!confirm(`Excluir a visita de "${v.clientName}" deste aparelho?`)) return;
+
+    // remove local
+    all = all.filter(x=>x.id!==id);
+    saveLocal(all);
+
+    // marca remoção pra sync (tombstone)
+    const q = loadQueue();
+    q.push({ id, _deleted:true, seller:getSeller().trim(), date: v.date, updatedAt: nowISO(), sourceDevice: deviceId });
+    saveQueue(q);
+
+    renderAll();
+    toast("Removido", "Registro excluído localmente (vai refletir no sync).");
+  }
+
+  /***********************
+   * Export CSV
+   ***********************/
+  function toCSV(rows){
+    const head = ["Data","Vendedor","Cliente","Cidade","Status","Potencial_R$","TemPotencial","VaiComprar","TirouPedido","ValorPedido_R$","ProximoPasso","Retorno","Obs"];
+    const lines = [head.join(";")];
+    for(const v of rows){
+      const line = [
+        v.date, v.seller, v.clientName, v.city||"",
+        v.status||"", (v.potentialValue||0),
+        v.hasPotential||"", v.willBuy||"", v.tookOrder||"", (v.orderValue||0),
+        v.nextStep||"", v.followUpDate||"", (v.notes||"").replace(/\n/g," ")
+      ].map(x=>String(x).replace(/;/g,","));
+      lines.push(line.join(";"));
+    }
+    return lines.join("\n");
+  }
+  function download(name, content, type="text/plain"){
+    const blob = new Blob([content], {type});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+  }
+
+  $("btnExport").addEventListener("click", ()=>{
+    const d = $("visitDate").value;
+    const rows = all.filter(x=>x.date===d);
+    const csv = toCSV(rows);
+    download(`visitas_${d}.csv`, csv, "text/csv;charset=utf-8");
+    toast("Exportado", `CSV do dia ${d} gerado.`);
+  });
+
+  $("btnExportAll").addEventListener("click", ()=>{
+    const d = $("visitDate").value;
+    const rows = all.filter(inPeriod);
+    const tag = periodMode==="today" ? d : (periodMode==="week" ? `semana_${weekStartLabel(d)}` : `mes_${d.slice(0,7)}`);
+    const csv = toCSV(rows);
+    download(`visitas_${tag}.csv`, csv, "text/csv;charset=utf-8");
+    toast("Exportado", "CSV do período gerado.");
+  });
+
+  /***********************
+   * Backup / Restore JSON
+   ***********************/
+  $("btnBackup").addEventListener("click", ()=>{
+    const payload = { deviceId, seller: getSeller(), exportedAt: nowISO(), data: all };
+    download(`backup_visitas_${todayStr()}.json`, JSON.stringify(payload,null,2), "application/json");
+    toast("Backup", "Arquivo JSON baixado.");
+  });
+
+  $("btnRestore").addEventListener("click", ()=> $("restoreFile").click());
+
+  $("restoreFile").addEventListener("change", async (e)=>{
+    const file = e.target.files?.[0];
+    if(!file) return;
+    const txt = await file.text();
+    try{
+      const payload = JSON.parse(txt);
+      if(!payload?.data || !Array.isArray(payload.data)) throw new Error("Formato inválido");
+      if(!confirm("Restaurar backup vai MESCLAR dados com os atuais (sem apagar). Continuar?")) return;
+
+      // merge by id
+      const map = new Map(all.map(x=>[x.id,x]));
+      for(const v of payload.data){
+        if(!v?.id) continue;
+        map.set(v.id, {...map.get(v.id), ...v, synced:false});
+        // enqueue for sync
+        const q = loadQueue();
+        q.push(v);
+        saveQueue(q);
+      }
+      all = [...map.values()].sort((a,b)=> (b.updatedAt||"").localeCompare(a.updatedAt||""));
+      saveLocal(all);
+      renderAll();
+      toast("Restaurado", "Backup mesclado com sucesso.");
+    }catch(err){
+      toast("Erro", "Não consegui ler esse backup.");
+    }finally{
+      e.target.value = "";
+    }
+  });
+
+  /***********************
+   * Firebase Sync
+   ***********************/
+  async function ensureAuth(){
+    if(!enableFirebase) return true;
+    try{
+      await signInAnonymously(auth);
+      return true;
+    }catch(err){
+      console.error(err);
+      toast("Firebase", "Falha no login anônimo. Verifique Auth/Regras.");
+      return false;
+    }
+  }
+
+  function pathForVisit(v){
+    // Organiza por vendedor -> ano-mes -> id
+    const ym = (v.date || todayStr()).slice(0,7);
+    const sellerKey = (v.seller || "SEM_VENDEDOR").toUpperCase().replace(/\s+/g,"_");
+    return `visitas/${sellerKey}/${ym}/${v.id}`;
+  }
+
+  async function pushQueue(){
+    if(!enableFirebase) return;
+    if(!navigator.onLine){
+      toast("Offline", "Sem internet. Vou sincronizar quando voltar.");
+      return;
+    }
+    const ok = await ensureAuth();
+    if(!ok) return;
+
+    const q = loadQueue();
+    if(q.length===0){
+      toast("Sync", "Nada pendente para enviar.");
+      return;
+    }
+
+    let sent = 0;
+    for(const item of q){
+      try{
+        if(item._deleted){
+          // mark deleted
+          const sellerKey = (item.seller || "SEM_VENDEDOR").toUpperCase().replace(/\s+/g,"_");
+          const ym = (item.date || todayStr()).slice(0,7);
+          const p = `visitas/${sellerKey}/${ym}/${item.id}`;
+          await update(ref(db, p), { _deleted:true, updatedAt: item.updatedAt || nowISO(), sourceDevice: deviceId });
+          sent++;
+          continue;
+        }
+        const p = pathForVisit(item);
+        await set(ref(db, p), { ...item, synced:true });
+        sent++;
+      }catch(err){
+        console.error("sync item err", err);
+      }
+    }
+
+    // clear queue after attempt
+    saveQueue([]);
+
+    // mark local items as synced (best effort)
+    const ids = new Set(q.filter(x=>x && x.id && !x._deleted).map(x=>x.id));
+    all = all.map(v=> ids.has(v.id) ? {...v, synced:true} : v );
+    saveLocal(all);
+
+    toast("Sincronizado", `Enviei ${sent} registro(s) pro Firebase.`);
+    renderAll();
+  }
+
+  async function pullFirebaseForPeriod(){
+    if(!enableFirebase) return;
+    if(!navigator.onLine) return;
+
+    const ok = await ensureAuth();
+    if(!ok) return;
+
+    // Puxa mês atual do vendedor (simples e rápido pro vendedor em campo)
+    const seller = getSeller().trim();
+    if(!seller) return;
+    const sellerKey = seller.toUpperCase().replace(/\s+/g,"_");
+    const ym = $("visitDate").value.slice(0,7);
+
+    try{
+      const snap = await get(child(ref(db), `visitas/${sellerKey}/${ym}`));
+      if(!snap.exists()) return;
+
+      const obj = snap.val() || {};
+      const list = Object.values(obj).filter(Boolean).filter(v=>!v._deleted);
+
+      // merge into local
+      const map = new Map(all.map(x=>[x.id,x]));
+      for(const v of list){
+        map.set(v.id, {...map.get(v.id), ...v, synced:true});
+      }
+      all = [...map.values()].sort((a,b)=> (b.updatedAt||"").localeCompare(a.updatedAt||""));
+      saveLocal(all);
+      renderAll();
+      toast("Atualizado", "Dados do mês atual carregados do Firebase.");
+    }catch(err){
+      console.error(err);
+    }
+  }
+
+  $("btnSync").addEventListener("click", async ()=>{
+    await pushQueue();
+    await pullFirebaseForPeriod();
+  });
+
+  // auto-sync leve quando online
+  setInterval(async ()=>{
+    if(!enableFirebase) return;
+    if(!navigator.onLine) return;
+    const q = loadQueue();
+    if(q.length>0) await pushQueue();
+  }, 15000);
+
+  /***********************
+   * Init
+   ***********************/
+  renderAll();
+
+  // tenta puxar dados do mês ao abrir (se online)
+  pullFirebaseForPeriod();
+
+</script>
+
+<!--
+REGRAS SUGERIDAS (Realtime Database) — simples (ajuste depois):
+{
+  "rules": {
+    "visitas": {
+      "$seller": {
+        "$ym": {
+          "$id": {
+            ".read": true,
+            ".write": true
+          }
+        }
+      }
+    }
+  }
+}
+
+DICA: Se quiser travar por vendedor, dá pra criar login por e-mail/senha e regras com auth.uid.
+-->
 </body>
 </html>
