@@ -48,32 +48,11 @@
     .alert.show{display:block}
 
     /* gráfico */
-    .chartWrap{
-      margin-top:12px;
-      border:1px solid var(--line);
-      border-radius:var(--r2);
-      background: rgba(255,255,255,.03);
-      padding: 12px;
-    }
-    .chartTitle{
-      font-size:12px;
-      font-weight:900;
-      margin-bottom:8px;
-      color: var(--text);
-    }
+    .chartWrap{margin-top:12px;border:1px solid var(--line);border-radius:var(--r2);background:rgba(255,255,255,.03);padding:12px}
+    .chartTitle{font-size:12px;font-weight:900;margin-bottom:8px;color:var(--text)}
     canvas{width:100%;height:180px;display:block}
-    .legend{
-      display:flex;gap:8px;flex-wrap:wrap;margin-top:10px
-    }
-    .leg{
-      display:flex;align-items:center;gap:6px;
-      border:1px solid var(--line);
-      border-radius:999px;
-      padding:6px 10px;
-      font-size:11px;
-      color:var(--muted);
-      background: rgba(255,255,255,.02);
-    }
+    .legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .leg{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:6px 10px;font-size:11px;color:var(--muted);background:rgba(255,255,255,.02)}
     .sw{width:10px;height:10px;border-radius:3px}
   </style>
 </head>
@@ -111,15 +90,14 @@
           <div class="kpi"><div class="t">Visitas (hoje)</div><div class="v" id="k_visitas">0</div></div>
           <div class="kpi"><div class="t">Pedidos (hoje)</div><div class="v" id="k_pedidos">0</div></div>
           <div class="kpi"><div class="t">Promessas (hoje)</div><div class="v" id="k_promessas">0</div></div>
-          <div class="kpi"><div class="t">Potencial (hoje)</div><div class="v" id="k_potencial">R$ 0</div></div>
+          <div class="kpi"><div class="t">Potencial total (hoje)</div><div class="v" id="k_potencial">R$ 0</div></div>
         </div>
 
-        <!-- ✅ GRÁFICO -->
         <div class="chartWrap">
-          <div class="chartTitle">📈 Potencial x Pedido tirado x Pouca chance (R$) — Hoje</div>
+          <div class="chartTitle">📈 Potencial (restante) x Pedido tirado x Pouca chance — Hoje (R$)</div>
           <canvas id="chartResumo" width="900" height="360"></canvas>
           <div class="legend">
-            <div class="leg"><span class="sw" style="background:rgba(96,165,250,.95)"></span> Potencial</div>
+            <div class="leg"><span class="sw" style="background:rgba(96,165,250,.95)"></span> Potencial (restante)</div>
             <div class="leg"><span class="sw" style="background:rgba(34,197,94,.95)"></span> Pedido tirado</div>
             <div class="leg"><span class="sw" style="background:rgba(245,158,11,.95)"></span> Pouca chance</div>
           </div>
@@ -204,11 +182,10 @@
 <script type="module">
   const $ = (id)=>document.getElementById(id);
 
-  // ✅ GRUPO ÚNICO (todos compartilham o mesmo caminho)
   const GROUP_KEY = "GERAL";
   $("groupLabel").textContent = GROUP_KEY;
 
-  const CACHE_KEY = "visitas_cache_geral_v1";
+  const CACHE_KEY = "visitas_cache_geral_v2";
 
   function today(){ return new Date().toISOString().slice(0,10); }
   function ym(d){ return (d || today()).slice(0,7); }
@@ -224,7 +201,6 @@
 
   $("todayLabel").textContent = `Hoje: ${today()}`;
 
-  // status online/offline (internet do celular)
   function conn(){
     const on = navigator.onLine;
     $("connTxt").textContent = on ? "Online" : "Offline";
@@ -234,7 +210,6 @@
   window.addEventListener("offline", conn);
   conn();
 
-  // navegação
   function show(p){
     ["pageDashboard","pageVisits","pageConfig"].forEach(id=>$(id).style.display="none");
     $(p).style.display="block";
@@ -244,7 +219,6 @@
   $("navList").onclick=()=>{ show("pageVisits"); $("navList").classList.add("active"); };
   $("navCfg").onclick=()=>{ show("pageConfig"); $("navCfg").classList.add("active"); };
 
-  // modal
   function openModal(){ $("modal").classList.add("show"); }
   function closeModal(){ $("modal").classList.remove("show"); }
   $("btnNova").onclick=openModal;
@@ -252,77 +226,10 @@
   $("btnFechar").onclick=closeModal;
   $("modal").addEventListener("click",(e)=>{ if(e.target===$("modal")) closeModal(); });
 
-  // dados
   let visits = [];
   try{ visits = JSON.parse(localStorage.getItem(CACHE_KEY) || "[]"); }catch{ visits = []; }
 
-  // -------- GRÁFICO (sem biblioteca) --------
-  function drawBarChart(canvas, labels, values, colors){
-    const ctx = canvas.getContext("2d");
-    const w = canvas.width, h = canvas.height;
-
-    // limpa
-    ctx.clearRect(0,0,w,h);
-
-    const padL = 60, padR = 18, padT = 18, padB = 54;
-    const chartW = w - padL - padR;
-    const chartH = h - padT - padB;
-
-    // base
-    ctx.globalAlpha = 1;
-    ctx.strokeStyle = "rgba(255,255,255,.14)";
-    ctx.lineWidth = 1;
-
-    // grid (4 linhas)
-    const maxV = Math.max(1, ...values);
-    for(let i=0;i<=4;i++){
-      const y = padT + (chartH * i/4);
-      ctx.beginPath();
-      ctx.moveTo(padL, y);
-      ctx.lineTo(padL + chartW, y);
-      ctx.stroke();
-
-      // eixo y labels
-      const val = maxV * (1 - i/4);
-      ctx.fillStyle = "rgba(255,255,255,.55)";
-      ctx.font = "700 14px system-ui";
-      ctx.textAlign = "right";
-      ctx.textBaseline = "middle";
-      ctx.fillText(formatCompactBRL(val), padL - 10, y);
-    }
-
-    // barras
-    const n = values.length;
-    const gap = Math.max(18, chartW * 0.07);
-    const barW = (chartW - gap*(n-1)) / n;
-
-    for(let i=0;i<n;i++){
-      const v = values[i];
-      const barH = (v/maxV) * chartH;
-      const x = padL + i*(barW + gap);
-      const y = padT + (chartH - barH);
-
-      // barra
-      ctx.fillStyle = colors[i];
-      roundRect(ctx, x, y, barW, barH, 14);
-      ctx.fill();
-
-      // valor em cima
-      ctx.fillStyle = "rgba(255,255,255,.92)";
-      ctx.font = "900 16px system-ui";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "bottom";
-      ctx.fillText(formatCompactBRL(v), x + barW/2, y - 8);
-
-      // label em baixo
-      ctx.fillStyle = "rgba(255,255,255,.70)";
-      ctx.font = "900 14px system-ui";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "top";
-      ctx.fillText(labels[i], x + barW/2, padT + chartH + 14);
-    }
-  }
-
+  // -------- gráfico (canvas) --------
   function roundRect(ctx, x, y, w, h, r){
     const radius = Math.min(r, w/2, h/2);
     ctx.beginPath();
@@ -333,12 +240,64 @@
     ctx.arcTo(x, y, x + w, y, radius);
     ctx.closePath();
   }
-
   function formatCompactBRL(n){
     const v = Number(n||0);
     if(v >= 1000000) return `R$ ${(v/1000000).toFixed(2).replace(".",",")}M`;
     if(v >= 1000) return `R$ ${(v/1000).toFixed(1).replace(".",",")}k`;
     return `R$ ${Math.round(v).toLocaleString("pt-BR")}`;
+  }
+  function drawBarChart(canvas, labels, values, colors){
+    const ctx = canvas.getContext("2d");
+    const w = canvas.width, h = canvas.height;
+    ctx.clearRect(0,0,w,h);
+
+    const padL = 60, padR = 18, padT = 18, padB = 54;
+    const chartW = w - padL - padR;
+    const chartH = h - padT - padB;
+
+    const maxV = Math.max(1, ...values);
+
+    ctx.strokeStyle = "rgba(255,255,255,.14)";
+    ctx.lineWidth = 1;
+
+    for(let i=0;i<=4;i++){
+      const y = padT + (chartH * i/4);
+      ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + chartW, y); ctx.stroke();
+
+      const val = maxV * (1 - i/4);
+      ctx.fillStyle = "rgba(255,255,255,.55)";
+      ctx.font = "700 14px system-ui";
+      ctx.textAlign = "right";
+      ctx.textBaseline = "middle";
+      ctx.fillText(formatCompactBRL(val), padL - 10, y);
+    }
+
+    const n = values.length;
+    const gap = Math.max(18, chartW * 0.07);
+    const barW = (chartW - gap*(n-1)) / n;
+
+    for(let i=0;i<n;i++){
+      const v = values[i];
+      const barH = (v/maxV) * chartH;
+      const x = padL + i*(barW + gap);
+      const y = padT + (chartH - barH);
+
+      ctx.fillStyle = colors[i];
+      roundRect(ctx, x, y, barW, barH, 14);
+      ctx.fill();
+
+      ctx.fillStyle = "rgba(255,255,255,.92)";
+      ctx.font = "900 16px system-ui";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "bottom";
+      ctx.fillText(formatCompactBRL(v), x + barW/2, y - 8);
+
+      ctx.fillStyle = "rgba(255,255,255,.70)";
+      ctx.font = "900 14px system-ui";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
+      ctx.fillText(labels[i], x + barW/2, padT + chartH + 14);
+    }
   }
 
   function render(){
@@ -346,16 +305,16 @@
     const todayRows = visits.filter(v => v.data === d);
 
     // KPIs (hoje)
-    let pot=0, pedidos=0, promessas=0;
+    let potTotal=0, pedidos=0, promessas=0;
     for(const v of todayRows){
-      pot += Number(v.potencial||0);
+      potTotal += Number(v.potencial||0);
       if(v.pedido==="Sim") pedidos++;
       if(v.promessa==="Sim") promessas++;
     }
     $("k_visitas").textContent = todayRows.length;
     $("k_pedidos").textContent = pedidos;
     $("k_promessas").textContent = promessas;
-    $("k_potencial").textContent = money(pot);
+    $("k_potencial").textContent = money(potTotal);
 
     // Lista (mês atual)
     const list = $("lista");
@@ -384,21 +343,25 @@
       });
     }
 
-    // ✅ Dados do gráfico (HOJE)
-    const potTotal = todayRows.reduce((a,x)=>a+Number(x.potencial||0),0);
+    // ✅ Gráfico (HOJE) — do jeito que você pediu:
+    // Potencial (restante) = total - pedidos
     const potPedido = todayRows.filter(x=>x.pedido==="Sim").reduce((a,x)=>a+Number(x.potencial||0),0);
-    const potPouca = todayRows.filter(x=>x.promessa==="Não").reduce((a,x)=>a+Number(x.potencial||0),0);
+    const potPouca  = todayRows
+      .filter(x=>x.pedido!=="Sim" && x.promessa==="Não")
+      .reduce((a,x)=>a+Number(x.potencial||0),0);
 
-    const canvas = $("chartResumo");
+    let potRestante = potTotal - potPedido;
+    if(potRestante < 0) potRestante = 0;
+
     drawBarChart(
-      canvas,
+      $("chartResumo"),
       ["Potencial", "Pedido", "Pouca"],
-      [potTotal, potPedido, potPouca],
+      [potRestante, potPedido, potPouca],
       ["rgba(96,165,250,.95)", "rgba(34,197,94,.95)", "rgba(245,158,11,.95)"]
     );
 
     $("chartHint").textContent =
-      `Hoje: Potencial ${money(potTotal)} • Pedido ${money(potPedido)} • Pouca chance ${money(potPouca)} (Promessa = Não)`;
+      `Hoje: Potencial restante ${money(potRestante)} • Pedido ${money(potPedido)} • Pouca chance ${money(potPouca)} (Promessa=Não e Pedido=Não)`;
 
     localStorage.setItem(CACHE_KEY, JSON.stringify(visits));
   }
@@ -411,10 +374,7 @@
   async function initFirebase(){
     try{
       const { initializeApp } = await import("https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js");
-      const {
-        getDatabase, ref, set,
-        onValue
-      } = await import("https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js");
+      const { getDatabase, ref, set, onValue } = await import("https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js");
 
       const firebaseConfig = {
         apiKey: "AIzaSyBccM__hS_OMso2ipnKPUYycfVCfvfz9f8",
@@ -426,11 +386,6 @@
         appId: "1:356562078458:web:5e4da3c7c9ffa7b90e1743"
       };
 
-      if(!firebaseConfig.databaseURL || firebaseConfig.databaseURL.includes("https://visitas-affdb-default-rtdb.firebaseio.com")){
-        showAlert("⚠️ Falta preencher databaseURL do Realtime Database.");
-        return;
-      }
-
       const app = initializeApp(firebaseConfig);
       const db = getDatabase(app);
 
@@ -438,10 +393,9 @@
       firebaseReady = true;
 
       listenMonth(ym());
-
     }catch(err){
       console.error(err);
-      showAlert("⚠️ Firebase não iniciou. Verifique databaseURL + regras abertas.");
+      showAlert("⚠️ Firebase não iniciou. Verifique a URL e as Rules do RTDB.");
     }
   }
 
@@ -474,7 +428,7 @@
       mergeMonth(yyyymm, rows);
     }, (err)=>{
       console.error(err);
-      showAlert("⚠️ Erro ao ouvir dados do Firebase (Rules/URL).");
+      showAlert("⚠️ Erro ao ouvir dados do Firebase (Rules).");
     });
   }
 
@@ -525,7 +479,7 @@
 
   $("btnSync").onclick = async ()=>{
     if(!firebaseReady){
-      showAlert("⚠️ Sync indisponível: preencha databaseURL e deixe Rules abertas.");
+      showAlert("⚠️ Sync indisponível. Verifique Rules e conexão.");
       return;
     }
     if(!navigator.onLine){
