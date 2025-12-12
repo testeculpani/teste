@@ -32,6 +32,7 @@
     .badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
     .tag{font-size:11px;padding:4px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
     .tag.ok{border-color:rgba(34,197,94,.4);color:#c8f7d7}
+    .tag.warn{border-color:rgba(245,158,11,.4);color:#ffe6ba}
     nav{position:fixed;bottom:0;left:0;right:0;background:rgba(11,18,32,.92);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:10px;gap:10px}
     .navBtn{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:14px;color:var(--muted);font-size:12px;padding:10px;cursor:pointer}
     .navBtn.active{color:var(--text);border-color:rgba(96,165,250,.5);background:linear-gradient(135deg,rgba(96,165,250,.25),rgba(167,139,250,.15))}
@@ -45,6 +46,35 @@
     .mini{font-size:11px;color:var(--muted);line-height:1.35}
     .alert{border:1px solid rgba(245,158,11,.35);background:rgba(245,158,11,.08);border-radius:14px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:#ffe6ba;display:none}
     .alert.show{display:block}
+
+    /* gráfico */
+    .chartWrap{
+      margin-top:12px;
+      border:1px solid var(--line);
+      border-radius:var(--r2);
+      background: rgba(255,255,255,.03);
+      padding: 12px;
+    }
+    .chartTitle{
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:8px;
+      color: var(--text);
+    }
+    canvas{width:100%;height:180px;display:block}
+    .legend{
+      display:flex;gap:8px;flex-wrap:wrap;margin-top:10px
+    }
+    .leg{
+      display:flex;align-items:center;gap:6px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      padding:6px 10px;
+      font-size:11px;
+      color:var(--muted);
+      background: rgba(255,255,255,.02);
+    }
+    .sw{width:10px;height:10px;border-radius:3px}
   </style>
 </head>
 
@@ -78,10 +108,22 @@
       </div>
       <div class="bd">
         <div class="kpis">
-          <div class="kpi"><div class="t">Visitas</div><div class="v" id="k_visitas">0</div></div>
-          <div class="kpi"><div class="t">Pedidos</div><div class="v" id="k_pedidos">0</div></div>
-          <div class="kpi"><div class="t">Promessas</div><div class="v" id="k_promessas">0</div></div>
-          <div class="kpi"><div class="t">Potencial</div><div class="v" id="k_potencial">R$ 0</div></div>
+          <div class="kpi"><div class="t">Visitas (hoje)</div><div class="v" id="k_visitas">0</div></div>
+          <div class="kpi"><div class="t">Pedidos (hoje)</div><div class="v" id="k_pedidos">0</div></div>
+          <div class="kpi"><div class="t">Promessas (hoje)</div><div class="v" id="k_promessas">0</div></div>
+          <div class="kpi"><div class="t">Potencial (hoje)</div><div class="v" id="k_potencial">R$ 0</div></div>
+        </div>
+
+        <!-- ✅ GRÁFICO -->
+        <div class="chartWrap">
+          <div class="chartTitle">📈 Potencial x Pedido tirado x Pouca chance (R$) — Hoje</div>
+          <canvas id="chartResumo" width="900" height="360"></canvas>
+          <div class="legend">
+            <div class="leg"><span class="sw" style="background:rgba(96,165,250,.95)"></span> Potencial</div>
+            <div class="leg"><span class="sw" style="background:rgba(34,197,94,.95)"></span> Pedido tirado</div>
+            <div class="leg"><span class="sw" style="background:rgba(245,158,11,.95)"></span> Pouca chance</div>
+          </div>
+          <div class="mini" id="chartHint" style="margin-top:10px">—</div>
         </div>
 
         <div style="margin-top:14px">
@@ -111,7 +153,7 @@
       <div class="bd">
         <div class="mini">
           Grupo fixo atual: <b>GERAL</b> (todos usam o mesmo).<br>
-          Se quiser mudar, eu ajusto no código em 1 linha.
+          Se quiser mudar, altere a constante <b>GROUP_KEY</b> no código.
         </div>
       </div>
     </div>
@@ -163,7 +205,7 @@
   const $ = (id)=>document.getElementById(id);
 
   // ✅ GRUPO ÚNICO (todos compartilham o mesmo caminho)
-  const GROUP_KEY = "GERAL"; // pode trocar por "CRISTIANO" ou "EQUIPE" etc.
+  const GROUP_KEY = "GERAL";
   $("groupLabel").textContent = GROUP_KEY;
 
   const CACHE_KEY = "visitas_cache_geral_v1";
@@ -182,7 +224,7 @@
 
   $("todayLabel").textContent = `Hoje: ${today()}`;
 
-  // status online/offline (isso é só internet do celular, não é "firebase conectado")
+  // status online/offline (internet do celular)
   function conn(){
     const on = navigator.onLine;
     $("connTxt").textContent = on ? "Online" : "Offline";
@@ -210,15 +252,100 @@
   $("btnFechar").onclick=closeModal;
   $("modal").addEventListener("click",(e)=>{ if(e.target===$("modal")) closeModal(); });
 
-  // dados em memória (sempre renderiza a partir daqui)
+  // dados
   let visits = [];
   try{ visits = JSON.parse(localStorage.getItem(CACHE_KEY) || "[]"); }catch{ visits = []; }
 
+  // -------- GRÁFICO (sem biblioteca) --------
+  function drawBarChart(canvas, labels, values, colors){
+    const ctx = canvas.getContext("2d");
+    const w = canvas.width, h = canvas.height;
+
+    // limpa
+    ctx.clearRect(0,0,w,h);
+
+    const padL = 60, padR = 18, padT = 18, padB = 54;
+    const chartW = w - padL - padR;
+    const chartH = h - padT - padB;
+
+    // base
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = "rgba(255,255,255,.14)";
+    ctx.lineWidth = 1;
+
+    // grid (4 linhas)
+    const maxV = Math.max(1, ...values);
+    for(let i=0;i<=4;i++){
+      const y = padT + (chartH * i/4);
+      ctx.beginPath();
+      ctx.moveTo(padL, y);
+      ctx.lineTo(padL + chartW, y);
+      ctx.stroke();
+
+      // eixo y labels
+      const val = maxV * (1 - i/4);
+      ctx.fillStyle = "rgba(255,255,255,.55)";
+      ctx.font = "700 14px system-ui";
+      ctx.textAlign = "right";
+      ctx.textBaseline = "middle";
+      ctx.fillText(formatCompactBRL(val), padL - 10, y);
+    }
+
+    // barras
+    const n = values.length;
+    const gap = Math.max(18, chartW * 0.07);
+    const barW = (chartW - gap*(n-1)) / n;
+
+    for(let i=0;i<n;i++){
+      const v = values[i];
+      const barH = (v/maxV) * chartH;
+      const x = padL + i*(barW + gap);
+      const y = padT + (chartH - barH);
+
+      // barra
+      ctx.fillStyle = colors[i];
+      roundRect(ctx, x, y, barW, barH, 14);
+      ctx.fill();
+
+      // valor em cima
+      ctx.fillStyle = "rgba(255,255,255,.92)";
+      ctx.font = "900 16px system-ui";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "bottom";
+      ctx.fillText(formatCompactBRL(v), x + barW/2, y - 8);
+
+      // label em baixo
+      ctx.fillStyle = "rgba(255,255,255,.70)";
+      ctx.font = "900 14px system-ui";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
+      ctx.fillText(labels[i], x + barW/2, padT + chartH + 14);
+    }
+  }
+
+  function roundRect(ctx, x, y, w, h, r){
+    const radius = Math.min(r, w/2, h/2);
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.arcTo(x + w, y, x + w, y + h, radius);
+    ctx.arcTo(x + w, y + h, x, y + h, radius);
+    ctx.arcTo(x, y + h, x, y, radius);
+    ctx.arcTo(x, y, x + w, y, radius);
+    ctx.closePath();
+  }
+
+  function formatCompactBRL(n){
+    const v = Number(n||0);
+    if(v >= 1000000) return `R$ ${(v/1000000).toFixed(2).replace(".",",")}M`;
+    if(v >= 1000) return `R$ ${(v/1000).toFixed(1).replace(".",",")}k`;
+    return `R$ ${Math.round(v).toLocaleString("pt-BR")}`;
+  }
+
   function render(){
-    // KPIs do dia
     const d = today();
     const todayRows = visits.filter(v => v.data === d);
 
+    // KPIs (hoje)
     let pot=0, pedidos=0, promessas=0;
     for(const v of todayRows){
       pot += Number(v.potencial||0);
@@ -248,7 +375,7 @@
           <h4>${safe(v.cliente)}</h4>
           <div class="m">${safe(v.data)} • ${money(v.potencial)}</div>
           <div class="badges">
-            <span class="tag ${v.promessa==="Sim"?"ok":""}">Promessa: ${safe(v.promessa)}</span>
+            <span class="tag ${v.promessa==="Sim"?"ok":(v.promessa==="Talvez"?"warn":"")}">Promessa: ${safe(v.promessa)}</span>
             <span class="tag ${v.pedido==="Sim"?"ok":""}">Pedido: ${safe(v.pedido)}</span>
           </div>
           ${v.obs ? `<div class="m" style="margin-top:8px">${safe(v.obs)}</div>` : ``}
@@ -256,6 +383,22 @@
         list.appendChild(div);
       });
     }
+
+    // ✅ Dados do gráfico (HOJE)
+    const potTotal = todayRows.reduce((a,x)=>a+Number(x.potencial||0),0);
+    const potPedido = todayRows.filter(x=>x.pedido==="Sim").reduce((a,x)=>a+Number(x.potencial||0),0);
+    const potPouca = todayRows.filter(x=>x.promessa==="Não").reduce((a,x)=>a+Number(x.potencial||0),0);
+
+    const canvas = $("chartResumo");
+    drawBarChart(
+      canvas,
+      ["Potencial", "Pedido", "Pouca"],
+      [potTotal, potPedido, potPouca],
+      ["rgba(96,165,250,.95)", "rgba(34,197,94,.95)", "rgba(245,158,11,.95)"]
+    );
+
+    $("chartHint").textContent =
+      `Hoje: Potencial ${money(potTotal)} • Pedido ${money(potPedido)} • Pouca chance ${money(potPouca)} (Promessa = Não)`;
 
     localStorage.setItem(CACHE_KEY, JSON.stringify(visits));
   }
@@ -269,14 +412,13 @@
     try{
       const { initializeApp } = await import("https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js");
       const {
-        getDatabase, ref, set, get, child,
+        getDatabase, ref, set,
         onValue
       } = await import("https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js");
 
       const firebaseConfig = {
         apiKey: "AIzaSyBccM__hS_OMso2ipnKPUYycfVCfvfz9f8",
         authDomain: "visitas-affdb.firebaseapp.com",
-        // ✅ COLE A URL DO SEU REALTIME DATABASE:
         databaseURL: "https://visitas-affdb-default-rtdb.firebaseio.com/",
         projectId: "visitas-affdb",
         storageBucket: "visitas-affdb.firebasestorage.app",
@@ -284,7 +426,7 @@
         appId: "1:356562078458:web:5e4da3c7c9ffa7b90e1743"
       };
 
-      if(!firebaseConfig.databaseURL || firebaseConfig.databaseURL.includes("COLE_AQUI")){
+      if(!firebaseConfig.databaseURL || firebaseConfig.databaseURL.includes("https://visitas-affdb-default-rtdb.firebaseio.com/")){
         showAlert("⚠️ Falta preencher databaseURL do Realtime Database.");
         return;
       }
@@ -292,10 +434,9 @@
       const app = initializeApp(firebaseConfig);
       const db = getDatabase(app);
 
-      api = { db, ref, set, get, child, onValue };
+      api = { db, ref, set, onValue };
       firebaseReady = true;
 
-      // ✅ LISTENER: sempre que alguém salvar, todos recebem
       listenMonth(ym());
 
     }catch(err){
@@ -319,7 +460,6 @@
   }
 
   function mergeMonth(yyyymm, monthRows){
-    // mantém meses antigos no cache e substitui o mês atual pelo que veio do firebase
     const keep = visits.filter(v => (v.data||"").slice(0,7) !== yyyymm);
     visits = [...keep, ...monthRows];
     render();
@@ -339,7 +479,6 @@
   }
 
   function newId(){
-    // id determinístico por dispositivo+hora (evita duplicar quando apertar sync)
     const rnd = Math.random().toString(16).slice(2);
     return `${Date.now()}_${rnd}`;
   }
@@ -353,7 +492,6 @@
     return true;
   }
 
-  // salvar visita: salva local e tenta salvar no Firebase
   $("btnSalvar").onclick = async ()=>{
     const cliente = $("f_cliente").value.trim();
     if(!cliente){ alert("Informe o nome do cliente."); return; }
@@ -369,11 +507,9 @@
       createdAt: new Date().toISOString()
     };
 
-    // salva local (pra funcionar offline)
     visits.push(visit);
     render();
 
-    // limpa e fecha
     $("f_cliente").value="";
     $("f_potencial").value="";
     $("f_promessa").value="Não";
@@ -381,18 +517,12 @@
     $("f_obs").value="";
     closeModal();
 
-    // tenta mandar pro firebase
     if(navigator.onLine){
-      try{
-        await saveToFirebase(visit);
-      }catch(e){
-        console.error(e);
-        showAlert("⚠️ Salvo no celular. Não consegui enviar pro Firebase agora.");
-      }
+      try{ await saveToFirebase(visit); }
+      catch(e){ console.error(e); showAlert("⚠️ Salvo no celular. Não consegui enviar pro Firebase agora."); }
     }
   };
 
-  // Sync: reenvia o mês atual (bom quando ficou offline)
   $("btnSync").onclick = async ()=>{
     if(!firebaseReady){
       showAlert("⚠️ Sync indisponível: preencha databaseURL e deixe Rules abertas.");
