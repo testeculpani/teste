@@ -1,263 +1,193 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Simulador Máquina de Cartão — Repasse ao Cliente</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador Máquina de Cartão</title>
+
 <style>
   body{
+    margin:0;
     font-family: Arial, Helvetica, sans-serif;
     background:#0f172a;
     color:#fff;
-    margin:0;
+  }
+
+  .app{
+    max-width:420px;
+    margin:auto;
     min-height:100vh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:18px;
+    padding:16px;
+    box-sizing:border-box;
   }
-  .card{
-    width:100%;
-    max-width:720px;
-    background:#1e293b;
-    border-radius:14px;
-    padding:22px;
-    box-shadow:0 10px 25px rgba(0,0,0,.4);
-  }
+
   h1{
-    margin:0 0 14px;
-    font-size:20px;
     text-align:center;
+    font-size:20px;
+    margin-bottom:6px;
     color:#38bdf8;
   }
+
   .sub{
-    margin:0 0 18px;
     text-align:center;
-    color:#cbd5f5;
-    font-size:13px;
-    line-height:1.35;
-  }
-  label{
-    display:block;
     font-size:13px;
     color:#cbd5f5;
-    margin-bottom:6px;
+    margin-bottom:16px;
   }
+
   input{
     width:100%;
-    padding:12px 12px;
-    border-radius:10px;
-    border:none;
+    padding:14px;
     font-size:18px;
-    background:#f8fafc;
-    color:#0f172a;
+    border-radius:12px;
+    border:none;
     outline:none;
+    margin-bottom:10px;
   }
+
   .hint{
-    margin-top:8px;
     font-size:12px;
     color:#94a3b8;
+    margin-bottom:16px;
   }
-  .tableWrap{
-    margin-top:18px;
+
+  .lista{
     background:#020617;
-    border-radius:12px;
+    border-radius:14px;
     overflow:hidden;
     display:none;
   }
-  table{
-    width:100%;
-    border-collapse:collapse;
-    font-size:13px;
-  }
-  th, td{
-    padding:10px 10px;
-    border-bottom:1px solid rgba(148,163,184,.18);
-    text-align:right;
-    white-space:nowrap;
-  }
-  th{
-    color:#cbd5f5;
-    font-weight:700;
-    background:rgba(255,255,255,.03);
-  }
-  th:first-child, td:first-child{ text-align:left; }
-  tr:last-child td{ border-bottom:none; }
-  .pill{
-    display:inline-block;
-    padding:3px 8px;
-    border-radius:999px;
-    background:rgba(56,189,248,.15);
-    color:#7dd3fc;
-    font-weight:700;
-    font-size:12px;
-  }
-  .bruto{
-    color:#22c55e;
-    font-weight:800;
-  }
-  .rowNote{
-    font-size:11px;
-    color:#94a3b8;
-  }
-  .topRow{
+
+  .linha{
     display:flex;
-    gap:12px;
-    flex-wrap:wrap;
-    align-items:flex-end;
     justify-content:space-between;
-  }
-  .field{
-    flex:1 1 280px;
-  }
-  .actions{
-    flex:0 0 auto;
-    display:flex;
-    gap:10px;
-  }
-  button{
+    align-items:center;
     padding:12px 14px;
-    border-radius:10px;
-    border:none;
-    background:#38bdf8;
-    color:#020617;
-    font-weight:800;
-    cursor:pointer;
+    border-bottom:1px solid rgba(148,163,184,.15);
+  }
+
+  .linha:last-child{
+    border-bottom:none;
+  }
+
+  .parcela{
+    font-weight:bold;
     font-size:14px;
+    color:#7dd3fc;
   }
-  button.secondary{
-    background:#334155;
-    color:#e2e8f0;
-  }
-  button:hover{ filter:brightness(.95); }
-  .footer{
-    margin-top:12px;
-    color:#94a3b8;
+
+  .taxa{
     font-size:12px;
+    color:#94a3b8;
+  }
+
+  .valor{
+    text-align:right;
+  }
+
+  .total{
+    font-weight:bold;
+    color:#22c55e;
+    font-size:15px;
+  }
+
+  .cada{
+    font-size:12px;
+    color:#cbd5f5;
+  }
+
+  .footer{
     text-align:center;
+    font-size:11px;
+    color:#64748b;
+    margin-top:14px;
   }
 </style>
 </head>
+
 <body>
+<div class="app">
+  <h1>Simulador de Cartão</h1>
+  <div class="sub">Taxa repassada ao cliente</div>
 
-<div class="card">
-  <h1>Simulador Máquina de Cartão (Repasse no Cliente)</h1>
-  <p class="sub">
-    Digite o <b>valor que você quer receber</b> (líquido).<br>
-    O sistema calcula quanto precisa cobrar do cliente em <b>1x a 12x</b> usando suas taxas.
-  </p>
+  <input
+    type="number"
+    id="valorBase"
+    placeholder="Valor base (ex: 1000)"
+    step="0.01"
+  >
 
-  <div class="topRow">
-    <div class="field">
-      <label>Quanto você quer receber (R$) — Valor líquido</label>
-      <input id="valorLiquido" type="number" inputmode="decimal" step="0.01" placeholder="Ex: 1500,00" />
-      <div class="hint">Dica: ao digitar, a tabela já atualiza automaticamente.</div>
-    </div>
-
-    <div class="actions">
-      <button class="secondary" onclick="limpar()">Limpar</button>
-    </div>
+  <div class="hint">
+    Digite o valor que você quer receber.<br>
+    A tabela abaixo já soma a taxa no cliente.
   </div>
 
-  <div class="tableWrap" id="wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Parcelas</th>
-          <th>Taxa</th>
-          <th>Valor a cobrar (Bruto)</th>
-          <th>Parcela do cliente</th>
-          <th class="rowNote">Observação</th>
-        </tr>
-      </thead>
-      <tbody id="tbody"></tbody>
-    </table>
-  </div>
+  <div class="lista" id="lista"></div>
 
   <div class="footer">
-    Fórmula usada: <b>Bruto = Líquido / (1 − taxa)</b>
+    Fórmula: <b>valor × (1 + taxa)</b>
   </div>
 </div>
 
 <script>
-  // Taxas (%) informadas por você
-  const taxas = {
-    1: 2.765,
-    2: 4.102,
-    3: 4.669,
-    4: 5.241,
-    5: 5.809,
-    6: 6.372,
-    7: 6.964,
-    8: 7.516,
-    9: 8.120,
-    10: 8.684,
-    11: 9.278,
-    12: 9.878
-  };
+const taxas = {
+  1: 2.765,
+  2: 4.102,
+  3: 4.669,
+  4: 5.241,
+  5: 5.809,
+  6: 6.372,
+  7: 6.964,
+  8: 7.516,
+  9: 8.120,
+  10: 8.684,
+  11: 9.278,
+  12: 9.878
+};
 
-  const input = document.getElementById('valorLiquido');
-  const wrap = document.getElementById('wrap');
-  const tbody = document.getElementById('tbody');
+const input = document.getElementById("valorBase");
+const lista = document.getElementById("lista");
 
-  function brl(n){
-    return n.toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
-  }
-
-  function calcularTabela(){
-    const liquido = parseFloat(input.value);
-
-    if(!liquido || liquido <= 0){
-      wrap.style.display = 'none';
-      tbody.innerHTML = '';
-      return;
-    }
-
-    let html = '';
-
-    for(let p=1; p<=12; p++){
-      const taxaPct = taxas[p];
-      const taxa = taxaPct / 100;
-
-      // Valor bruto a cobrar para receber o líquido desejado
-      const bruto = liquido / (1 - taxa);
-
-      // Valor da parcela para o cliente
-      const parcelaCliente = bruto / p;
-
-      // Valor da taxa (quanto fica "comido" pela operadora)
-      const valorTaxa = bruto - liquido;
-
-      html += `
-        <tr>
-          <td><span class="pill">${p}x</span></td>
-          <td>${taxaPct.toFixed(3)}%</td>
-          <td class="bruto">${brl(bruto)}</td>
-          <td>${p}x de ${brl(parcelaCliente)}</td>
-          <td class="rowNote">Taxa embutida: ${brl(valorTaxa)}</td>
-        </tr>
-      `;
-    }
-
-    tbody.innerHTML = html;
-    wrap.style.display = 'block';
-  }
-
-  function limpar(){
-    input.value = '';
-    wrap.style.display = 'none';
-    tbody.innerHTML = '';
-    input.focus();
-  }
-
-  // Atualiza automaticamente enquanto digita
-  input.addEventListener('input', calcularTabela);
-
-  // Enter também recalcula (opcional)
-  input.addEventListener('keydown', (e) => {
-    if(e.key === 'Enter') calcularTabela();
+function brl(v){
+  return v.toLocaleString("pt-BR", {
+    style:"currency",
+    currency:"BRL"
   });
-</script>
+}
 
+input.addEventListener("input", () => {
+  const base = parseFloat(input.value);
+
+  if(!base || base <= 0){
+    lista.style.display = "none";
+    lista.innerHTML = "";
+    return;
+  }
+
+  let html = "";
+
+  for(let p = 1; p <= 12; p++){
+    const taxa = taxas[p] / 100;
+    const total = base * (1 + taxa);
+    const parcela = total / p;
+
+    html += `
+      <div class="linha">
+        <div>
+          <div class="parcela">${p}x</div>
+          <div class="taxa">Taxa ${taxas[p].toFixed(3)}%</div>
+        </div>
+        <div class="valor">
+          <div class="total">${brl(total)}</div>
+          <div class="cada">${p}x de ${brl(parcela)}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  lista.innerHTML = html;
+  lista.style.display = "block";
+});
+</script>
 </body>
 </html>
