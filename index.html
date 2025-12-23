@@ -1,796 +1,172 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Visitas — Vendedor</title>
-  <meta name="theme-color" content="#0b1220">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador Máquina de Cartão</title>
 
-  <style>
-    :root{
-      --bg:#0b1220; --card:#101a30; --muted:#a6b6d6; --text:#eaf1ff;
-      --ok:#22c55e; --bad:#ef4444; --line:rgba(255,255,255,.12);
-      --r:18px; --r2:14px;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
-      background:linear-gradient(180deg,#070b14,var(--bg));
-      color:var(--text);
-      padding-bottom:90px;
-    }
-    header{
-      position:sticky; top:0; z-index:10;
-      backdrop-filter:blur(10px);
-      background:rgba(11,18,32,.85);
-      border-bottom:1px solid var(--line);
-    }
-    .top{
-      display:flex; align-items:center; justify-content:space-between;
-      padding:12px 14px; gap:12px;
-    }
-    .title{font-weight:900;font-size:14px}
-    .sub{font-size:11px;color:var(--muted)}
-    .chip{
-      display:flex; align-items:center; gap:6px;
-      padding:6px 10px; border-radius:999px;
-      border:1px solid var(--line);
-      font-size:12px; color:var(--muted);
-      white-space:nowrap;
-    }
-    .dot{width:8px;height:8px;border-radius:50%}
-    .dot.ok{background:var(--ok)}
-    .dot.bad{background:var(--bad)}
-    main{padding:14px}
-    .card{
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius:var(--r);
-      margin-bottom:14px;
-      overflow:hidden;
-    }
-    .hd{
-      padding:14px;
-      border-bottom:1px solid var(--line);
-      font-weight:900;
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-    }
-    .bd{padding:14px}
-    .kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .kpi{
-      background:rgba(255,255,255,.04);
-      border:1px solid var(--line);
-      border-radius:var(--r2);
-      padding:12px;
-    }
-    .kpi .t{font-size:11px;color:var(--muted)}
-    .kpi .v{font-size:18px;font-weight:900;margin-top:6px}
-
-    .btn{
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.06);
-      color:var(--text);
-      border-radius:14px;
-      padding:10px 12px;
-      font-weight:900;
-      cursor:pointer;
-    }
-    .btn.primary{
-      background:linear-gradient(135deg,rgba(96,165,250,.25),rgba(167,139,250,.18));
-      border-color:rgba(96,165,250,.5);
-    }
-    .btn.full{width:100%}
-    .btn:active{transform:scale(.99)}
-
-    .list{display:flex;flex-direction:column;gap:10px}
-    .visit{
-      border:1px solid var(--line);
-      border-radius:var(--r2);
-      padding:12px;
-      background:rgba(255,255,255,.03);
-    }
-    .visit h4{margin:0;font-size:14px}
-    .visit .m{font-size:12px;color:var(--muted);margin-top:4px;white-space:pre-wrap}
-    .badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-    .tag{
-      font-size:11px;padding:4px 8px;border-radius:999px;
-      border:1px solid var(--line);color:var(--muted)
-    }
-    .tag.ok{border-color:rgba(34,197,94,.4);color:#c8f7d7}
-    .tag.warn{border-color:rgba(245,158,11,.4);color:#ffe6ba}
-
-    nav{
-      position:fixed;bottom:0;left:0;right:0;
-      background:rgba(11,18,32,.92);
-      border-top:1px solid var(--line);
-      display:grid;grid-template-columns:repeat(3,1fr);
-      padding:10px;gap:10px;
-    }
-    .navBtn{
-      background:rgba(255,255,255,.04);
-      border:1px solid var(--line);
-      border-radius:14px;
-      color:var(--muted);
-      font-size:12px;
-      padding:10px;
-      cursor:pointer;
-    }
-    .navBtn.active{
-      color:var(--text);
-      border-color:rgba(96,165,250,.5);
-      background:linear-gradient(135deg,rgba(96,165,250,.25),rgba(167,139,250,.15));
+<style>
+    body {
+        font-family: Arial, Helvetica, sans-serif;
+        background: #0f172a;
+        color: #fff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
     }
 
-    .modal{
-      position:fixed;inset:0;
-      background:rgba(0,0,0,.6);
-      display:none;z-index:50;
-      padding:12px;
+    .card {
+        background: #1e293b;
+        padding: 25px;
+        border-radius: 12px;
+        width: 100%;
+        max-width: 380px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.4);
     }
-    .modal.show{display:block}
-    .sheet{
-      background:var(--card);
-      border-radius:22px;
-      border:1px solid var(--line);
-      max-width:520px;
-      margin:40px auto;
-      overflow:hidden;
-    }
-    .sheet .hd{display:flex;justify-content:space-between;align-items:center}
-    label{font-size:11px;color:var(--muted);font-weight:900}
-    input,select,textarea{
-      width:100%;margin-top:4px;margin-bottom:10px;
-      padding:10px;border-radius:12px;
-      background:rgba(255,255,255,.05);
-      border:1px solid var(--line);
-      color:var(--text);
-      outline:none;
-    }
-    textarea{min-height:80px}
-    .mini{font-size:11px;color:var(--muted);line-height:1.35}
-    .alert{
-      border:1px solid rgba(245,158,11,.35);
-      background:rgba(245,158,11,.08);
-      border-radius:14px;
-      padding:10px 12px;
-      margin-bottom:12px;
-      font-size:12px;
-      color:#ffe6ba;
-      display:none;
-    }
-    .alert.show{display:block}
 
-    /* Gráfico */
-    .chartWrap{
-      margin-top:12px;
-      border:1px solid var(--line);
-      border-radius:var(--r2);
-      background:rgba(255,255,255,.03);
-      padding:12px;
+    h1 {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 22px;
+        color: #38bdf8;
     }
-    .chartTitle{
-      font-size:12px;
-      font-weight:900;
-      margin-bottom:8px;
-      color:var(--text);
-    }
-    canvas{width:100%;height:190px;display:block}
-    .legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-    .leg{
-      display:flex;align-items:center;gap:6px;
-      border:1px solid var(--line);
-      border-radius:999px;
-      padding:6px 10px;
-      font-size:11px;
-      color:var(--muted);
-      background:rgba(255,255,255,.02);
-    }
-    .sw{width:10px;height:10px;border-radius:3px}
 
-    /* Seletor Hoje/Semana/Mês */
-    .seg{
-      display:flex; gap:8px; flex-wrap:wrap;
-      margin-bottom:12px;
+    label {
+        display: block;
+        margin-top: 15px;
+        font-size: 14px;
+        color: #cbd5f5;
     }
-    .seg button{
-      flex:1;
-      min-width:92px;
-      padding:9px 10px;
-      border-radius:14px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.04);
-      color:var(--muted);
-      font-weight:900;
-      cursor:pointer;
+
+    input, select {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        border-radius: 8px;
+        border: none;
+        font-size: 16px;
     }
-    .seg button.active{
-      color:var(--text);
-      border-color:rgba(96,165,250,.55);
-      background:linear-gradient(135deg,rgba(96,165,250,.22),rgba(167,139,250,.14));
+
+    input {
+        background: #f8fafc;
     }
-  </style>
+
+    select {
+        background: #f8fafc;
+    }
+
+    button {
+        width: 100%;
+        margin-top: 20px;
+        padding: 12px;
+        font-size: 16px;
+        border: none;
+        border-radius: 8px;
+        background: #38bdf8;
+        color: #020617;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background: #0ea5e9;
+    }
+
+    .resultado {
+        margin-top: 20px;
+        background: #020617;
+        padding: 15px;
+        border-radius: 8px;
+        font-size: 14px;
+    }
+
+    .linha {
+        display: flex;
+        justify-content: space-between;
+        margin: 6px 0;
+    }
+
+    .destaque {
+        color: #22c55e;
+        font-weight: bold;
+    }
+</style>
 </head>
 
 <body>
-<header>
-  <div class="top">
-    <div>
-      <div class="title">Visitas — Vendedor</div>
-      <div class="sub" id="todayLabel">—</div>
+
+<div class="card">
+    <h1>Simulador Máquina de Cartão</h1>
+
+    <label>Valor da Venda (R$)</label>
+    <input type="number" id="valor" placeholder="Ex: 1500" step="0.01">
+
+    <label>Parcelas</label>
+    <select id="parcelas">
+        <option value="1">1x</option>
+        <option value="2">2x</option>
+        <option value="3">3x</option>
+        <option value="4">4x</option>
+        <option value="5">5x</option>
+        <option value="6">6x</option>
+        <option value="7">7x</option>
+        <option value="8">8x</option>
+        <option value="9">9x</option>
+        <option value="10">10x</option>
+        <option value="11">11x</option>
+        <option value="12">12x</option>
+    </select>
+
+    <button onclick="calcular()">Calcular</button>
+
+    <div class="resultado" id="resultado" style="display:none;">
+        <div class="linha"><span>Taxa aplicada:</span><span id="taxa"></span></div>
+        <div class="linha"><span>Valor da taxa:</span><span id="valorTaxa"></span></div>
+        <div class="linha"><span>Valor líquido:</span><span class="destaque" id="liquido"></span></div>
+        <div class="linha"><span>Valor da parcela:</span><span id="parcelaValor"></span></div>
     </div>
-    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end">
-      <div class="chip">
-        <span class="dot bad" id="connDot"></span>
-        <span id="connTxt">Offline</span>
-      </div>
-      <div class="chip">
-        <span class="muted">Grupo:</span>&nbsp;<strong id="groupLabel">GERAL</strong>
-      </div>
-    </div>
-  </div>
-</header>
-
-<main>
-  <div class="alert" id="fbAlert"></div>
-
-  <section id="pageDashboard">
-    <div class="card">
-      <div class="hd">
-        <span>📊 Resumo</span>
-        <button class="btn" id="btnSync">🔄 Sync</button>
-      </div>
-      <div class="bd">
-
-        <!-- ✅ Seletor -->
-        <div class="seg" role="tablist" aria-label="Período do resumo">
-          <button id="segHoje" class="active" type="button">Hoje</button>
-          <button id="segSemana" type="button">Semana</button>
-          <button id="segMes" type="button">Mês</button>
-        </div>
-
-        <div class="mini" id="periodHint" style="margin:-2px 0 12px 0">—</div>
-
-        <div class="kpis">
-          <div class="kpi"><div class="t" id="k_t_visitas">Visitas</div><div class="v" id="k_visitas">0</div></div>
-          <div class="kpi"><div class="t" id="k_t_pedidos">Pedidos</div><div class="v" id="k_pedidos">0</div></div>
-          <div class="kpi"><div class="t" id="k_t_promessas">Promessas</div><div class="v" id="k_promessas">0</div></div>
-          <div class="kpi"><div class="t" id="k_t_potencial">Potencial</div><div class="v" id="k_potencial">R$ 0</div></div>
-        </div>
-
-        <div class="chartWrap">
-          <div class="chartTitle" id="chartTitle">📈 Operação — (R$)</div>
-          <canvas id="chartResumo" width="900" height="360"></canvas>
-
-          <div class="legend">
-            <div class="leg"><span class="sw" style="background:rgba(96,165,250,.95)"></span> Potencial (restante)</div>
-            <div class="leg"><span class="sw" style="background:rgba(34,197,94,.95)"></span> Pedido tirado</div>
-            <div class="leg"><span class="sw" style="background:rgba(245,158,11,.95)"></span> Baixa Probabilidade</div>
-          </div>
-
-          <div class="mini" id="chartHint" style="margin-top:10px">—</div>
-        </div>
-
-        <div style="margin-top:14px">
-          <button class="btn primary full" id="btnNova">➕ Nova visita</button>
-        </div>
-
-        <div class="mini" style="margin-top:10px">
-          ✅ Todos os celulares veem o mesmo (Firebase). <br>
-          📶 Sem internet? salva em cache e sincroniza depois.
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="pageVisits" style="display:none">
-    <div class="card">
-      <div class="hd">📋 Visitas (mês atual)</div>
-      <div class="bd">
-        <div class="list" id="lista"></div>
-      </div>
-    </div>
-  </section>
-</main>
-
-<nav>
-  <button class="navBtn active" id="navDash">📊<br>Resumo</button>
-  <button class="navBtn" id="navNew">➕<br>Nova</button>
-  <button class="navBtn" id="navList">📋<br>Lista</button>
-</nav>
-
-<div class="modal" id="modal">
-  <div class="sheet">
-    <div class="hd">
-      <div>➕ Nova visita</div>
-      <button class="btn" id="btnFechar">✖</button>
-    </div>
-    <div class="bd">
-      <label>Cliente *</label>
-      <input id="f_cliente" placeholder="Ex.: Mercado São João">
-
-      <label>Potencial (R$)</label>
-      <input id="f_potencial" inputmode="decimal" placeholder="Ex.: 2500">
-
-      <label>Falou que vai comprar?</label>
-      <select id="f_promessa">
-        <option>Não</option>
-        <option>Sim</option>
-        <option>Talvez</option>
-      </select>
-
-      <label>Tirou pedido?</label>
-      <select id="f_pedido">
-        <option>Não</option>
-        <option>Sim</option>
-      </select>
-
-      <label>Observações</label>
-      <textarea id="f_obs" placeholder="Preço, prazo, concorrente, retorno, etc."></textarea>
-
-      <button class="btn primary full" id="btnSalvar">Salvar visita</button>
-    </div>
-  </div>
 </div>
 
-<script type="module">
-  const $ = (id)=>document.getElementById(id);
+<script>
+const taxas = {
+    1: 2.765,
+    2: 4.102,
+    3: 4.669,
+    4: 5.241,
+    5: 5.809,
+    6: 6.372,
+    7: 6.964,
+    8: 7.516,
+    9: 8.120,
+    10: 8.684,
+    11: 9.278,
+    12: 9.878
+};
 
-  // Grupo único compartilhado
-  const GROUP_KEY = "GERAL";
-  $("groupLabel").textContent = GROUP_KEY;
+function calcular() {
+    const valor = parseFloat(document.getElementById('valor').value);
+    const parcelas = document.getElementById('parcelas').value;
 
-  const CACHE_KEY = "visitas_cache_geral_v4";
-  const PERIOD_KEY = "visitas_period_v1";
-
-  function today(){ return new Date().toISOString().slice(0,10); }
-  function ym(d){ return (d || today()).slice(0,7); }
-  function money(v){ return Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"}); }
-  function num(v){
-    return Number(String(v||"").replace(/[^\d.,-]/g,"").replace(/\./g,"").replace(",", ".")) || 0;
-  }
-  function showAlert(msg){
-    const a = $("fbAlert");
-    a.textContent = msg;
-    a.classList.add("show");
-  }
-
-  $("todayLabel").textContent = `Hoje: ${today()}`;
-
-  // online/offline do celular
-  function conn(){
-    const on = navigator.onLine;
-    $("connTxt").textContent = on ? "Online" : "Offline";
-    $("connDot").className = "dot " + (on ? "ok":"bad");
-  }
-  window.addEventListener("online", conn);
-  window.addEventListener("offline", conn);
-  conn();
-
-  // navegação (3 abas)
-  function show(p){
-    ["pageDashboard","pageVisits"].forEach(id=>$(id).style.display="none");
-    $(p).style.display="block";
-    document.querySelectorAll(".navBtn").forEach(b=>b.classList.remove("active"));
-  }
-  $("navDash").onclick=()=>{ show("pageDashboard"); $("navDash").classList.add("active"); };
-  $("navList").onclick=()=>{ show("pageVisits"); $("navList").classList.add("active"); };
-
-  // modal
-  function openModal(){ $("modal").classList.add("show"); }
-  function closeModal(){ $("modal").classList.remove("show"); }
-  $("btnNova").onclick=openModal;
-  $("navNew").onclick=openModal;
-  $("btnFechar").onclick=closeModal;
-  $("modal").addEventListener("click",(e)=>{ if(e.target===$("modal")) closeModal(); });
-
-  // dados (cache local)
-  let visits = [];
-  try{ visits = JSON.parse(localStorage.getItem(CACHE_KEY) || "[]"); }catch{ visits = []; }
-
-  // -------- Períodos: hoje / semana / mês --------
-  function toDateLocal(iso){
-    const [y,m,d] = String(iso||"").split("-").map(Number);
-    return new Date(y, (m||1)-1, d||1, 12, 0, 0, 0);
-  }
-  function startOfWeekISO(date){
-    // semana começa na segunda
-    const d = new Date(date);
-    const day = d.getDay(); // 0 domingo ... 6 sábado
-    const diff = (day === 0) ? -6 : (1 - day);
-    d.setDate(d.getDate() + diff);
-    d.setHours(0,0,0,0);
-    return d;
-  }
-  function endOfWeekISO(date){
-    const s = startOfWeekISO(date);
-    const e = new Date(s);
-    e.setDate(e.getDate() + 6);
-    e.setHours(23,59,59,999);
-    return e;
-  }
-  function startOfMonth(date){
-    const d = new Date(date);
-    d.setDate(1); d.setHours(0,0,0,0);
-    return d;
-  }
-  function endOfMonth(date){
-    const d = new Date(date);
-    d.setMonth(d.getMonth()+1, 0);
-    d.setHours(23,59,59,999);
-    return d;
-  }
-  function fmtBRDate(date){
-    return date.toLocaleDateString("pt-BR");
-  }
-
-  let period = localStorage.getItem(PERIOD_KEY) || "HOJE"; // HOJE | SEMANA | MES
-
-  function setPeriod(p){
-    period = p;
-    localStorage.setItem(PERIOD_KEY, period);
-
-    $("segHoje").classList.toggle("active", period==="HOJE");
-    $("segSemana").classList.toggle("active", period==="SEMANA");
-    $("segMes").classList.toggle("active", period==="MES");
-
-    render();
-  }
-
-  $("segHoje").onclick = ()=>setPeriod("HOJE");
-  $("segSemana").onclick = ()=>setPeriod("SEMANA");
-  $("segMes").onclick = ()=>setPeriod("MES");
-
-  // -------- Gráfico horizontal bonito (valor dentro) --------
-  function formatBRL(v){
-    return Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
-  }
-  function formatCompactBRL(n){
-    const v = Number(n||0);
-    if (v >= 1000000) return `R$ ${(v/1000000).toFixed(2).replace(".",",")}M`;
-    if (v >= 1000) return `R$ ${(v/1000).toFixed(1).replace(".",",")}k`;
-    return `R$ ${Math.round(v).toLocaleString("pt-BR")}`;
-  }
-  function roundRect(ctx, x, y, w, h, r){
-    const radius = Math.min(r, w/2, h/2);
-    ctx.beginPath();
-    ctx.moveTo(x + radius, y);
-    ctx.arcTo(x + w, y, x + w, y + h, radius);
-    ctx.arcTo(x + w, y + h, x, y + h, radius);
-    ctx.arcTo(x, y + h, x, y, radius);
-    ctx.arcTo(x, y, x + w, y, radius);
-    ctx.closePath();
-  }
-  function drawHorizontalBarChart(canvas, items){
-    const ctx = canvas.getContext("2d");
-    const dpr = Math.max(1, Math.floor(window.devicePixelRatio || 1));
-
-    const cssW = canvas.clientWidth || 360;
-    const cssH = canvas.clientHeight || 190;
-    canvas.width  = Math.floor(cssW * dpr);
-    canvas.height = Math.floor(cssH * dpr);
-    ctx.setTransform(dpr,0,0,dpr,0,0);
-
-    const w = cssW, h = cssH;
-    ctx.clearRect(0,0,w,h);
-
-    const padL = 14, padR = 14, padT = 12, padB = 12;
-    const rowH = 52, gapY = 10;
-
-    const maxV = Math.max(1, ...items.map(x=>Number(x.value||0)));
-
-    // grid vertical discreto
-    ctx.strokeStyle = "rgba(255,255,255,.10)";
-    ctx.lineWidth = 1;
-    const gridX = 5;
-    for(let i=0;i<=gridX;i++){
-      const x = padL + ( (w - padL - padR) * (i/gridX) );
-      ctx.beginPath();
-      ctx.moveTo(x, padT);
-      ctx.lineTo(x, h - padB);
-      ctx.stroke();
+    if (!valor || valor <= 0) {
+        alert("Informe um valor válido.");
+        return;
     }
 
-    const labelFont = "900 13px system-ui";
-    const valueFont = "900 14px system-ui";
-    const subFont   = "700 11px system-ui";
+    const taxa = taxas[parcelas];
+    const valorTaxa = valor * (taxa / 100);
+    const liquido = valor - valorTaxa;
+    const valorParcela = valor / parcelas;
 
-    const chartX = padL;
-    const chartW = w - padL - padR;
+    document.getElementById('taxa').innerText = taxa.toFixed(3) + "%";
+    document.getElementById('valorTaxa').innerText = "R$ " + valorTaxa.toFixed(2);
+    document.getElementById('liquido').innerText = "R$ " + liquido.toFixed(2);
+    document.getElementById('parcelaValor').innerText = parcelas + "x de R$ " + valorParcela.toFixed(2);
 
-    items.forEach((it, idx)=>{
-      const y0 = padT + idx*(rowH + gapY);
-
-      ctx.font = labelFont;
-      ctx.fillStyle = "rgba(255,255,255,.92)";
-      ctx.textAlign = "left";
-      ctx.textBaseline = "top";
-      ctx.fillText(it.label, chartX, y0);
-
-      const barY = y0 + 22;
-      const barH = 18;
-      const barW = Math.max(4, (Number(it.value||0)/maxV) * chartW);
-
-      // trilho
-      ctx.fillStyle = "rgba(255,255,255,.06)";
-      roundRect(ctx, chartX, barY, chartW, barH, 10);
-      ctx.fill();
-
-      // preenchimento
-      ctx.fillStyle = it.color;
-      roundRect(ctx, chartX, barY, barW, barH, 10);
-      ctx.fill();
-
-      // valor dentro (se couber)
-      const valText = formatCompactBRL(it.value);
-      ctx.font = valueFont;
-      ctx.textBaseline = "middle";
-
-      const inside = barW >= 120;
-      if(inside){
-        ctx.fillStyle = "rgba(11,18,32,.95)";
-        ctx.textAlign = "right";
-        ctx.fillText(valText, chartX + barW - 10, barY + barH/2);
-      }else{
-        ctx.fillStyle = "rgba(255,255,255,.90)";
-        ctx.textAlign = "left";
-        ctx.fillText(valText, chartX + barW + 10, barY + barH/2);
-      }
-
-      // valor em BRL completo abaixo
-      ctx.font = subFont;
-      ctx.fillStyle = "rgba(255,255,255,.55)";
-      ctx.textAlign = "left";
-      ctx.textBaseline = "top";
-      ctx.fillText(formatBRL(it.value), chartX, barY + barH + 6);
-    });
-  }
-
-  function filterRowsByPeriod(allRows){
-    const now = new Date();
-    const dToday = today();
-
-    if(period === "HOJE"){
-      $("periodHint").textContent = `Período: Hoje (${dToday})`;
-      return allRows.filter(v => v.data === dToday);
-    }
-
-    if(period === "SEMANA"){
-      const s = startOfWeekISO(now);
-      const e = endOfWeekISO(now);
-      $("periodHint").textContent = `Período: Semana (${fmtBRDate(s)} a ${fmtBRDate(e)})`;
-      return allRows.filter(v=>{
-        const dt = toDateLocal(v.data);
-        return dt >= s && dt <= e;
-      });
-    }
-
-    // MÊS (mês atual)
-    const s = startOfMonth(now);
-    const e = endOfMonth(now);
-    $("periodHint").textContent = `Período: Mês (${fmtBRDate(s)} a ${fmtBRDate(e)})`;
-    return allRows.filter(v=>{
-      const dt = toDateLocal(v.data);
-      return dt >= s && dt <= e;
-    });
-  }
-
-  // -------- Render / KPIs / Lista / Gráfico --------
-  function render(){
-    // Seletor persistido
-    $("segHoje").classList.toggle("active", period==="HOJE");
-    $("segSemana").classList.toggle("active", period==="SEMANA");
-    $("segMes").classList.toggle("active", period==="MES");
-
-    const rows = filterRowsByPeriod(visits);
-
-    // KPIs
-    let potTotal=0, pedidos=0, promessas=0;
-    for(const v of rows){
-      potTotal += Number(v.potencial||0);
-      if(v.pedido==="Sim") pedidos++;
-      if(v.promessa==="Sim") promessas++;
-    }
-
-    $("k_t_visitas").textContent = `Visitas (${period==="HOJE"?"hoje":period==="SEMANA"?"semana":"mês"})`;
-    $("k_t_pedidos").textContent = `Pedidos (${period==="HOJE"?"hoje":period==="SEMANA"?"semana":"mês"})`;
-    $("k_t_promessas").textContent = `Promessas (${period==="HOJE"?"hoje":period==="SEMANA"?"semana":"mês"})`;
-    $("k_t_potencial").textContent = `Potencial (${period==="HOJE"?"hoje":period==="SEMANA"?"semana":"mês"})`;
-
-    $("k_visitas").textContent = rows.length;
-    $("k_pedidos").textContent = pedidos;
-    $("k_promessas").textContent = promessas;
-    $("k_potencial").textContent = money(potTotal);
-
-    // Gráfico (Potencial restante = total - pedidos)
-    const potPedido = rows.filter(x=>x.pedido==="Sim").reduce((a,x)=>a+Number(x.potencial||0),0);
-    const potBaixa  = rows
-      .filter(x=>x.pedido!=="Sim" && x.promessa==="Não")
-      .reduce((a,x)=>a+Number(x.potencial||0),0);
-
-    let potRestante = potTotal - potPedido;
-    if(potRestante < 0) potRestante = 0;
-
-    const titlePeriod = (period==="HOJE" ? "Hoje" : (period==="SEMANA" ? "Semana" : "Mês"));
-    $("chartTitle").textContent = `📈 Operação — ${titlePeriod} (R$)`;
-
-    drawHorizontalBarChart(
-      $("chartResumo"),
-      [
-        { label: "Potencial (restante)", value: potRestante, color: "rgba(96,165,250,.95)" },
-        { label: "Pedido tirado",        value: potPedido,   color: "rgba(34,197,94,.95)" },
-        { label: "Baixa Probabilidade",  value: potBaixa,    color: "rgba(245,158,11,.95)" }
-      ]
-    );
-
-    $("chartHint").textContent =
-      `${titlePeriod}: Potencial restante ${money(potRestante)} • Pedido ${money(potPedido)} • Baixa Probabilidade ${money(potBaixa)} (Promessa=Não e Pedido=Não)`;
-
-    // Lista: mês atual (fixo) pra acompanhar histórico
-    const list = $("lista");
-    list.innerHTML = "";
-    const monthRows = visits
-      .filter(v => (v.data||"").slice(0,7) === ym())
-      .sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||""));
-
-    const safe = (s)=>String(s||"").replace(/</g,"&lt;");
-    if(monthRows.length===0){
-      list.innerHTML = `<div class="mini">Nenhum registro no mês ainda.</div>`;
-    }else{
-      monthRows.forEach(v=>{
-        const div = document.createElement("div");
-        div.className = "visit";
-        div.innerHTML = `
-          <h4>${safe(v.cliente)}</h4>
-          <div class="m">${safe(v.data)} • ${money(v.potencial)}</div>
-          <div class="badges">
-            <span class="tag ${v.promessa==="Sim"?"ok":(v.promessa==="Talvez"?"warn":"")}">Promessa: ${safe(v.promessa)}</span>
-            <span class="tag ${v.pedido==="Sim"?"ok":""}">Pedido: ${safe(v.pedido)}</span>
-          </div>
-          ${v.obs ? `<div class="m" style="margin-top:8px">${safe(v.obs)}</div>` : ``}
-        `;
-        list.appendChild(div);
-      });
-    }
-
-    localStorage.setItem(CACHE_KEY, JSON.stringify(visits));
-  }
-
-  // inicia com período salvo
-  setPeriod(localStorage.getItem(PERIOD_KEY) || "HOJE");
-
-  // -------- Firebase RTDB (SEM AUTH) + tempo real --------
-  let firebaseReady = false;
-  let api = null;
-
-  async function initFirebase(){
-    try{
-      const { initializeApp } = await import("https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js");
-      const { getDatabase, ref, set, onValue } = await import("https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js");
-
-      const firebaseConfig = {
-        apiKey: "AIzaSyBccM__hS_OMso2ipnKPUYycfVCfvfz9f8",
-        authDomain: "visitas-affdb.firebaseapp.com",
-        databaseURL: "https://visitas-affdb-default-rtdb.firebaseio.com",
-        projectId: "visitas-affdb",
-        storageBucket: "visitas-affdb.firebasestorage.app",
-        messagingSenderId: "356562078458",
-        appId: "1:356562078458:web:5e4da3c7c9ffa7b90e1743"
-      };
-
-      const app = initializeApp(firebaseConfig);
-      const db = getDatabase(app);
-
-      api = { db, ref, set, onValue };
-      firebaseReady = true;
-
-      listenMonth(ym());
-    }catch(err){
-      console.error(err);
-      showAlert("⚠️ Firebase não iniciou. Verifique a URL e as Rules do RTDB.");
-    }
-  }
-
-  function monthPath(yyyymm){
-    return `visitas/${GROUP_KEY}/${yyyymm}`;
-  }
-
-  function flattenMonth(obj){
-    const out = [];
-    if(!obj) return out;
-    for(const id of Object.keys(obj)){
-      const v = obj[id];
-      if(v && typeof v === "object") out.push({ ...v, id });
-    }
-    return out;
-  }
-
-  function mergeMonth(yyyymm, monthRows){
-    const keep = visits.filter(v => (v.data||"").slice(0,7) !== yyyymm);
-    visits = [...keep, ...monthRows];
-    render();
-  }
-
-  function listenMonth(yyyymm){
-    if(!firebaseReady) return;
-    const p = api.ref(api.db, monthPath(yyyymm));
-    api.onValue(p, (snap)=>{
-      const obj = snap.exists() ? snap.val() : {};
-      const rows = flattenMonth(obj);
-      mergeMonth(yyyymm, rows);
-    }, (err)=>{
-      console.error(err);
-      showAlert("⚠️ Erro ao ouvir dados do Firebase (Rules).");
-    });
-  }
-
-  function newId(){
-    const rnd = Math.random().toString(16).slice(2);
-    return `${Date.now()}_${rnd}`;
-  }
-
-  async function saveToFirebase(visit){
-    if(!firebaseReady) return false;
-    const id = visit.id || newId();
-    visit.id = id;
-    const p = api.ref(api.db, `${monthPath(ym(visit.data))}/${id}`);
-    await api.set(p, visit);
-    return true;
-  }
-
-  // salvar visita (local + firebase)
-  $("btnSalvar").onclick = async ()=>{
-    const cliente = $("f_cliente").value.trim();
-    if(!cliente){ alert("Informe o nome do cliente."); return; }
-
-    const visit = {
-      id: newId(),
-      data: today(),
-      cliente,
-      potencial: num($("f_potencial").value),
-      promessa: $("f_promessa").value,
-      pedido: $("f_pedido").value,
-      obs: $("f_obs").value.trim(),
-      createdAt: new Date().toISOString()
-    };
-
-    visits.push(visit);
-    render();
-
-    $("f_cliente").value="";
-    $("f_potencial").value="";
-    $("f_promessa").value="Não";
-    $("f_pedido").value="Não";
-    $("f_obs").value="";
-    closeModal();
-
-    if(navigator.onLine){
-      try{ await saveToFirebase(visit); }
-      catch(e){ console.error(e); showAlert("⚠️ Salvo no celular. Não consegui enviar pro Firebase agora."); }
-    }
-  };
-
-  // sync
-  $("btnSync").onclick = async ()=>{
-    if(!firebaseReady){
-      showAlert("⚠️ Sync indisponível. Verifique Rules e conexão.");
-      return;
-    }
-    if(!navigator.onLine){
-      showAlert("⚠️ Sem internet. Sync precisa estar Online.");
-      return;
-    }
-
-    const monthRows = visits.filter(v => (v.data||"").slice(0,7) === ym());
-    let ok = 0;
-
-    for(const v of monthRows){
-      try{ await saveToFirebase(v); ok++; }catch{}
-    }
-    showAlert(`✅ Sync concluído: enviado ${ok}/${monthRows.length} do mês.`);
-  };
-
-  initFirebase();
+    document.getElementById('resultado').style.display = "block";
+}
 </script>
+
 </body>
 </html>
