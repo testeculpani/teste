@@ -1,136 +1,187 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Simulador Máquina de Cartão</title>
-
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Simulador Máquina de Cartão — Repasse ao Cliente</title>
 <style>
-    body {
-        font-family: Arial, Helvetica, sans-serif;
-        background: #0f172a;
-        color: #fff;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        margin: 0;
-    }
-
-    .card {
-        background: #1e293b;
-        padding: 25px;
-        border-radius: 12px;
-        width: 100%;
-        max-width: 380px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-    }
-
-    h1 {
-        text-align: center;
-        margin-bottom: 20px;
-        font-size: 22px;
-        color: #38bdf8;
-    }
-
-    label {
-        display: block;
-        margin-top: 15px;
-        font-size: 14px;
-        color: #cbd5f5;
-    }
-
-    input, select {
-        width: 100%;
-        padding: 10px;
-        margin-top: 5px;
-        border-radius: 8px;
-        border: none;
-        font-size: 16px;
-    }
-
-    input {
-        background: #f8fafc;
-    }
-
-    select {
-        background: #f8fafc;
-    }
-
-    button {
-        width: 100%;
-        margin-top: 20px;
-        padding: 12px;
-        font-size: 16px;
-        border: none;
-        border-radius: 8px;
-        background: #38bdf8;
-        color: #020617;
-        font-weight: bold;
-        cursor: pointer;
-    }
-
-    button:hover {
-        background: #0ea5e9;
-    }
-
-    .resultado {
-        margin-top: 20px;
-        background: #020617;
-        padding: 15px;
-        border-radius: 8px;
-        font-size: 14px;
-    }
-
-    .linha {
-        display: flex;
-        justify-content: space-between;
-        margin: 6px 0;
-    }
-
-    .destaque {
-        color: #22c55e;
-        font-weight: bold;
-    }
+  body{
+    font-family: Arial, Helvetica, sans-serif;
+    background:#0f172a;
+    color:#fff;
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:18px;
+  }
+  .card{
+    width:100%;
+    max-width:720px;
+    background:#1e293b;
+    border-radius:14px;
+    padding:22px;
+    box-shadow:0 10px 25px rgba(0,0,0,.4);
+  }
+  h1{
+    margin:0 0 14px;
+    font-size:20px;
+    text-align:center;
+    color:#38bdf8;
+  }
+  .sub{
+    margin:0 0 18px;
+    text-align:center;
+    color:#cbd5f5;
+    font-size:13px;
+    line-height:1.35;
+  }
+  label{
+    display:block;
+    font-size:13px;
+    color:#cbd5f5;
+    margin-bottom:6px;
+  }
+  input{
+    width:100%;
+    padding:12px 12px;
+    border-radius:10px;
+    border:none;
+    font-size:18px;
+    background:#f8fafc;
+    color:#0f172a;
+    outline:none;
+  }
+  .hint{
+    margin-top:8px;
+    font-size:12px;
+    color:#94a3b8;
+  }
+  .tableWrap{
+    margin-top:18px;
+    background:#020617;
+    border-radius:12px;
+    overflow:hidden;
+    display:none;
+  }
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13px;
+  }
+  th, td{
+    padding:10px 10px;
+    border-bottom:1px solid rgba(148,163,184,.18);
+    text-align:right;
+    white-space:nowrap;
+  }
+  th{
+    color:#cbd5f5;
+    font-weight:700;
+    background:rgba(255,255,255,.03);
+  }
+  th:first-child, td:first-child{ text-align:left; }
+  tr:last-child td{ border-bottom:none; }
+  .pill{
+    display:inline-block;
+    padding:3px 8px;
+    border-radius:999px;
+    background:rgba(56,189,248,.15);
+    color:#7dd3fc;
+    font-weight:700;
+    font-size:12px;
+  }
+  .bruto{
+    color:#22c55e;
+    font-weight:800;
+  }
+  .rowNote{
+    font-size:11px;
+    color:#94a3b8;
+  }
+  .topRow{
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+    align-items:flex-end;
+    justify-content:space-between;
+  }
+  .field{
+    flex:1 1 280px;
+  }
+  .actions{
+    flex:0 0 auto;
+    display:flex;
+    gap:10px;
+  }
+  button{
+    padding:12px 14px;
+    border-radius:10px;
+    border:none;
+    background:#38bdf8;
+    color:#020617;
+    font-weight:800;
+    cursor:pointer;
+    font-size:14px;
+  }
+  button.secondary{
+    background:#334155;
+    color:#e2e8f0;
+  }
+  button:hover{ filter:brightness(.95); }
+  .footer{
+    margin-top:12px;
+    color:#94a3b8;
+    font-size:12px;
+    text-align:center;
+  }
 </style>
 </head>
-
 <body>
 
 <div class="card">
-    <h1>Simulador Máquina de Cartão</h1>
+  <h1>Simulador Máquina de Cartão (Repasse no Cliente)</h1>
+  <p class="sub">
+    Digite o <b>valor que você quer receber</b> (líquido).<br>
+    O sistema calcula quanto precisa cobrar do cliente em <b>1x a 12x</b> usando suas taxas.
+  </p>
 
-    <label>Valor da Venda (R$)</label>
-    <input type="number" id="valor" placeholder="Ex: 1500" step="0.01">
-
-    <label>Parcelas</label>
-    <select id="parcelas">
-        <option value="1">1x</option>
-        <option value="2">2x</option>
-        <option value="3">3x</option>
-        <option value="4">4x</option>
-        <option value="5">5x</option>
-        <option value="6">6x</option>
-        <option value="7">7x</option>
-        <option value="8">8x</option>
-        <option value="9">9x</option>
-        <option value="10">10x</option>
-        <option value="11">11x</option>
-        <option value="12">12x</option>
-    </select>
-
-    <button onclick="calcular()">Calcular</button>
-
-    <div class="resultado" id="resultado" style="display:none;">
-        <div class="linha"><span>Taxa aplicada:</span><span id="taxa"></span></div>
-        <div class="linha"><span>Valor da taxa:</span><span id="valorTaxa"></span></div>
-        <div class="linha"><span>Valor líquido:</span><span class="destaque" id="liquido"></span></div>
-        <div class="linha"><span>Valor da parcela:</span><span id="parcelaValor"></span></div>
+  <div class="topRow">
+    <div class="field">
+      <label>Quanto você quer receber (R$) — Valor líquido</label>
+      <input id="valorLiquido" type="number" inputmode="decimal" step="0.01" placeholder="Ex: 1500,00" />
+      <div class="hint">Dica: ao digitar, a tabela já atualiza automaticamente.</div>
     </div>
+
+    <div class="actions">
+      <button class="secondary" onclick="limpar()">Limpar</button>
+    </div>
+  </div>
+
+  <div class="tableWrap" id="wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Parcelas</th>
+          <th>Taxa</th>
+          <th>Valor a cobrar (Bruto)</th>
+          <th>Parcela do cliente</th>
+          <th class="rowNote">Observação</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    Fórmula usada: <b>Bruto = Líquido / (1 − taxa)</b>
+  </div>
 </div>
 
 <script>
-const taxas = {
+  // Taxas (%) informadas por você
+  const taxas = {
     1: 2.765,
     2: 4.102,
     3: 4.669,
@@ -143,29 +194,69 @@ const taxas = {
     10: 8.684,
     11: 9.278,
     12: 9.878
-};
+  };
 
-function calcular() {
-    const valor = parseFloat(document.getElementById('valor').value);
-    const parcelas = document.getElementById('parcelas').value;
+  const input = document.getElementById('valorLiquido');
+  const wrap = document.getElementById('wrap');
+  const tbody = document.getElementById('tbody');
 
-    if (!valor || valor <= 0) {
-        alert("Informe um valor válido.");
-        return;
+  function brl(n){
+    return n.toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
+  }
+
+  function calcularTabela(){
+    const liquido = parseFloat(input.value);
+
+    if(!liquido || liquido <= 0){
+      wrap.style.display = 'none';
+      tbody.innerHTML = '';
+      return;
     }
 
-    const taxa = taxas[parcelas];
-    const valorTaxa = valor * (taxa / 100);
-    const liquido = valor - valorTaxa;
-    const valorParcela = valor / parcelas;
+    let html = '';
 
-    document.getElementById('taxa').innerText = taxa.toFixed(3) + "%";
-    document.getElementById('valorTaxa').innerText = "R$ " + valorTaxa.toFixed(2);
-    document.getElementById('liquido').innerText = "R$ " + liquido.toFixed(2);
-    document.getElementById('parcelaValor').innerText = parcelas + "x de R$ " + valorParcela.toFixed(2);
+    for(let p=1; p<=12; p++){
+      const taxaPct = taxas[p];
+      const taxa = taxaPct / 100;
 
-    document.getElementById('resultado').style.display = "block";
-}
+      // Valor bruto a cobrar para receber o líquido desejado
+      const bruto = liquido / (1 - taxa);
+
+      // Valor da parcela para o cliente
+      const parcelaCliente = bruto / p;
+
+      // Valor da taxa (quanto fica "comido" pela operadora)
+      const valorTaxa = bruto - liquido;
+
+      html += `
+        <tr>
+          <td><span class="pill">${p}x</span></td>
+          <td>${taxaPct.toFixed(3)}%</td>
+          <td class="bruto">${brl(bruto)}</td>
+          <td>${p}x de ${brl(parcelaCliente)}</td>
+          <td class="rowNote">Taxa embutida: ${brl(valorTaxa)}</td>
+        </tr>
+      `;
+    }
+
+    tbody.innerHTML = html;
+    wrap.style.display = 'block';
+  }
+
+  function limpar(){
+    input.value = '';
+    wrap.style.display = 'none';
+    tbody.innerHTML = '';
+    input.focus();
+  }
+
+  // Atualiza automaticamente enquanto digita
+  input.addEventListener('input', calcularTabela);
+
+  // Enter também recalcula (opcional)
+  input.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter') calcularTabela();
+  });
 </script>
 
 </body>
