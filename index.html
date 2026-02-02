@@ -1,192 +1,941 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Simulador Máquina de Cartão</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Controle de Caixa — Ampertech</title>
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#64748b;
+      --border:#e2e8f0;
+      --primary:#2563eb;
+      --primary2:#1d4ed8;
+      --ok:#16a34a;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --chip:#f1f5f9;
+      --shadow: 0 8px 24px rgba(15,23,42,.08);
+      --radius: 16px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background: linear-gradient(180deg, #eef2ff, var(--bg) 220px);
+      color:var(--text);
+    }
+    header{
+      max-width:1200px;
+      margin: 24px auto 12px;
+      padding: 0 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      flex-wrap:wrap;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+    .logo{
+      width:44px;height:44px;border-radius:12px;
+      background: radial-gradient(circle at 30% 30%, #60a5fa, #1d4ed8);
+      box-shadow: var(--shadow);
+    }
+    h1{
+      margin:0;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+    .subtitle{
+      margin:2px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
 
-<style>
-  body{
-    margin:0;
-    font-family: Arial, Helvetica, sans-serif;
-    background:#0f172a;
-    color:#fff;
-  }
+    .wrap{
+      max-width:1200px;
+      margin: 0 auto 40px;
+      padding: 0 16px;
+      display:grid;
+      grid-template-columns: 420px 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 980px){
+      .wrap{grid-template-columns: 1fr}
+    }
 
-  .app{
-    max-width:420px;
-    margin:auto;
-    min-height:100vh;
-    padding:16px;
-    box-sizing:border-box;
-  }
+    .card{
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px;
+    }
+    .card h2{
+      margin: 0 0 10px;
+      font-size: 14px;
+      letter-spacing: .2px;
+    }
+    .row{display:flex; gap:10px; flex-wrap:wrap}
+    .field{flex:1; min-width: 160px}
+    label{
+      display:block;
+      font-size: 12px;
+      color: var(--muted);
+      margin: 8px 0 6px;
+    }
+    input, select, textarea{
+      width:100%;
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      outline: none;
+      background:#fff;
+      color:var(--text);
+      font-size: 14px;
+    }
+    textarea{min-height: 72px; resize: vertical}
+    input:focus, select:focus, textarea:focus{
+      border-color: rgba(37,99,235,.5);
+      box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+    }
 
-  h1{
-    text-align:center;
-    font-size:20px;
-    margin-bottom:6px;
-    color:#38bdf8;
-  }
+    .btns{display:flex; gap:10px; flex-wrap:wrap; margin-top: 12px}
+    button{
+      border:0;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-weight: 600;
+      cursor:pointer;
+      transition: .15s ease;
+      font-size: 14px;
+    }
+    .btn-primary{background: var(--primary); color:#fff}
+    .btn-primary:hover{background: var(--primary2)}
+    .btn-ghost{background: #f1f5f9; color: #0f172a}
+    .btn-ghost:hover{filter: brightness(.98)}
+    .btn-danger{background: #fee2e2; color: #991b1b}
+    .btn-danger:hover{filter: brightness(.98)}
+    .btn-ok{background:#dcfce7; color:#14532d}
+    .btn-ok:hover{filter: brightness(.98)}
 
-  .sub{
-    text-align:center;
-    font-size:13px;
-    color:#cbd5f5;
-    margin-bottom:16px;
-  }
+    .stats{
+      display:grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .stat{
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px;
+      background: #fff;
+    }
+    .stat .k{font-size: 12px; color: var(--muted)}
+    .stat .v{font-size: 18px; font-weight: 800; margin-top: 3px}
+    .chipline{display:flex; gap:8px; flex-wrap:wrap; margin-top: 10px}
+    .chip{
+      background: var(--chip);
+      border: 1px solid var(--border);
+      color: #0f172a;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+    }
+    .dot{width:8px;height:8px;border-radius:999px; display:inline-block}
+    .dot.ok{background: var(--ok)}
+    .dot.warn{background: var(--warn)}
+    .dot.bad{background: var(--bad)}
 
-  input{
-    width:100%;
-    padding:14px;
-    font-size:18px;
-    border-radius:12px;
-    border:none;
-    outline:none;
-    margin-bottom:10px;
-  }
+    .topbar{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:end;
+      justify-content:space-between;
+      margin-bottom: 10px;
+    }
+    .topbar .left{display:flex; gap:10px; flex-wrap:wrap; align-items:end}
+    .topbar .right{display:flex; gap:10px; flex-wrap:wrap; align-items:end}
+    .search{min-width: 220px}
 
-  .hint{
-    font-size:12px;
-    color:#94a3b8;
-    margin-bottom:16px;
-  }
+    table{
+      width:100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      overflow:hidden;
+      border-radius: 14px;
+      border:1px solid var(--border);
+    }
+    thead th{
+      text-align:left;
+      font-size: 12px;
+      color: var(--muted);
+      background:#f8fafc;
+      padding: 10px;
+      border-bottom:1px solid var(--border);
+      position: sticky;
+      top:0;
+      z-index:1;
+    }
+    tbody td{
+      padding: 10px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      font-size: 13px;
+    }
+    tbody tr:hover{background:#fafcff}
+    tbody tr:last-child td{border-bottom:0}
 
-  .lista{
-    background:#020617;
-    border-radius:14px;
-    overflow:hidden;
-    display:none;
-  }
+    .mini{
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border:1px solid var(--border);
+      font-size: 12px;
+      background:#fff;
+      font-weight:700;
+    }
+    .b-ok{background:#ecfdf5; border-color:#bbf7d0; color:#14532d}
+    .b-pend{background:#fffbeb; border-color:#fde68a; color:#7c2d12}
+    .b-out{background:#f1f5f9; border-color:#e2e8f0; color:#0f172a}
 
-  .linha{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:12px 14px;
-    border-bottom:1px solid rgba(148,163,184,.15);
-  }
+    .actions{display:flex; gap:8px; flex-wrap:wrap}
+    .smallbtn{
+      padding: 8px 10px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 800;
+    }
 
-  .linha:last-child{
-    border-bottom:none;
-  }
+    .footer-note{
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 10px;
+      line-height: 1.35;
+    }
 
-  .parcela{
-    font-weight:bold;
-    font-size:14px;
-    color:#7dd3fc;
-  }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background:#fff;
+      font-size: 12px;
+      color: var(--muted);
+    }
 
-  .taxa{
-    font-size:12px;
-    color:#94a3b8;
-  }
+    .split{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    @media (max-width: 980px){
+      .split{grid-template-columns: 1fr}
+    }
 
-  .valor{
-    text-align:right;
-  }
-
-  .total{
-    font-weight:bold;
-    color:#22c55e;
-    font-size:15px;
-  }
-
-  .cada{
-    font-size:12px;
-    color:#cbd5f5;
-  }
-
-  .footer{
-    text-align:center;
-    font-size:11px;
-    color:#64748b;
-    margin-top:14px;
-  }
-</style>
+    .hidden{display:none !important;}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
+  </style>
 </head>
 
 <body>
-<div class="app">
-  <h1>Simulador de Cartão</h1>
-  <div class="sub">Taxa repassada ao cliente</div>
-
-  <input
-    type="number"
-    id="valorBase"
-    placeholder="Valor base (ex: 1000)"
-    step="0.01"
-  >
-
-  <div class="hint">
-    Digite o valor que você quer receber.<br>
-    A tabela abaixo já soma a taxa no cliente.
+<header>
+  <div class="brand">
+    <div class="logo" aria-hidden="true"></div>
+    <div>
+      <h1>Controle de Caixa — Loja</h1>
+      <div class="subtitle">Entradas • Conferência (OK) • Retiradas/Pagamentos • Períodos</div>
+    </div>
   </div>
 
-  <div class="lista" id="lista"></div>
-
-  <div class="footer">
-    Fórmula: <b>valor × (1 + taxa)</b>
+  <div class="pill">
+    <span>Período:</span>
+    <strong id="periodLabel"></strong>
   </div>
+</header>
+
+<div class="wrap">
+  <!-- Lançamento / Ações -->
+  <section class="card">
+    <h2>Novo lançamento</h2>
+
+    <div class="row">
+      <div class="field">
+        <label for="dt">Data</label>
+        <input id="dt" type="date" />
+      </div>
+      <div class="field">
+        <label for="tipo">Tipo</label>
+        <select id="tipo">
+          <option value="entrada">Entrada</option>
+          <option value="saida">Saída (retirada/pagamento)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field" style="flex:2; min-width:220px">
+        <label for="item">Item / Descrição</label>
+        <input id="item" type="text" placeholder="Ex: Venda iPhone 13 / Pix / Acessórios / Pagamento fornecedor" />
+      </div>
+      <div class="field">
+        <label for="valor">Valor (R$)</label>
+        <input id="valor" type="text" inputmode="decimal" placeholder="Ex: 1.299,90" />
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label for="metodo">Método</label>
+        <select id="metodo">
+          <option>Pix</option>
+          <option>Dinheiro</option>
+          <option>Cartão</option>
+          <option>Transferência</option>
+          <option>Outros</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="onde">Onde ficou?</label>
+        <select id="onde">
+          <option value="caixa">Caixa (dinheiro em mãos)</option>
+          <option value="banco">Conta (banco)</option>
+        </select>
+      </div>
+    </div>
+
+    <label for="obs">Observações</label>
+    <textarea id="obs" placeholder="Opcional: cliente, NF, fornecedor, detalhe do pagamento..."></textarea>
+
+    <div class="btns">
+      <button class="btn-primary" id="btnAdd">Adicionar</button>
+      <button class="btn-ghost" id="btnClear">Limpar</button>
+    </div>
+
+    <hr style="border:0;border-top:1px solid var(--border); margin:14px 0;">
+
+    <h2>Conferência e períodos</h2>
+
+    <div class="split">
+      <div class="field">
+        <label>Fechar período atual</label>
+        <button class="btn-ok" id="btnClosePeriod" style="width:100%">Fechar período (mantém histórico)</button>
+        <div class="footer-note">Fecha o período atual e abre um novo. Ótimo pra você conferir por semana/mês.</div>
+      </div>
+
+      <div class="field">
+        <label>Backup rápido</label>
+        <div class="row">
+          <button class="btn-ghost" id="btnExport" style="flex:1">Exportar (JSON)</button>
+          <button class="btn-ghost" id="btnImport" style="flex:1">Importar</button>
+          <input type="file" id="fileImport" class="hidden" accept="application/json" />
+        </div>
+        <div class="footer-note">Se trocar de PC/navegador, exporta e importa pra não perder.</div>
+      </div>
+    </div>
+
+    <hr style="border:0;border-top:1px solid var(--border); margin:14px 0;">
+
+    <h2>Resumo do período</h2>
+    <div class="stats">
+      <div class="stat">
+        <div class="k">Entradas confirmadas</div>
+        <div class="v" id="sInOk">R$ 0,00</div>
+      </div>
+      <div class="stat">
+        <div class="k">Entradas pendentes</div>
+        <div class="v" id="sInPend">R$ 0,00</div>
+      </div>
+      <div class="stat">
+        <div class="k">Saídas confirmadas</div>
+        <div class="v" id="sOutOk">R$ 0,00</div>
+      </div>
+      <div class="stat">
+        <div class="k">Saldo (caixa + conta)</div>
+        <div class="v" id="sTotal">R$ 0,00</div>
+      </div>
+    </div>
+
+    <div class="chipline">
+      <span class="chip"><span class="dot ok"></span>Confirmado (OK)</span>
+      <span class="chip"><span class="dot warn"></span>Pendente</span>
+      <span class="chip"><span class="dot bad"></span>Saída reduz saldo</span>
+    </div>
+
+    <div class="footer-note">
+      <b>Como funciona:</b> sua secretária lança tudo. Você entra aqui e marca <b>OK</b> nos lançamentos que você conferiu.
+      Se o dinheiro ficar na conta e você não tirar, deixa como <b>Conta (banco)</b>. Se você tirou/pagou fornecedor, lança como <b>Saída</b>.
+    </div>
+  </section>
+
+  <!-- Lista -->
+  <section class="card">
+    <div class="topbar">
+      <div class="left">
+        <div class="field search" style="min-width:260px">
+          <label for="q">Buscar</label>
+          <input id="q" type="text" placeholder="Digite: item, obs, método..." />
+        </div>
+        <div class="field" style="min-width:200px">
+          <label for="fStatus">Status</label>
+          <select id="fStatus">
+            <option value="todos">Todos</option>
+            <option value="pendente">Pendentes</option>
+            <option value="ok">Confirmados</option>
+          </select>
+        </div>
+        <div class="field" style="min-width:220px">
+          <label for="fTipo">Tipo</label>
+          <select id="fTipo">
+            <option value="todos">Entradas + Saídas</option>
+            <option value="entrada">Somente entradas</option>
+            <option value="saida">Somente saídas</option>
+          </select>
+        </div>
+        <div class="field" style="min-width:200px">
+          <label for="fOnde">Onde</label>
+          <select id="fOnde">
+            <option value="todos">Caixa + Conta</option>
+            <option value="caixa">Caixa</option>
+            <option value="banco">Conta</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="right">
+        <div class="field" style="min-width:220px">
+          <label for="sort">Ordenar</label>
+          <select id="sort">
+            <option value="data_desc">Data (mais recente)</option>
+            <option value="data_asc">Data (mais antiga)</option>
+            <option value="valor_desc">Valor (maior)</option>
+            <option value="valor_asc">Valor (menor)</option>
+          </select>
+        </div>
+        <div class="field" style="min-width:220px">
+          <label>&nbsp;</label>
+          <button class="btn-danger" id="btnWipePeriod" style="width:100%">Apagar só este período</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="row" style="margin-bottom:10px; align-items:center; justify-content:space-between">
+      <div class="pill">
+        <span class="mono" id="countLabel">0 lançamentos</span>
+      </div>
+      <div class="actions">
+        <button class="btn-ghost smallbtn" id="btnMarkAllOk">Marcar OK (filtrados)</button>
+        <button class="btn-ghost smallbtn" id="btnUnmarkAll">Tirar OK (filtrados)</button>
+      </div>
+    </div>
+
+    <div style="overflow:auto; max-height: 560px; border-radius: 14px;">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:88px">OK</th>
+            <th>Data / Item</th>
+            <th style="width:140px">Tipo</th>
+            <th style="width:160px">Onde</th>
+            <th style="width:160px">Valor</th>
+            <th style="width:240px">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="footer-note">
+      Dica: use <b>Saída</b> para registrar <b>pagamento de fornecedor</b> ou <b>retirada do caixa</b>.
+      Assim você vê certinho o saldo “real” do período.
+    </div>
+  </section>
 </div>
 
 <script>
-const taxas = {
-  1: 2.765,
-  2: 4.102,
-  3: 4.669,
-  4: 5.241,
-  5: 5.809,
-  6: 6.372,
-  7: 6.964,
-  8: 7.516,
-  9: 8.120,
-  10: 8.684,
-  11: 9.278,
-  12: 9.878
-};
+/* ===========================
+   Controle de Caixa — v1
+   Salva no localStorage
+   =========================== */
 
-const input = document.getElementById("valorBase");
-const lista = document.getElementById("lista");
+const LS_KEY = "ampertech_caixa_v1";
 
-function brl(v){
-  return v.toLocaleString("pt-BR", {
-    style:"currency",
-    currency:"BRL"
-  });
+function nowISODate(){
+  const d = new Date();
+  // timezone local (Brasil) — input date precisa yyyy-mm-dd
+  const off = d.getTimezoneOffset();
+  const local = new Date(d.getTime() - off*60*1000);
+  return local.toISOString().slice(0,10);
 }
 
-input.addEventListener("input", () => {
-  const base = parseFloat(input.value);
+function brl(n){
+  return n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+}
 
-  if(!base || base <= 0){
-    lista.style.display = "none";
-    lista.innerHTML = "";
+function parseBRL(str){
+  // Aceita "1.234,56" ou "1234.56" etc.
+  if(!str) return NaN;
+  let s = String(str).trim();
+  s = s.replace(/[^\d,.-]/g,"");
+  // se tiver vírgula como decimal, remove pontos de milhar
+  const hasComma = s.includes(",");
+  if(hasComma){
+    s = s.replace(/\./g,"").replace(",",".");
+  }
+  const v = Number(s);
+  return v;
+}
+
+function uid(){
+  return Math.random().toString(16).slice(2) + "-" + Date.now().toString(16);
+}
+
+function load(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(!raw) return defaultState();
+    const st = JSON.parse(raw);
+    // migração mínima
+    if(!st.periodId) st.periodId = uid();
+    if(!Array.isArray(st.items)) st.items = [];
+    if(!Array.isArray(st.periods)) st.periods = [];
+    return st;
+  }catch(e){
+    return defaultState();
+  }
+}
+
+function save(){
+  localStorage.setItem(LS_KEY, JSON.stringify(state));
+}
+
+function defaultState(){
+  const pid = uid();
+  return {
+    periodId: pid,
+    periodName: "Período atual",
+    periodStartedAt: new Date().toISOString(),
+    items: [], // itens do período atual
+    periods: [] // histórico de períodos fechados
+  };
+}
+
+let state = load();
+
+/* ======= UI refs ======= */
+const el = (id)=>document.getElementById(id);
+
+const dt = el("dt");
+const tipo = el("tipo");
+const item = el("item");
+const valor = el("valor");
+const metodo = el("metodo");
+const onde = el("onde");
+const obs = el("obs");
+
+const q = el("q");
+const fStatus = el("fStatus");
+const fTipo = el("fTipo");
+const fOnde = el("fOnde");
+const sort = el("sort");
+
+const tbody = el("tbody");
+const periodLabel = el("periodLabel");
+const countLabel = el("countLabel");
+
+const sInOk = el("sInOk");
+const sInPend = el("sInPend");
+const sOutOk = el("sOutOk");
+const sTotal = el("sTotal");
+
+/* ======= init ======= */
+dt.value = nowISODate();
+renderAll();
+
+/* ======= helpers ======= */
+function currentPeriodLabel(){
+  const started = new Date(state.periodStartedAt);
+  const startedBR = started.toLocaleString("pt-BR",{dateStyle:"short", timeStyle:"short"});
+  return `${state.periodName} • iniciado ${startedBR}`;
+}
+
+function allFiltered(){
+  const text = q.value.trim().toLowerCase();
+  const st = fStatus.value;
+  const tp = fTipo.value;
+  const wh = fOnde.value;
+
+  let arr = state.items.slice();
+
+  // filtros
+  if(text){
+    arr = arr.filter(x =>
+      (x.item||"").toLowerCase().includes(text) ||
+      (x.obs||"").toLowerCase().includes(text) ||
+      (x.metodo||"").toLowerCase().includes(text)
+    );
+  }
+  if(st !== "todos"){
+    arr = arr.filter(x => st === "ok" ? x.ok : !x.ok);
+  }
+  if(tp !== "todos"){
+    arr = arr.filter(x => x.tipo === tp);
+  }
+  if(wh !== "todos"){
+    arr = arr.filter(x => x.onde === wh);
+  }
+
+  // sort
+  const byDate = (a,b)=> (a.data||"").localeCompare(b.data||"");
+  const byVal = (a,b)=> (a.valor||0) - (b.valor||0);
+
+  switch(sort.value){
+    case "data_asc": arr.sort(byDate); break;
+    case "data_desc": arr.sort((a,b)=>byDate(b,a)); break;
+    case "valor_asc": arr.sort(byVal); break;
+    case "valor_desc": arr.sort((a,b)=>byVal(b,a)); break;
+  }
+
+  return arr;
+}
+
+function computeSummary(){
+  // Saldo do período = (entradas OK - saídas OK) + (entradas pendentes não entram no saldo)
+  let inOk=0, inPend=0, outOk=0;
+
+  for(const x of state.items){
+    if(x.tipo === "entrada"){
+      if(x.ok) inOk += x.valor;
+      else inPend += x.valor;
+    }else{
+      if(x.ok) outOk += x.valor;
+    }
+  }
+  const total = inOk - outOk;
+  return {inOk, inPend, outOk, total};
+}
+
+function badgeFor(x){
+  if(x.tipo === "saida"){
+    return `<span class="badge b-out"><span class="dot bad"></span>Saída</span>`;
+  }
+  if(x.ok){
+    return `<span class="badge b-ok"><span class="dot ok"></span>Entrada OK</span>`;
+  }
+  return `<span class="badge b-pend"><span class="dot warn"></span>Pendente</span>`;
+}
+
+function ondeLabel(x){
+  return x.onde === "banco" ? "Conta (banco)" : "Caixa (mãos)";
+}
+
+/* ======= render ======= */
+function renderAll(){
+  periodLabel.textContent = currentPeriodLabel();
+
+  // summary
+  const s = computeSummary();
+  sInOk.textContent = brl(s.inOk);
+  sInPend.textContent = brl(s.inPend);
+  sOutOk.textContent = brl(s.outOk);
+  sTotal.textContent = brl(s.total);
+
+  renderTable();
+  save();
+}
+
+function renderTable(){
+  const arr = allFiltered();
+  countLabel.textContent = `${arr.length} lançamento${arr.length===1?"":"s"}`;
+
+  tbody.innerHTML = arr.map(x => {
+    const d = x.data ? new Date(x.data+"T00:00:00") : null;
+    const dBR = d ? d.toLocaleDateString("pt-BR") : "-";
+    const val = (x.tipo === "saida") ? -Math.abs(x.valor) : x.valor;
+    const valTxt = brl(Math.abs(x.valor));
+    const sign = x.tipo === "saida" ? "− " : "+ ";
+
+    return `
+      <tr>
+        <td>
+          <label class="chip" style="cursor:pointer; user-select:none;">
+            <input type="checkbox" ${x.ok ? "checked":""} onchange="toggleOk('${x.id}')" />
+            OK
+          </label>
+        </td>
+        <td>
+          <div style="font-weight:900">${escapeHtml(x.item || "(sem item)")}</div>
+          <div class="mini">${dBR} • ${escapeHtml(x.metodo || "-")}${x.obs ? " • " + escapeHtml(x.obs) : ""}</div>
+        </td>
+        <td>${badgeFor(x)}</td>
+        <td>
+          <div style="font-weight:800">${ondeLabel(x)}</div>
+          <div class="mini">${x.tipo === "saida" ? "reduz saldo" : "entrada registrada"}</div>
+        </td>
+        <td style="font-weight:900; white-space:nowrap;">
+          ${sign}${valTxt}
+        </td>
+        <td>
+          <div class="actions">
+            <button class="btn-ghost smallbtn" onclick="editItem('${x.id}')">Editar</button>
+            <button class="btn-danger smallbtn" onclick="delItem('${x.id}')">Excluir</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join("");
+
+  if(!arr.length){
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" style="padding:16px; color: var(--muted);">
+          Nenhum lançamento com esses filtros.
+        </td>
+      </tr>
+    `;
+  }
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, m => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[m]));
+}
+
+/* ======= actions ======= */
+el("btnAdd").addEventListener("click", () => {
+  const d = dt.value || nowISODate();
+  const t = tipo.value;
+  const it = item.value.trim();
+  const v = parseBRL(valor.value);
+
+  if(!it){
+    alert("Informe o Item / Descrição.");
+    item.focus();
+    return;
+  }
+  if(!Number.isFinite(v) || v <= 0){
+    alert("Informe um Valor válido (ex: 1.299,90).");
+    valor.focus();
     return;
   }
 
-  let html = "";
+  const obj = {
+    id: uid(),
+    data: d,
+    tipo: t,                  // entrada | saida
+    item: it,
+    valor: Math.abs(v),
+    metodo: metodo.value,
+    onde: onde.value,         // caixa | banco
+    obs: obs.value.trim(),
+    ok: false,
+    createdAt: new Date().toISOString()
+  };
 
-  for(let p = 1; p <= 12; p++){
-    const taxa = taxas[p] / 100;
-    const total = base * (1 + taxa);
-    const parcela = total / p;
+  state.items.unshift(obj);
+  clearForm(false);
+  renderAll();
+});
 
-    html += `
-      <div class="linha">
-        <div>
-          <div class="parcela">${p}x</div>
-          <div class="taxa">Taxa ${taxas[p].toFixed(3)}%</div>
-        </div>
-        <div class="valor">
-          <div class="total">${brl(total)}</div>
-          <div class="cada">${p}x de ${brl(parcela)}</div>
-        </div>
-      </div>
-    `;
+el("btnClear").addEventListener("click", () => clearForm(true));
+
+function clearForm(clearDate){
+  if(clearDate) dt.value = nowISODate();
+  tipo.value = "entrada";
+  item.value = "";
+  valor.value = "";
+  metodo.value = "Pix";
+  onde.value = "caixa";
+  obs.value = "";
+  item.focus();
+}
+
+window.toggleOk = (id) => {
+  const x = state.items.find(a => a.id === id);
+  if(!x) return;
+  x.ok = !x.ok;
+  renderAll();
+};
+
+window.delItem = (id) => {
+  const x = state.items.find(a => a.id === id);
+  if(!x) return;
+  const ok = confirm(`Excluir este lançamento?\n\n${x.item}\n${brl(x.valor)}`);
+  if(!ok) return;
+  state.items = state.items.filter(a => a.id !== id);
+  renderAll();
+};
+
+window.editItem = (id) => {
+  const x = state.items.find(a => a.id === id);
+  if(!x) return;
+
+  const newItem = prompt("Editar Item / Descrição:", x.item);
+  if(newItem === null) return;
+
+  const newValStr = prompt("Editar Valor (R$):", String(x.valor).replace(".", ","));
+  if(newValStr === null) return;
+  const newVal = parseBRL(newValStr);
+  if(!Number.isFinite(newVal) || newVal <= 0){
+    alert("Valor inválido.");
+    return;
   }
 
-  lista.innerHTML = html;
-  lista.style.display = "block";
+  const newTipo = prompt("Tipo (entrada ou saida):", x.tipo);
+  if(newTipo === null) return;
+  const tp = (newTipo||"").trim().toLowerCase();
+  if(tp !== "entrada" && tp !== "saida"){
+    alert("Tipo inválido. Use 'entrada' ou 'saida'.");
+    return;
+  }
+
+  const newOnde = prompt("Onde (caixa ou banco):", x.onde);
+  if(newOnde === null) return;
+  const wh = (newOnde||"").trim().toLowerCase();
+  if(wh !== "caixa" && wh !== "banco"){
+    alert("Onde inválido. Use 'caixa' ou 'banco'.");
+    return;
+  }
+
+  x.item = newItem.trim() || x.item;
+  x.valor = Math.abs(newVal);
+  x.tipo = tp;
+  x.onde = wh;
+  x.updatedAt = new Date().toISOString();
+  renderAll();
+};
+
+/* ======= filters ======= */
+[q, fStatus, fTipo, fOnde, sort].forEach(ctrl => {
+  ctrl.addEventListener("input", renderTable);
+  ctrl.addEventListener("change", renderTable);
+});
+
+/* ======= bulk ok ======= */
+el("btnMarkAllOk").addEventListener("click", () => {
+  const arr = allFiltered();
+  if(!arr.length) return alert("Nada filtrado para marcar.");
+  if(!confirm(`Marcar OK em ${arr.length} lançamento(s) filtrado(s)?`)) return;
+  const ids = new Set(arr.map(x=>x.id));
+  for(const x of state.items) if(ids.has(x.id)) x.ok = true;
+  renderAll();
+});
+
+el("btnUnmarkAll").addEventListener("click", () => {
+  const arr = allFiltered();
+  if(!arr.length) return alert("Nada filtrado para tirar OK.");
+  if(!confirm(`Tirar OK de ${arr.length} lançamento(s) filtrado(s)?`)) return;
+  const ids = new Set(arr.map(x=>x.id));
+  for(const x of state.items) if(ids.has(x.id)) x.ok = false;
+  renderAll();
+});
+
+/* ======= periods ======= */
+el("btnClosePeriod").addEventListener("click", () => {
+  if(!state.items.length){
+    alert("Este período não tem lançamentos.");
+    return;
+  }
+  const name = prompt("Nome do período (ex: Janeiro/2026, Semana 05/2026):", "");
+  if(name === null) return;
+
+  const summary = computeSummary();
+
+  state.periods.unshift({
+    id: state.periodId,
+    name: name.trim() || "Período fechado",
+    startedAt: state.periodStartedAt,
+    closedAt: new Date().toISOString(),
+    items: state.items,
+    summary
+  });
+
+  // novo período
+  state.periodId = uid();
+  state.periodName = "Período atual";
+  state.periodStartedAt = new Date().toISOString();
+  state.items = [];
+
+  renderAll();
+  alert("Período fechado e novo período aberto ✅");
+});
+
+el("btnWipePeriod").addEventListener("click", () => {
+  if(!state.items.length){
+    alert("Este período já está vazio.");
+    return;
+  }
+  if(!confirm("Apagar TODOS os lançamentos deste período? (o histórico de períodos fechados não será apagado)")) return;
+  state.items = [];
+  renderAll();
+});
+
+/* ======= export/import ======= */
+el("btnExport").addEventListener("click", () => {
+  const data = {
+    exportedAt: new Date().toISOString(),
+    app: "controle-caixa-ampertech",
+    version: 1,
+    state
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `controle-caixa-backup-${nowISODate()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(a.href);
+});
+
+el("btnImport").addEventListener("click", () => el("fileImport").click());
+
+el("fileImport").addEventListener("change", async (ev) => {
+  const f = ev.target.files && ev.target.files[0];
+  if(!f) return;
+  try{
+    const txt = await f.text();
+    const j = JSON.parse(txt);
+    if(!j || !j.state) throw new Error("Arquivo inválido.");
+    if(!confirm("Importar este backup vai SUBSTITUIR os dados atuais deste navegador. Continuar?")) return;
+    state = j.state;
+    save();
+    renderAll();
+    alert("Importado com sucesso ✅");
+  }catch(e){
+    alert("Falha ao importar: " + (e.message || e));
+  }finally{
+    ev.target.value = "";
+  }
+});
+
+/* ======= currency helper UX ======= */
+valor.addEventListener("blur", () => {
+  const v = parseBRL(valor.value);
+  if(Number.isFinite(v) && v > 0){
+    // formata visualmente com vírgula
+    valor.value = v.toLocaleString("pt-BR", {minimumFractionDigits:2, maximumFractionDigits:2});
+  }
 });
 </script>
 </body>
