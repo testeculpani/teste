@@ -8,116 +8,216 @@
     :root{
       --bg:#f6f7fb; --card:#fff; --text:#0f172a; --muted:#64748b; --border:#e2e8f0;
       --blue:#2563eb; --green:#16a34a; --red:#ef4444; --gray:#f1f5f9;
+      --shadow: 0 10px 28px rgba(15,23,42,.08);
+      --radius: 16px;
     }
     *{box-sizing:border-box}
     body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--text)}
-    header{padding:16px;max-width:980px;margin:0 auto}
+    header{padding:16px;max-width:1100px;margin:0 auto}
     h1{margin:0;font-size:18px}
-    .sub{color:var(--muted);font-size:12px;margin-top:4px}
-    .wrap{max-width:980px;margin:0 auto;padding:0 16px 24px;display:grid;gap:12px}
-    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px}
+    .sub{color:var(--muted);font-size:12px;margin-top:4px;line-height:1.35}
+    .wrap{max-width:1100px;margin:0 auto;padding:0 16px 28px;display:grid;gap:12px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;box-shadow:var(--shadow)}
     label{display:block;font-size:12px;color:var(--muted);margin:8px 0 6px}
     input,select{width:100%;padding:10px;border:1px solid var(--border);border-radius:12px;font-size:14px}
     input:focus,select:focus{outline:none;border-color:#93c5fd;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
-    .row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-    @media (max-width:900px){.row{grid-template-columns:1fr 1fr}}
-    @media (max-width:520px){.row{grid-template-columns:1fr}}
-    button{border:0;border-radius:12px;padding:10px 12px;font-weight:700;cursor:pointer}
+    button{border:0;border-radius:12px;padding:10px 12px;font-weight:800;cursor:pointer}
     .btnBlue{background:var(--blue);color:#fff}
     .btnGreen{background:#dcfce7;color:#14532d}
     .btnRed{background:#fee2e2;color:#991b1b}
     .btnGray{background:var(--gray);color:var(--text)}
-    .top{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
-    .tot{display:flex;gap:10px;flex-wrap:wrap}
+    .grid2{display:grid;grid-template-columns: 1fr 1fr;gap:12px}
+    @media (max-width:900px){.grid2{grid-template-columns:1fr}}
+    .row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+    @media (max-width:980px){.row{grid-template-columns:1fr 1fr}}
+    @media (max-width:520px){.row{grid-template-columns:1fr}}
+    .pillwrap{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
     .pill{border:1px solid var(--border);background:#fff;border-radius:999px;padding:8px 10px;font-size:12px}
     .pill b{font-size:13px}
-    table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--border);border-radius:14px;overflow:hidden}
+    .small{font-size:12px;color:var(--muted)}
+    table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:#fff}
     thead th{background:#f8fafc;color:var(--muted);font-size:12px;text-align:left;padding:10px;border-bottom:1px solid var(--border)}
     tbody td{padding:10px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:top}
     tbody tr:last-child td{border-bottom:0}
-    .ok{color:var(--green);font-weight:800}
-    .no{color:var(--red);font-weight:800}
-    .small{font-size:12px;color:var(--muted)}
     .actions{display:flex;gap:8px;flex-wrap:wrap}
+    .tag{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border);padding:6px 10px;border-radius:999px;font-size:12px;font-weight:800}
+    .ok{color:var(--green)}
+    .no{color:var(--red)}
+    .in{background:#eff6ff;color:#1e3a8a;border-color:#bfdbfe}
+    .out{background:#fff1f2;color:#9f1239;border-color:#fecdd3}
+    .right{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
   </style>
 </head>
 <body>
 <header>
-  <h1>Controle de Caixa (Simples)</h1>
-  <div class="sub">Lançar entrada → você confere com OK → se pagar/retirar, use “Zerar”.</div>
+  <h1>Controle de Caixa (bem simples)</h1>
+  <div class="sub">
+    1) Secretária lança <b>Entrada</b> ou <b>Saída</b> <br/>
+    2) Você marca <b>OK</b> quando conferir <br/>
+    3) Saldo só conta o que estiver <b>OK</b>. <br/>
+    4) Se você pagou/retirou tudo de uma conta, use <b>Zerar</b>.
+  </div>
 </header>
 
 <div class="wrap">
-  <div class="card">
-    <div class="row">
-      <div>
-        <label>Data</label>
-        <input id="dt" type="date">
+  <div class="grid2">
+    <!-- Caixa inicial -->
+    <div class="card">
+      <h2 style="margin:0 0 6px;font-size:14px">Caixa inicial (se já tem dinheiro)</h2>
+      <div class="small">Preencha uma vez. Se mudar, ele recalcula tudo automaticamente.</div>
+
+      <div class="row" style="grid-template-columns:repeat(4,1fr)">
+        <div>
+          <label>Dinheiro Gaveta (R$)</label>
+          <input id="ini_gaveta" type="text" inputmode="decimal" placeholder="0,00">
+        </div>
+        <div>
+          <label>Stone (R$)</label>
+          <input id="ini_stone" type="text" inputmode="decimal" placeholder="0,00">
+        </div>
+        <div>
+          <label>Cresol (R$)</label>
+          <input id="ini_cresol" type="text" inputmode="decimal" placeholder="0,00">
+        </div>
+        <div>
+          <label>Infinity (R$)</label>
+          <input id="ini_infinity" type="text" inputmode="decimal" placeholder="0,00">
+        </div>
       </div>
-      <div>
-        <label>Descrição</label>
-        <input id="desc" type="text" placeholder="Ex: Venda iPhone / Pix / Acessório">
-      </div>
-      <div>
-        <label>Valor (R$)</label>
-        <input id="val" type="text" inputmode="decimal" placeholder="Ex: 1299,90">
-      </div>
-      <div>
-        <label>Onde entrou?</label>
-        <select id="onde">
-          <option value="caixa">Caixa (dinheiro)</option>
-          <option value="conta">Conta (banco)</option>
-        </select>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
+        <button class="btnBlue" id="saveIni">Salvar caixa inicial</button>
+        <button class="btnGray" id="resetIni">Zerar iniciais</button>
       </div>
     </div>
 
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
-      <button class="btnBlue" id="add">Adicionar</button>
-      <button class="btnGray" id="limpar">Limpar</button>
-    </div>
+    <!-- Novo lançamento -->
+    <div class="card">
+      <h2 style="margin:0 0 6px;font-size:14px">Novo lançamento</h2>
+      <div class="small">Bem fácil: Data, Descrição, Valor, Conta e Tipo.</div>
 
-    <div class="small" style="margin-top:10px">
-      Regra simples: <b>não mexe em “Zerar”</b> sem você mandar. Só você decide quando pagar fornecedor/retirar.
+      <div class="row">
+        <div>
+          <label>Data</label>
+          <input id="dt" type="date">
+        </div>
+        <div style="grid-column: span 2;">
+          <label>Descrição</label>
+          <input id="desc" type="text" placeholder="Ex: Venda / Pix / Pagamento fornecedor">
+        </div>
+        <div>
+          <label>Valor (R$)</label>
+          <input id="val" type="text" inputmode="decimal" placeholder="Ex: 1299,90">
+        </div>
+        <div>
+          <label>Conta</label>
+          <select id="conta">
+            <option value="Gaveta">Dinheiro Gaveta</option>
+            <option value="Stone">Stone</option>
+            <option value="Cresol">Cresol</option>
+            <option value="Infinity">Infinity</option>
+          </select>
+        </div>
+        <div>
+          <label>Tipo</label>
+          <select id="tipo">
+            <option value="entrada">Entrada</option>
+            <option value="saida">Saída (pagou/retirou)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
+        <button class="btnBlue" id="add">Adicionar</button>
+        <button class="btnGray" id="limpar">Limpar</button>
+      </div>
+
+      <div class="small" style="margin-top:10px">
+        Dica: Se a secretária não sabe se foi pagamento/retirada, deixa como <b>Entrada</b> e você ajusta depois.
+      </div>
     </div>
   </div>
 
+  <!-- Totais por conta -->
   <div class="card">
-    <div class="top">
-      <div class="tot">
-        <div class="pill">Caixa: <b id="tCaixa">R$ 0,00</b></div>
-        <div class="pill">Conta: <b id="tConta">R$ 0,00</b></div>
-        <div class="pill">Total: <b id="tTotal">R$ 0,00</b></div>
-      </div>
-      <div class="actions">
-        <button class="btnRed" id="zerarCaixa">Zerar Caixa (retirei/paguei)</button>
-        <button class="btnRed" id="zerarConta">Zerar Conta</button>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between">
+      <div class="pillwrap" id="totais"></div>
+      <div class="right">
+        <button class="btnRed" id="zerarGaveta">Zerar Gaveta</button>
+        <button class="btnRed" id="zerarStone">Zerar Stone</button>
+        <button class="btnRed" id="zerarCresol">Zerar Cresol</button>
+        <button class="btnRed" id="zerarInfinity">Zerar Infinity</button>
       </div>
     </div>
+    <div class="small" style="margin-top:8px">
+      “Zerar” cria automaticamente uma <b>Saída OK</b> do saldo atual daquela conta (fica registrado no histórico).
+    </div>
+  </div>
 
-    <div style="overflow:auto;margin-top:10px">
+  <!-- Lista -->
+  <div class="card">
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:end;justify-content:space-between;margin-bottom:10px">
+      <div style="min-width:260px;flex:1">
+        <label>Buscar</label>
+        <input id="q" type="text" placeholder="Buscar por descrição...">
+      </div>
+      <div style="min-width:180px">
+        <label>Filtro</label>
+        <select id="filtro">
+          <option value="todos">Todos</option>
+          <option value="pendente">Somente pendentes</option>
+          <option value="ok">Somente OK</option>
+        </select>
+      </div>
+      <div style="min-width:220px">
+        <label>Ordenar</label>
+        <select id="ord">
+          <option value="data_desc">Data (mais recente)</option>
+          <option value="data_asc">Data (mais antiga)</option>
+          <option value="valor_desc">Valor (maior)</option>
+          <option value="valor_asc">Valor (menor)</option>
+        </select>
+      </div>
+      <div class="pill"><span id="count">0</span> lançamentos</div>
+    </div>
+
+    <div style="overflow:auto">
       <table>
         <thead>
           <tr>
-            <th style="width:90px">OK?</th>
+            <th style="width:110px">OK?</th>
             <th>Data / Descrição</th>
-            <th style="width:120px">Onde</th>
+            <th style="width:160px">Conta</th>
+            <th style="width:140px">Tipo</th>
             <th style="width:140px">Valor</th>
-            <th style="width:220px">Ações</th>
+            <th style="width:250px">Ações</th>
           </tr>
         </thead>
         <tbody id="tb"></tbody>
       </table>
     </div>
+
+    <div class="small" style="margin-top:10px">
+      Importante: <b>Saldo só conta os lançamentos OK</b>. Pendentes ficam aguardando você conferir.
+    </div>
   </div>
 </div>
 
 <script>
-  const LS = "caixa_simples_v1";
+  const LS = "caixa_super_simples_v2";
 
   const el = id => document.getElementById(id);
 
-  const dt = el("dt"), desc = el("desc"), val = el("val"), onde = el("onde");
-  const tb = el("tb");
+  const dt = el("dt"), desc = el("desc"), val = el("val"), conta = el("conta"), tipo = el("tipo");
+  const tb = el("tb"), totais = el("totais"), count = el("count");
+  const q = el("q"), filtro = el("filtro"), ord = el("ord");
+
+  const iniInputs = {
+    Gaveta: el("ini_gaveta"),
+    Stone: el("ini_stone"),
+    Cresol: el("ini_cresol"),
+    Infinity: el("ini_infinity"),
+  };
 
   function today(){
     const d = new Date();
@@ -136,22 +236,9 @@
     return Number(s);
   }
 
-  function load(){
-    try{
-      const raw = localStorage.getItem(LS);
-      if(!raw) return {items:[], caixa:0, conta:0};
-      const j = JSON.parse(raw);
-      if(!j.items) j.items=[];
-      if(typeof j.caixa!=="number") j.caixa=0;
-      if(typeof j.conta!=="number") j.conta=0;
-      return j;
-    }catch(e){
-      return {items:[], caixa:0, conta:0};
-    }
-  }
-
-  function save(){
-    localStorage.setItem(LS, JSON.stringify(state));
+  function fmtInputMoney(input){
+    const v = parseMoney(input.value);
+    if(Number.isFinite(v)) input.value = v.toLocaleString("pt-BR",{minimumFractionDigits:2, maximumFractionDigits:2});
   }
 
   function uid(){
@@ -164,51 +251,146 @@
     }[m]));
   }
 
+  function defaultState(){
+    return {
+      initial: { Gaveta: 0, Stone: 0, Cresol: 0, Infinity: 0 },
+      items: []
+    };
+  }
+
+  function load(){
+    try{
+      const raw = localStorage.getItem(LS);
+      if(!raw) return defaultState();
+      const j = JSON.parse(raw);
+      if(!j.initial) j.initial = { Gaveta:0, Stone:0, Cresol:0, Infinity:0 };
+      if(!Array.isArray(j.items)) j.items = [];
+      // garantir chaves
+      for(const k of ["Gaveta","Stone","Cresol","Infinity"]) if(typeof j.initial[k] !== "number") j.initial[k] = 0;
+      return j;
+    }catch(e){
+      return defaultState();
+    }
+  }
+
+  function save(){
+    localStorage.setItem(LS, JSON.stringify(state));
+  }
+
   let state = load();
   dt.value = today();
 
-  function recalcTotals(){
-    let c = 0, k = 0;
-    for(const x of state.items){
-      if(!x.ok) continue; // só entra no saldo quando tiver OK
-      if(x.onde === "caixa") c += x.valor;
-      else k += x.valor;
+  // preencher inputs iniciais
+  function fillInitialInputs(){
+    iniInputs.Gaveta.value = state.initial.Gaveta.toLocaleString("pt-BR",{minimumFractionDigits:2, maximumFractionDigits:2});
+    iniInputs.Stone.value = state.initial.Stone.toLocaleString("pt-BR",{minimumFractionDigits:2, maximumFractionDigits:2});
+    iniInputs.Cresol.value = state.initial.Cresol.toLocaleString("pt-BR",{minimumFractionDigits:2, maximumFractionDigits:2});
+    iniInputs.Infinity.value = state.initial.Infinity.toLocaleString("pt-BR",{minimumFractionDigits:2, maximumFractionDigits:2});
+  }
+  fillInitialInputs();
+
+  function getFiltered(){
+    const text = q.value.trim().toLowerCase();
+    const fil = filtro.value;
+
+    let arr = state.items.slice();
+
+    if(text){
+      arr = arr.filter(x => (x.desc||"").toLowerCase().includes(text));
     }
-    state.caixa = c;
-    state.conta = k;
-    el("tCaixa").textContent = brl(c);
-    el("tConta").textContent = brl(k);
-    el("tTotal").textContent = brl(c+k);
+    if(fil === "pendente") arr = arr.filter(x => !x.ok);
+    if(fil === "ok") arr = arr.filter(x => x.ok);
+
+    const byDate = (a,b)=> (a.dt||"").localeCompare(b.dt||"");
+    const byVal  = (a,b)=> (Math.abs(a.val)||0) - (Math.abs(b.val)||0);
+
+    switch(ord.value){
+      case "data_asc": arr.sort(byDate); break;
+      case "data_desc": arr.sort((a,b)=>byDate(b,a)); break;
+      case "valor_asc": arr.sort(byVal); break;
+      case "valor_desc": arr.sort((a,b)=>byVal(b,a)); break;
+    }
+
+    return arr;
+  }
+
+  function calcBalances(){
+    // saldo = inicial + (entradas OK) - (saidas OK)
+    const bal = {
+      Gaveta: state.initial.Gaveta || 0,
+      Stone: state.initial.Stone || 0,
+      Cresol: state.initial.Cresol || 0,
+      Infinity: state.initial.Infinity || 0
+    };
+
+    for(const x of state.items){
+      if(!x.ok) continue;
+      const v = Number(x.val);
+      if(!Number.isFinite(v)) continue;
+      if(x.tipo === "entrada") bal[x.conta] += Math.abs(v);
+      else bal[x.conta] -= Math.abs(v);
+    }
+
+    const total = bal.Gaveta + bal.Stone + bal.Cresol + bal.Infinity;
+    return {bal, total};
+  }
+
+  function renderTotals(){
+    const {bal, total} = calcBalances();
+    totais.innerHTML = `
+      <div class="pill">Dinheiro Gaveta: <b>${brl(bal.Gaveta)}</b></div>
+      <div class="pill">Stone: <b>${brl(bal.Stone)}</b></div>
+      <div class="pill">Cresol: <b>${brl(bal.Cresol)}</b></div>
+      <div class="pill">Infinity: <b>${brl(bal.Infinity)}</b></div>
+      <div class="pill">Total: <b>${brl(total)}</b></div>
+    `;
+    return {bal, total};
+  }
+
+  function renderTable(){
+    const arr = getFiltered();
+    count.textContent = arr.length;
+
+    tb.innerHTML = arr.map(x => {
+      const dBR = new Date((x.dt||today())+"T00:00:00").toLocaleDateString("pt-BR");
+      const okTxt = x.ok ? `<span class="ok">OK</span>` : `<span class="no">NÃO</span>`;
+      const tipoTag = x.tipo === "entrada"
+        ? `<span class="tag in">ENTRADA</span>`
+        : `<span class="tag out">SAÍDA</span>`;
+
+      return `
+        <tr>
+          <td>${okTxt}</td>
+          <td>
+            <div style="font-weight:900">${escapeHtml(x.desc || "(sem descrição)")}</div>
+            <div class="small">${dBR}</div>
+          </td>
+          <td style="font-weight:900">${escapeHtml(x.conta)}</td>
+          <td>${tipoTag}</td>
+          <td style="font-weight:900;white-space:nowrap">${brl(Math.abs(x.val))}</td>
+          <td>
+            <div class="actions">
+              <button class="btnGreen" onclick="toggleOk('${x.id}')">OK</button>
+              <button class="btnGray" onclick="editItem('${x.id}')">Editar</button>
+              <button class="btnRed" onclick="delItem('${x.id}')">Excluir</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join("");
+
+    if(!arr.length){
+      tb.innerHTML = `<tr><td colspan="6" class="small" style="padding:14px">Nenhum lançamento.</td></tr>`;
+    }
   }
 
   function render(){
-    recalcTotals();
+    renderTotals();
+    renderTable();
     save();
-
-    tb.innerHTML = state.items.map(x => `
-      <tr>
-        <td>${x.ok ? '<span class="ok">OK</span>' : '<span class="no">NÃO</span>'}</td>
-        <td>
-          <div style="font-weight:900">${escapeHtml(x.desc)}</div>
-          <div class="small">${new Date(x.dt+"T00:00:00").toLocaleDateString("pt-BR")}</div>
-        </td>
-        <td style="font-weight:800">${x.onde === "caixa" ? "Caixa" : "Conta"}</td>
-        <td style="font-weight:900;white-space:nowrap">${brl(x.valor)}</td>
-        <td>
-          <div class="actions">
-            <button class="btnGreen" onclick="toggleOk('${x.id}')">OK</button>
-            <button class="btnGray" onclick="editItem('${x.id}')">Editar</button>
-            <button class="btnRed" onclick="delItem('${x.id}')">Excluir</button>
-          </div>
-        </td>
-      </tr>
-    `).join("");
-
-    if(!state.items.length){
-      tb.innerHTML = `<tr><td colspan="5" class="small" style="padding:14px">Nenhum lançamento ainda.</td></tr>`;
-    }
   }
 
+  // ===== Eventos =====
   el("add").addEventListener("click", () => {
     const d = dt.value || today();
     const ds = desc.value.trim();
@@ -221,8 +403,9 @@
       id: uid(),
       dt: d,
       desc: ds,
-      valor: Math.abs(v),
-      onde: onde.value,
+      val: Math.abs(v),
+      conta: conta.value,
+      tipo: tipo.value, // entrada | saida
       ok: false
     });
 
@@ -236,10 +419,47 @@
     dt.value = today();
     desc.value = "";
     val.value = "";
-    onde.value = "caixa";
+    conta.value = "Gaveta";
+    tipo.value = "entrada";
     desc.focus();
   });
 
+  // formatar valor
+  val.addEventListener("blur", () => fmtInputMoney(val));
+
+  // filtros
+  [q, filtro, ord].forEach(x => {
+    x.addEventListener("input", renderTable);
+    x.addEventListener("change", renderTable);
+  });
+
+  // iniciais
+  Object.values(iniInputs).forEach(inp => inp.addEventListener("blur", () => fmtInputMoney(inp)));
+
+  el("saveIni").addEventListener("click", () => {
+    const g = parseMoney(iniInputs.Gaveta.value);
+    const s = parseMoney(iniInputs.Stone.value);
+    const c = parseMoney(iniInputs.Cresol.value);
+    const i = parseMoney(iniInputs.Infinity.value);
+
+    state.initial.Gaveta = Number.isFinite(g) ? g : 0;
+    state.initial.Stone = Number.isFinite(s) ? s : 0;
+    state.initial.Cresol = Number.isFinite(c) ? c : 0;
+    state.initial.Infinity = Number.isFinite(i) ? i : 0;
+
+    fillInitialInputs();
+    render();
+    alert("Caixa inicial salvo ✅");
+  });
+
+  el("resetIni").addEventListener("click", () => {
+    if(!confirm("Zerar todos os valores iniciais?")) return;
+    state.initial = { Gaveta:0, Stone:0, Cresol:0, Infinity:0 };
+    fillInitialInputs();
+    render();
+  });
+
+  // ===== Funções globais (tabela) =====
   window.toggleOk = (id) => {
     const x = state.items.find(a => a.id === id);
     if(!x) return;
@@ -254,19 +474,31 @@
     const nd = prompt("Descrição:", x.desc);
     if(nd === null) return;
 
-    const nv = prompt("Valor (R$):", String(x.valor).replace(".",","));
+    const nv = prompt("Valor (R$):", String(x.val).replace(".",","));
     if(nv === null) return;
     const v = parseMoney(nv);
     if(!Number.isFinite(v) || v <= 0){ alert("Valor inválido."); return; }
 
-    const no = prompt("Onde? (caixa ou conta):", x.onde);
-    if(no === null) return;
-    const o = no.trim().toLowerCase();
-    if(o !== "caixa" && o !== "conta"){ alert("Use caixa ou conta."); return; }
+    const nc = prompt("Conta (Gaveta / Stone / Cresol / Infinity):", x.conta);
+    if(nc === null) return;
+    const cc = nc.trim();
+    if(!["Gaveta","Stone","Cresol","Infinity"].includes(cc)){
+      alert("Conta inválida. Use: Gaveta, Stone, Cresol ou Infinity.");
+      return;
+    }
+
+    const nt = prompt("Tipo (entrada ou saida):", x.tipo);
+    if(nt === null) return;
+    const tt = nt.trim().toLowerCase();
+    if(tt !== "entrada" && tt !== "saida"){
+      alert("Tipo inválido. Use: entrada ou saida.");
+      return;
+    }
 
     x.desc = nd.trim() || x.desc;
-    x.valor = Math.abs(v);
-    x.onde = o;
+    x.val = Math.abs(v);
+    x.conta = cc;
+    x.tipo = tt;
     render();
   };
 
@@ -278,83 +510,34 @@
     render();
   };
 
-  // Zerar = criar um "registro de retirada" simples (sem complicar)
-  el("zerarCaixa").addEventListener("click", () => {
-    if(state.caixa <= 0){ alert("Caixa já está zerado."); return; }
-    if(!confirm("Zerar CAIXA significa que você retirou/pagou e o dinheiro não está mais no caixa. Continuar?")) return;
-    // remove do saldo: marca como não OK todos do caixa? não: melhor registrar retirada e manter histórico
-    state.items.unshift({
-      id: uid(),
-      dt: today(),
-      desc: "RETIRADA / PAGAMENTO (CAIXA) — ZERAR",
-      valor: state.caixa,
-      onde: "caixa",
-      ok: true,
-      retirada: true
-    });
-    // Para não complicar com saída, a gente “nega” o saldo via item espelho negativo:
-    state.items.unshift({
-      id: uid(),
-      dt: today(),
-      desc: "AJUSTE: CAIXA ZERADO",
-      valor: -state.caixa,
-      onde: "caixa",
-      ok: true,
-      ajuste: true
-    });
-    // Recalcular vai somar valor negativo também, então precisamos adaptar:
-    // Simples: ao somar, considerar valores negativos.
-    render();
-  });
+  // ===== Zerar (cria saída OK do saldo atual) =====
+  function zerarConta(nomeConta){
+    const {bal} = calcBalances();
+    const saldo = bal[nomeConta] || 0;
 
-  el("zerarConta").addEventListener("click", () => {
-    if(state.conta <= 0){ alert("Conta já está zerada."); return; }
-    if(!confirm("Zerar CONTA significa que você tirou/pagou e o dinheiro não está mais na conta. Continuar?")) return;
-    state.items.unshift({
-      id: uid(),
-      dt: today(),
-      desc: "RETIRADA / PAGAMENTO (CONTA) — ZERAR",
-      valor: state.conta,
-      onde: "conta",
-      ok: true,
-      retirada: true
-    });
-    state.items.unshift({
-      id: uid(),
-      dt: today(),
-      desc: "AJUSTE: CONTA ZERADA",
-      valor: -state.conta,
-      onde: "conta",
-      ok: true,
-      ajuste: true
-    });
-    render();
-  });
-
-  // Ajuste no cálculo pra aceitar valor negativo (por causa do zerar simples)
-  function recalcTotals(){
-    let c = 0, k = 0;
-    for(const x of state.items){
-      if(!x.ok) continue;
-      const v = Number(x.valor);
-      if(!Number.isFinite(v)) continue;
-      if(x.onde === "caixa") c += v;
-      else k += v;
+    if(saldo <= 0){
+      alert("Essa conta já está zerada (ou negativa).");
+      return;
     }
-    state.caixa = c;
-    state.conta = k;
-    el("tCaixa").textContent = brl(c);
-    el("tConta").textContent = brl(k);
-    el("tTotal").textContent = brl(c+k);
+    if(!confirm(`Zerar ${nomeConta}: vai lançar uma SAÍDA OK de ${brl(saldo)}. Continuar?`)) return;
+
+    state.items.unshift({
+      id: uid(),
+      dt: today(),
+      desc: `ZERAR ${nomeConta} (retirada/pagamento)`,
+      val: Math.abs(saldo),
+      conta: nomeConta,
+      tipo: "saida",
+      ok: true
+    });
+
+    render();
   }
 
-  // formatar valor ao sair do campo
-  val.addEventListener("blur", () => {
-    const v = parseMoney(val.value);
-    if(Number.isFinite(v) && v > 0){
-      val.value = v.toLocaleString("pt-BR",{minimumFractionDigits:2, maximumFractionDigits:2});
-    }
-  });
+  el("zerarGaveta").addEventListener("click", () => zerarConta("Gaveta"));
+  el("zerarStone").addEventListener("click", () => zerarConta("Stone"));
+  el("zerarCresol").addEventListener("click", () => zerarConta("Cresol"));
+  el("zerarInfinity").addEventListener("click", () => zerarConta("Infinity"));
 
   render();
 </script>
