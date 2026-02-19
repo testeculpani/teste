@@ -3,121 +3,369 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Controle de Caixa — Simples</title>
+  <title>Controle de Caixa — Amarelo</title>
   <style>
     :root{
-      --bg:#f6f7fb; --card:#fff; --text:#0f172a; --muted:#64748b; --border:#e2e8f0;
-      --blue:#2563eb; --green:#16a34a; --red:#ef4444; --gray:#f1f5f9;
-      --shadow: 0 10px 28px rgba(15,23,42,.08);
-      --radius: 16px;
+      --bg1:#fff7cc;
+      --bg2:#fff0a6;
+      --card:#ffffff;
+      --text:#141414;
+      --muted:#5b5b5b;
+      --border:#f1d55a;
+
+      --yellow:#ffd000;
+      --yellow2:#ffb700;
+      --yellow3:#ffea66;
+
+      --green:#16a34a;
+      --red:#ef4444;
+      --gray:#f3f4f6;
+
+      --shadow: 0 14px 34px rgba(0,0,0,.12);
+      --radius: 18px;
     }
+
     *{box-sizing:border-box}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--text)}
-    header{padding:16px;max-width:1100px;margin:0 auto}
-    h1{margin:0;font-size:18px}
-    .sub{color:var(--muted);font-size:12px;margin-top:4px;line-height:1.35}
-    .wrap{max-width:1100px;margin:0 auto;padding:0 16px 28px;display:grid;gap:12px}
-    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;box-shadow:var(--shadow)}
-    label{display:block;font-size:12px;color:var(--muted);margin:8px 0 6px}
-    input,select{width:100%;padding:10px;border:1px solid var(--border);border-radius:12px;font-size:14px}
-    input:focus,select:focus{outline:none;border-color:#93c5fd;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
-    button{border:0;border-radius:12px;padding:10px 12px;font-weight:800;cursor:pointer}
-    .btnBlue{background:var(--blue);color:#fff}
-    .btnGreen{background:#dcfce7;color:#14532d}
-    .btnRed{background:#fee2e2;color:#991b1b}
-    .btnGray{background:var(--gray);color:var(--text)}
-    .grid2{display:grid;grid-template-columns: 1fr 1fr;gap:12px}
-    @media (max-width:900px){.grid2{grid-template-columns:1fr}}
-    .row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
-    @media (max-width:980px){.row{grid-template-columns:1fr 1fr}}
-    @media (max-width:520px){.row{grid-template-columns:1fr}}
-    .pillwrap{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .pill{border:1px solid var(--border);background:#fff;border-radius:999px;padding:8px 10px;font-size:12px}
-    .pill b{font-size:13px}
-    .small{font-size:12px;color:var(--muted)}
-    table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:#fff}
-    thead th{background:#f8fafc;color:var(--muted);font-size:12px;text-align:left;padding:10px;border-bottom:1px solid var(--border)}
-    tbody td{padding:10px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:top}
+    body{
+      margin:0;
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      color: var(--text);
+      background: radial-gradient(circle at 15% 0%, var(--bg2) 0%, #fff 35%, #fff 60%, var(--bg1) 100%);
+    }
+
+    header{
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 18px 16px 6px;
+    }
+
+    .titlebar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      flex-wrap:wrap;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+    }
+
+    .badgeLogo{
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--yellow) 0%, var(--yellow2) 55%, #ff8a00 100%);
+      box-shadow: 0 12px 26px rgba(255,183,0,.35);
+      border: 1px solid rgba(0,0,0,.08);
+    }
+
+    h1{
+      margin:0;
+      font-size: 18px;
+      line-height: 1.2;
+      letter-spacing: .2px;
+    }
+    .sub{
+      margin-top: 4px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .hint{
+      background: rgba(255,208,0,.30);
+      border: 1px solid rgba(0,0,0,.10);
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-size: 12px;
+      color: #2b2b2b;
+      box-shadow: 0 10px 24px rgba(0,0,0,.06);
+    }
+
+    .wrap{
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 10px 16px 28px;
+      display:grid;
+      gap: 14px;
+    }
+
+    .card{
+      background: var(--card);
+      border: 1px solid rgba(0,0,0,.10);
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow:hidden;
+    }
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:-80px -80px auto auto;
+      width: 220px;
+      height: 220px;
+      background: radial-gradient(circle at 30% 30%, rgba(255,208,0,.55), rgba(255,208,0,0));
+      transform: rotate(18deg);
+      pointer-events:none;
+    }
+
+    .card h2{
+      margin: 0 0 8px;
+      font-size: 14px;
+      letter-spacing: .2px;
+    }
+
+    label{
+      display:block;
+      font-size: 12px;
+      color: var(--muted);
+      margin: 8px 0 6px;
+      font-weight: 700;
+    }
+
+    input, select{
+      width:100%;
+      padding: 11px 12px;
+      border: 1px solid rgba(0,0,0,.12);
+      border-radius: 14px;
+      font-size: 14px;
+      background:#fff;
+    }
+
+    input:focus, select:focus{
+      outline: none;
+      border-color: rgba(255,183,0,.95);
+      box-shadow: 0 0 0 4px rgba(255,208,0,.28);
+    }
+
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    @media (max-width: 900px){
+      .grid2{grid-template-columns:1fr}
+    }
+
+    .row{
+      display:grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+    @media (max-width: 980px){
+      .row{grid-template-columns: 1fr 1fr}
+    }
+    @media (max-width: 520px){
+      .row{grid-template-columns:1fr}
+    }
+
+    button{
+      border: 0;
+      border-radius: 14px;
+      padding: 11px 14px;
+      font-weight: 900;
+      cursor:pointer;
+      transition: transform .06s ease, filter .12s ease;
+      letter-spacing: .2px;
+    }
+    button:active{transform: translateY(1px)}
+    .btnMain{
+      background: linear-gradient(135deg, var(--yellow) 0%, var(--yellow2) 60%, #ff8a00 100%);
+      color:#1b1b1b;
+      box-shadow: 0 12px 26px rgba(255,183,0,.28);
+      border: 1px solid rgba(0,0,0,.10);
+    }
+    .btnMain:hover{filter: brightness(1.02)}
+    .btnSoft{
+      background: var(--gray);
+      color: #111;
+      border: 1px solid rgba(0,0,0,.10);
+    }
+    .btnOk{
+      background: rgba(22,163,74,.12);
+      color: #0f4d24;
+      border: 1px solid rgba(22,163,74,.25);
+    }
+    .btnDanger{
+      background: rgba(239,68,68,.12);
+      color: #7f1d1d;
+      border: 1px solid rgba(239,68,68,.25);
+    }
+
+    .small{font-size: 12px; color: var(--muted); line-height: 1.35}
+
+    .pillwrap{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .pill{
+      background: linear-gradient(180deg, #fff 0%, #fffaf0 100%);
+      border: 1px solid rgba(0,0,0,.10);
+      border-radius: 999px;
+      padding: 9px 12px;
+      font-size: 12px;
+      box-shadow: 0 10px 20px rgba(0,0,0,.06);
+    }
+    .pill b{font-size: 13px}
+
+    table{
+      width:100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      border: 1px solid rgba(0,0,0,.10);
+      border-radius: 16px;
+      overflow:hidden;
+      background:#fff;
+    }
+    thead th{
+      background: linear-gradient(180deg, #fff5c2 0%, #fff0a6 100%);
+      color: #3a3a3a;
+      font-size: 12px;
+      text-align:left;
+      padding: 11px 10px;
+      border-bottom: 1px solid rgba(0,0,0,.10);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    tbody td{
+      padding: 11px 10px;
+      border-bottom: 1px solid rgba(0,0,0,.08);
+      font-size: 13px;
+      vertical-align: top;
+    }
+    tbody tr:hover{background: #fffdf2}
     tbody tr:last-child td{border-bottom:0}
-    .actions{display:flex;gap:8px;flex-wrap:wrap}
-    .tag{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border);padding:6px 10px;border-radius:999px;font-size:12px;font-weight:800}
-    .ok{color:var(--green)}
-    .no{color:var(--red)}
-    .in{background:#eff6ff;color:#1e3a8a;border-color:#bfdbfe}
-    .out{background:#fff1f2;color:#9f1239;border-color:#fecdd3}
-    .right{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+
+    .actions{display:flex; gap:8px; flex-wrap:wrap}
+
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      border:1px solid rgba(0,0,0,.10);
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+    .tagIn{
+      background: rgba(255,208,0,.25);
+      color:#3a2a00;
+    }
+    .tagOut{
+      background: rgba(239,68,68,.12);
+      color:#7f1d1d;
+    }
+    .ok{color: var(--green); font-weight: 900}
+    .no{color: var(--red); font-weight: 900}
+
+    .toplist{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:end;
+      justify-content:space-between;
+      margin-bottom: 10px;
+    }
   </style>
 </head>
+
 <body>
 <header>
-  <h1>Controle de Caixa (bem simples)</h1>
-  <div class="sub">
-    1) Secretária lança <b>Entrada</b> ou <b>Saída</b> <br/>
-    2) Você marca <b>OK</b> quando conferir <br/>
-    3) Saldo só conta o que estiver <b>OK</b>. <br/>
-    4) Se você pagou/retirou tudo de uma conta, use <b>Zerar</b>.
+  <div class="titlebar">
+    <div class="brand">
+      <div class="badgeLogo" aria-hidden="true"></div>
+      <div>
+        <h1>Controle de Caixa</h1>
+        <div class="sub">
+          Secretária lança • Você marca <b>OK</b> • Saldo só conta o que estiver <b>OK</b>
+        </div>
+      </div>
+    </div>
+    <div class="hint">
+      ✅ Regra: se não tiver certeza, lança como <b>Entrada</b> e deixa <b>sem OK</b>.<br>
+      Você confere depois e marca OK.
+    </div>
   </div>
 </header>
 
 <div class="wrap">
+
   <div class="grid2">
     <!-- Caixa inicial -->
-    <div class="card">
-      <h2 style="margin:0 0 6px;font-size:14px">Caixa inicial (se já tem dinheiro)</h2>
-      <div class="small">Preencha uma vez. Se mudar, ele recalcula tudo automaticamente.</div>
+    <section class="card">
+      <h2>Caixa inicial (se já tem dinheiro)</h2>
+      <div class="small">Preencha uma vez. Se mudar, ele recalcula o saldo.</div>
 
-      <div class="row" style="grid-template-columns:repeat(4,1fr)">
+      <div class="row" style="grid-template-columns:repeat(5,1fr)">
         <div>
-          <label>Dinheiro Gaveta (R$)</label>
+          <label>Dinheiro (Gaveta)</label>
           <input id="ini_gaveta" type="text" inputmode="decimal" placeholder="0,00">
         </div>
         <div>
-          <label>Stone (R$)</label>
+          <label>Stone</label>
           <input id="ini_stone" type="text" inputmode="decimal" placeholder="0,00">
         </div>
         <div>
-          <label>Cresol (R$)</label>
+          <label>Cresol</label>
           <input id="ini_cresol" type="text" inputmode="decimal" placeholder="0,00">
         </div>
         <div>
-          <label>Infinity (R$)</label>
+          <label>Infinity Pay</label>
           <input id="ini_infinity" type="text" inputmode="decimal" placeholder="0,00">
+        </div>
+        <div>
+          <label>Conta Vini</label>
+          <input id="ini_vini" type="text" inputmode="decimal" placeholder="0,00">
         </div>
       </div>
 
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
-        <button class="btnBlue" id="saveIni">Salvar caixa inicial</button>
-        <button class="btnGray" id="resetIni">Zerar iniciais</button>
+        <button class="btnMain" id="saveIni">Salvar iniciais</button>
+        <button class="btnSoft" id="resetIni">Zerar iniciais</button>
       </div>
-    </div>
+    </section>
 
     <!-- Novo lançamento -->
-    <div class="card">
-      <h2 style="margin:0 0 6px;font-size:14px">Novo lançamento</h2>
-      <div class="small">Bem fácil: Data, Descrição, Valor, Conta e Tipo.</div>
+    <section class="card">
+      <h2>Novo lançamento</h2>
+      <div class="small">Preencha só isso e clique <b>Adicionar</b>.</div>
 
       <div class="row">
         <div>
           <label>Data</label>
           <input id="dt" type="date">
         </div>
+
         <div style="grid-column: span 2;">
           <label>Descrição</label>
-          <input id="desc" type="text" placeholder="Ex: Venda / Pix / Pagamento fornecedor">
+          <input id="desc" type="text" placeholder="Ex: Venda / Pix / Acessório / Pagamento fornecedor">
         </div>
+
         <div>
           <label>Valor (R$)</label>
           <input id="val" type="text" inputmode="decimal" placeholder="Ex: 1299,90">
         </div>
+
         <div>
-          <label>Conta</label>
+          <label>Onde entrou</label>
           <select id="conta">
-            <option value="Gaveta">Dinheiro Gaveta</option>
+            <option value="Dinheiro (Gaveta)">Dinheiro (Gaveta)</option>
             <option value="Stone">Stone</option>
             <option value="Cresol">Cresol</option>
-            <option value="Infinity">Infinity</option>
+            <option value="Infinity Pay">Infinity Pay</option>
+            <option value="Conta Vini">Conta Vini</option>
           </select>
         </div>
+
         <div>
           <label>Tipo</label>
           <select id="tipo">
@@ -128,39 +376,37 @@
       </div>
 
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
-        <button class="btnBlue" id="add">Adicionar</button>
-        <button class="btnGray" id="limpar">Limpar</button>
+        <button class="btnMain" id="add">Adicionar</button>
+        <button class="btnSoft" id="limpar">Limpar</button>
       </div>
-
-      <div class="small" style="margin-top:10px">
-        Dica: Se a secretária não sabe se foi pagamento/retirada, deixa como <b>Entrada</b> e você ajusta depois.
-      </div>
-    </div>
+    </section>
   </div>
 
   <!-- Totais por conta -->
-  <div class="card">
+  <section class="card">
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between">
       <div class="pillwrap" id="totais"></div>
-      <div class="right">
-        <button class="btnRed" id="zerarGaveta">Zerar Gaveta</button>
-        <button class="btnRed" id="zerarStone">Zerar Stone</button>
-        <button class="btnRed" id="zerarCresol">Zerar Cresol</button>
-        <button class="btnRed" id="zerarInfinity">Zerar Infinity</button>
+      <div class="actions">
+        <button class="btnDanger" id="zerarGaveta">Zerar Gaveta</button>
+        <button class="btnDanger" id="zerarStone">Zerar Stone</button>
+        <button class="btnDanger" id="zerarCresol">Zerar Cresol</button>
+        <button class="btnDanger" id="zerarInfinity">Zerar Infinity</button>
+        <button class="btnDanger" id="zerarVini">Zerar Conta Vini</button>
       </div>
     </div>
     <div class="small" style="margin-top:8px">
-      “Zerar” cria automaticamente uma <b>Saída OK</b> do saldo atual daquela conta (fica registrado no histórico).
+      “Zerar” cria uma <b>Saída OK</b> do saldo atual daquela conta (fica registrado no histórico).
     </div>
-  </div>
+  </section>
 
   <!-- Lista -->
-  <div class="card">
-    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:end;justify-content:space-between;margin-bottom:10px">
+  <section class="card">
+    <div class="toplist">
       <div style="min-width:260px;flex:1">
         <label>Buscar</label>
         <input id="q" type="text" placeholder="Buscar por descrição...">
       </div>
+
       <div style="min-width:180px">
         <label>Filtro</label>
         <select id="filtro">
@@ -169,6 +415,7 @@
           <option value="ok">Somente OK</option>
         </select>
       </div>
+
       <div style="min-width:220px">
         <label>Ordenar</label>
         <select id="ord">
@@ -178,6 +425,7 @@
           <option value="valor_asc">Valor (menor)</option>
         </select>
       </div>
+
       <div class="pill"><span id="count">0</span> lançamentos</div>
     </div>
 
@@ -187,10 +435,10 @@
           <tr>
             <th style="width:110px">OK?</th>
             <th>Data / Descrição</th>
-            <th style="width:160px">Conta</th>
-            <th style="width:140px">Tipo</th>
-            <th style="width:140px">Valor</th>
-            <th style="width:250px">Ações</th>
+            <th style="width:190px">Onde entrou</th>
+            <th style="width:150px">Tipo</th>
+            <th style="width:150px">Valor</th>
+            <th style="width:260px">Ações</th>
           </tr>
         </thead>
         <tbody id="tb"></tbody>
@@ -198,13 +446,14 @@
     </div>
 
     <div class="small" style="margin-top:10px">
-      Importante: <b>Saldo só conta os lançamentos OK</b>. Pendentes ficam aguardando você conferir.
+      Lembrete: Pendentes não entram no saldo. Só entra quando você marcar <b>OK</b>.
     </div>
-  </div>
+  </section>
+
 </div>
 
 <script>
-  const LS = "caixa_super_simples_v2";
+  const LS = "caixa_amarelo_v3";
 
   const el = id => document.getElementById(id);
 
@@ -213,11 +462,14 @@
   const q = el("q"), filtro = el("filtro"), ord = el("ord");
 
   const iniInputs = {
-    Gaveta: el("ini_gaveta"),
-    Stone: el("ini_stone"),
-    Cresol: el("ini_cresol"),
-    Infinity: el("ini_infinity"),
+    "Dinheiro (Gaveta)": el("ini_gaveta"),
+    "Stone": el("ini_stone"),
+    "Cresol": el("ini_cresol"),
+    "Infinity Pay": el("ini_infinity"),
+    "Conta Vini": el("ini_vini"),
   };
+
+  const ACCOUNTS = ["Dinheiro (Gaveta)","Stone","Cresol","Infinity Pay","Conta Vini"];
 
   function today(){
     const d = new Date();
@@ -252,10 +504,9 @@
   }
 
   function defaultState(){
-    return {
-      initial: { Gaveta: 0, Stone: 0, Cresol: 0, Infinity: 0 },
-      items: []
-    };
+    const initial = {};
+    for(const a of ACCOUNTS) initial[a] = 0;
+    return { initial, items: [] };
   }
 
   function load(){
@@ -263,10 +514,11 @@
       const raw = localStorage.getItem(LS);
       if(!raw) return defaultState();
       const j = JSON.parse(raw);
-      if(!j.initial) j.initial = { Gaveta:0, Stone:0, Cresol:0, Infinity:0 };
+      if(!j.initial) j.initial = {};
       if(!Array.isArray(j.items)) j.items = [];
-      // garantir chaves
-      for(const k of ["Gaveta","Stone","Cresol","Infinity"]) if(typeof j.initial[k] !== "number") j.initial[k] = 0;
+      for(const a of ACCOUNTS){
+        if(typeof j.initial[a] !== "number") j.initial[a] = 0;
+      }
       return j;
     }catch(e){
       return defaultState();
@@ -280,12 +532,10 @@
   let state = load();
   dt.value = today();
 
-  // preencher inputs iniciais
   function fillInitialInputs(){
-    iniInputs.Gaveta.value = state.initial.Gaveta.toLocaleString("pt-BR",{minimumFractionDigits:2, maximumFractionDigits:2});
-    iniInputs.Stone.value = state.initial.Stone.toLocaleString("pt-BR",{minimumFractionDigits:2, maximumFractionDigits:2});
-    iniInputs.Cresol.value = state.initial.Cresol.toLocaleString("pt-BR",{minimumFractionDigits:2, maximumFractionDigits:2});
-    iniInputs.Infinity.value = state.initial.Infinity.toLocaleString("pt-BR",{minimumFractionDigits:2, maximumFractionDigits:2});
+    for(const a of ACCOUNTS){
+      iniInputs[a].value = (state.initial[a]||0).toLocaleString("pt-BR",{minimumFractionDigits:2, maximumFractionDigits:2});
+    }
   }
   fillInitialInputs();
 
@@ -310,38 +560,33 @@
       case "valor_asc": arr.sort(byVal); break;
       case "valor_desc": arr.sort((a,b)=>byVal(b,a)); break;
     }
-
     return arr;
   }
 
   function calcBalances(){
-    // saldo = inicial + (entradas OK) - (saidas OK)
-    const bal = {
-      Gaveta: state.initial.Gaveta || 0,
-      Stone: state.initial.Stone || 0,
-      Cresol: state.initial.Cresol || 0,
-      Infinity: state.initial.Infinity || 0
-    };
+    const bal = {};
+    for(const a of ACCOUNTS) bal[a] = state.initial[a] || 0;
 
     for(const x of state.items){
       if(!x.ok) continue;
       const v = Number(x.val);
       if(!Number.isFinite(v)) continue;
+
       if(x.tipo === "entrada") bal[x.conta] += Math.abs(v);
       else bal[x.conta] -= Math.abs(v);
     }
-
-    const total = bal.Gaveta + bal.Stone + bal.Cresol + bal.Infinity;
+    const total = ACCOUNTS.reduce((s,a)=>s+(bal[a]||0),0);
     return {bal, total};
   }
 
   function renderTotals(){
     const {bal, total} = calcBalances();
     totais.innerHTML = `
-      <div class="pill">Dinheiro Gaveta: <b>${brl(bal.Gaveta)}</b></div>
-      <div class="pill">Stone: <b>${brl(bal.Stone)}</b></div>
-      <div class="pill">Cresol: <b>${brl(bal.Cresol)}</b></div>
-      <div class="pill">Infinity: <b>${brl(bal.Infinity)}</b></div>
+      <div class="pill">Dinheiro (Gaveta): <b>${brl(bal["Dinheiro (Gaveta)"])}</b></div>
+      <div class="pill">Stone: <b>${brl(bal["Stone"])}</b></div>
+      <div class="pill">Cresol: <b>${brl(bal["Cresol"])}</b></div>
+      <div class="pill">Infinity Pay: <b>${brl(bal["Infinity Pay"])}</b></div>
+      <div class="pill">Conta Vini: <b>${brl(bal["Conta Vini"])}</b></div>
       <div class="pill">Total: <b>${brl(total)}</b></div>
     `;
     return {bal, total};
@@ -355,8 +600,8 @@
       const dBR = new Date((x.dt||today())+"T00:00:00").toLocaleDateString("pt-BR");
       const okTxt = x.ok ? `<span class="ok">OK</span>` : `<span class="no">NÃO</span>`;
       const tipoTag = x.tipo === "entrada"
-        ? `<span class="tag in">ENTRADA</span>`
-        : `<span class="tag out">SAÍDA</span>`;
+        ? `<span class="tag tagIn">ENTRADA</span>`
+        : `<span class="tag tagOut">SAÍDA</span>`;
 
       return `
         <tr>
@@ -370,9 +615,9 @@
           <td style="font-weight:900;white-space:nowrap">${brl(Math.abs(x.val))}</td>
           <td>
             <div class="actions">
-              <button class="btnGreen" onclick="toggleOk('${x.id}')">OK</button>
-              <button class="btnGray" onclick="editItem('${x.id}')">Editar</button>
-              <button class="btnRed" onclick="delItem('${x.id}')">Excluir</button>
+              <button class="btnOk" onclick="toggleOk('${x.id}')">OK</button>
+              <button class="btnSoft" onclick="editItem('${x.id}')">Editar</button>
+              <button class="btnDanger" onclick="delItem('${x.id}')">Excluir</button>
             </div>
           </td>
         </tr>
@@ -390,7 +635,7 @@
     save();
   }
 
-  // ===== Eventos =====
+  // Adicionar
   el("add").addEventListener("click", () => {
     const d = dt.value || today();
     const ds = desc.value.trim();
@@ -405,7 +650,7 @@
       desc: ds,
       val: Math.abs(v),
       conta: conta.value,
-      tipo: tipo.value, // entrada | saida
+      tipo: tipo.value,
       ok: false
     });
 
@@ -419,13 +664,14 @@
     dt.value = today();
     desc.value = "";
     val.value = "";
-    conta.value = "Gaveta";
+    conta.value = "Dinheiro (Gaveta)";
     tipo.value = "entrada";
     desc.focus();
   });
 
-  // formatar valor
+  // formatar dinheiro
   val.addEventListener("blur", () => fmtInputMoney(val));
+  Object.values(iniInputs).forEach(inp => inp.addEventListener("blur", () => fmtInputMoney(inp)));
 
   // filtros
   [q, filtro, ord].forEach(x => {
@@ -434,32 +680,24 @@
   });
 
   // iniciais
-  Object.values(iniInputs).forEach(inp => inp.addEventListener("blur", () => fmtInputMoney(inp)));
-
   el("saveIni").addEventListener("click", () => {
-    const g = parseMoney(iniInputs.Gaveta.value);
-    const s = parseMoney(iniInputs.Stone.value);
-    const c = parseMoney(iniInputs.Cresol.value);
-    const i = parseMoney(iniInputs.Infinity.value);
-
-    state.initial.Gaveta = Number.isFinite(g) ? g : 0;
-    state.initial.Stone = Number.isFinite(s) ? s : 0;
-    state.initial.Cresol = Number.isFinite(c) ? c : 0;
-    state.initial.Infinity = Number.isFinite(i) ? i : 0;
-
+    for(const a of ACCOUNTS){
+      const v = parseMoney(iniInputs[a].value);
+      state.initial[a] = Number.isFinite(v) ? v : 0;
+    }
     fillInitialInputs();
     render();
-    alert("Caixa inicial salvo ✅");
+    alert("Valores iniciais salvos ✅");
   });
 
   el("resetIni").addEventListener("click", () => {
     if(!confirm("Zerar todos os valores iniciais?")) return;
-    state.initial = { Gaveta:0, Stone:0, Cresol:0, Infinity:0 };
+    for(const a of ACCOUNTS) state.initial[a] = 0;
     fillInitialInputs();
     render();
   });
 
-  // ===== Funções globais (tabela) =====
+  // Globais (tabela)
   window.toggleOk = (id) => {
     const x = state.items.find(a => a.id === id);
     if(!x) return;
@@ -479,11 +717,11 @@
     const v = parseMoney(nv);
     if(!Number.isFinite(v) || v <= 0){ alert("Valor inválido."); return; }
 
-    const nc = prompt("Conta (Gaveta / Stone / Cresol / Infinity):", x.conta);
+    const nc = prompt("Onde entrou (escreva igual): Dinheiro (Gaveta) / Stone / Cresol / Infinity Pay / Conta Vini", x.conta);
     if(nc === null) return;
     const cc = nc.trim();
-    if(!["Gaveta","Stone","Cresol","Infinity"].includes(cc)){
-      alert("Conta inválida. Use: Gaveta, Stone, Cresol ou Infinity.");
+    if(!ACCOUNTS.includes(cc)){
+      alert("Conta inválida. Use exatamente: " + ACCOUNTS.join(", "));
       return;
     }
 
@@ -510,7 +748,7 @@
     render();
   };
 
-  // ===== Zerar (cria saída OK do saldo atual) =====
+  // Zerar (cria saída OK do saldo atual)
   function zerarConta(nomeConta){
     const {bal} = calcBalances();
     const saldo = bal[nomeConta] || 0;
@@ -519,7 +757,7 @@
       alert("Essa conta já está zerada (ou negativa).");
       return;
     }
-    if(!confirm(`Zerar ${nomeConta}: vai lançar uma SAÍDA OK de ${brl(saldo)}. Continuar?`)) return;
+    if(!confirm(`Zerar "${nomeConta}": vai lançar uma SAÍDA OK de ${brl(saldo)}. Continuar?`)) return;
 
     state.items.unshift({
       id: uid(),
@@ -534,10 +772,11 @@
     render();
   }
 
-  el("zerarGaveta").addEventListener("click", () => zerarConta("Gaveta"));
+  el("zerarGaveta").addEventListener("click", () => zerarConta("Dinheiro (Gaveta)"));
   el("zerarStone").addEventListener("click", () => zerarConta("Stone"));
   el("zerarCresol").addEventListener("click", () => zerarConta("Cresol"));
-  el("zerarInfinity").addEventListener("click", () => zerarConta("Infinity"));
+  el("zerarInfinity").addEventListener("click", () => zerarConta("Infinity Pay"));
+  el("zerarVini").addEventListener("click", () => zerarConta("Conta Vini"));
 
   render();
 </script>
