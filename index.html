@@ -3,28 +3,17 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Controle de Caixa — Amarelo</title>
+  <title>Controle de Caixa — 2 Abas</title>
   <style>
     :root{
-      --bg1:#fff7cc;
-      --bg2:#fff0a6;
-      --card:#ffffff;
-      --text:#141414;
-      --muted:#5b5b5b;
-      --border:#f1d55a;
-
-      --yellow:#ffd000;
-      --yellow2:#ffb700;
-      --yellow3:#ffea66;
-
-      --green:#16a34a;
-      --red:#ef4444;
-      --gray:#f3f4f6;
-
+      --bg1:#fff7cc; --bg2:#fff0a6; --card:#ffffff;
+      --text:#141414; --muted:#5b5b5b;
+      --yellow:#ffd000; --yellow2:#ffb700; --orange:#ff8a00;
+      --green:#16a34a; --red:#ef4444; --gray:#f3f4f6;
       --shadow: 0 14px 34px rgba(0,0,0,.12);
       --radius: 18px;
+      --border: rgba(0,0,0,.10);
     }
-
     *{box-sizing:border-box}
     body{
       margin:0;
@@ -34,68 +23,59 @@
     }
 
     header{
-      max-width: 1100px;
+      max-width: 1150px;
       margin: 0 auto;
-      padding: 18px 16px 6px;
-    }
-
-    .titlebar{
+      padding: 18px 16px 10px;
       display:flex;
+      flex-wrap:wrap;
       align-items:center;
       justify-content:space-between;
       gap: 12px;
-      flex-wrap:wrap;
     }
-
     .brand{
-      display:flex;
-      align-items:center;
-      gap: 12px;
+      display:flex; align-items:center; gap:12px;
     }
-
-    .badgeLogo{
-      width: 44px;
-      height: 44px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, var(--yellow) 0%, var(--yellow2) 55%, #ff8a00 100%);
-      box-shadow: 0 12px 26px rgba(255,183,0,.35);
-      border: 1px solid rgba(0,0,0,.08);
-    }
-
-    h1{
-      margin:0;
-      font-size: 18px;
-      line-height: 1.2;
-      letter-spacing: .2px;
-    }
-    .sub{
-      margin-top: 4px;
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 1.35;
-    }
-
-    .hint{
-      background: rgba(255,208,0,.30);
+    .logo{
+      width:46px;height:46px;border-radius:16px;
+      background: linear-gradient(135deg, var(--yellow) 0%, var(--yellow2) 55%, var(--orange) 100%);
+      box-shadow: 0 14px 28px rgba(255,183,0,.30);
       border: 1px solid rgba(0,0,0,.10);
-      padding: 10px 12px;
-      border-radius: 14px;
-      font-size: 12px;
-      color: #2b2b2b;
+    }
+    h1{margin:0;font-size:18px;letter-spacing:.2px}
+    .sub{margin-top:4px;font-size:12px;color:var(--muted);line-height:1.35}
+
+    .tabs{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+      background: rgba(255,208,0,.25);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px;
       box-shadow: 0 10px 24px rgba(0,0,0,.06);
     }
-
-    .wrap{
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 10px 16px 28px;
-      display:grid;
-      gap: 14px;
+    .tabbtn{
+      border:0;
+      cursor:pointer;
+      padding: 10px 12px;
+      border-radius: 999px;
+      font-weight: 900;
+      background: transparent;
+      color:#2b2b2b;
+      letter-spacing:.2px;
+      display:flex; align-items:center; gap:8px;
+      transition: .12s ease;
     }
+    .tabbtn:hover{filter: brightness(1.02)}
+    .tabbtn.active{
+      background: linear-gradient(135deg, var(--yellow) 0%, var(--yellow2) 60%, var(--orange) 100%);
+      border: 1px solid rgba(0,0,0,.10);
+      box-shadow: 0 12px 26px rgba(255,183,0,.28);
+    }
+
+    .wrap{max-width:1150px;margin:0 auto;padding: 6px 16px 28px;display:grid;gap:14px}
 
     .card{
       background: var(--card);
-      border: 1px solid rgba(0,0,0,.10);
+      border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 14px;
       box-shadow: var(--shadow);
@@ -105,28 +85,16 @@
     .card::before{
       content:"";
       position:absolute;
-      inset:-80px -80px auto auto;
-      width: 220px;
-      height: 220px;
+      inset:-90px -90px auto auto;
+      width: 240px; height: 240px;
       background: radial-gradient(circle at 30% 30%, rgba(255,208,0,.55), rgba(255,208,0,0));
-      transform: rotate(18deg);
+      transform: rotate(15deg);
       pointer-events:none;
     }
+    .card h2{margin:0 0 8px;font-size:14px;letter-spacing:.2px}
+    .small{font-size:12px;color:var(--muted);line-height:1.35}
 
-    .card h2{
-      margin: 0 0 8px;
-      font-size: 14px;
-      letter-spacing: .2px;
-    }
-
-    label{
-      display:block;
-      font-size: 12px;
-      color: var(--muted);
-      margin: 8px 0 6px;
-      font-weight: 700;
-    }
-
+    label{display:block;font-size:12px;color:var(--muted);margin:8px 0 6px;font-weight:800}
     input, select{
       width:100%;
       padding: 11px 12px;
@@ -135,20 +103,10 @@
       font-size: 14px;
       background:#fff;
     }
-
     input:focus, select:focus{
-      outline: none;
+      outline:none;
       border-color: rgba(255,183,0,.95);
       box-shadow: 0 0 0 4px rgba(255,208,0,.28);
-    }
-
-    .grid2{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-    }
-    @media (max-width: 900px){
-      .grid2{grid-template-columns:1fr}
     }
 
     .row{
@@ -156,39 +114,34 @@
       grid-template-columns: repeat(5, 1fr);
       gap: 10px;
     }
-    @media (max-width: 980px){
-      .row{grid-template-columns: 1fr 1fr}
-    }
-    @media (max-width: 520px){
-      .row{grid-template-columns:1fr}
-    }
+    @media (max-width: 980px){.row{grid-template-columns: 1fr 1fr}}
+    @media (max-width: 520px){.row{grid-template-columns: 1fr}}
 
     button{
-      border: 0;
+      border:0;
       border-radius: 14px;
       padding: 11px 14px;
       font-weight: 900;
       cursor:pointer;
       transition: transform .06s ease, filter .12s ease;
-      letter-spacing: .2px;
+      letter-spacing:.2px;
     }
     button:active{transform: translateY(1px)}
     .btnMain{
-      background: linear-gradient(135deg, var(--yellow) 0%, var(--yellow2) 60%, #ff8a00 100%);
+      background: linear-gradient(135deg, var(--yellow) 0%, var(--yellow2) 60%, var(--orange) 100%);
       color:#1b1b1b;
       box-shadow: 0 12px 26px rgba(255,183,0,.28);
       border: 1px solid rgba(0,0,0,.10);
     }
-    .btnMain:hover{filter: brightness(1.02)}
     .btnSoft{
       background: var(--gray);
       color: #111;
       border: 1px solid rgba(0,0,0,.10);
     }
     .btnOk{
-      background: rgba(22,163,74,.12);
+      background: rgba(22,163,74,.14);
       color: #0f4d24;
-      border: 1px solid rgba(22,163,74,.25);
+      border: 1px solid rgba(22,163,74,.26);
     }
     .btnDanger{
       background: rgba(239,68,68,.12);
@@ -196,29 +149,24 @@
       border: 1px solid rgba(239,68,68,.25);
     }
 
-    .small{font-size: 12px; color: var(--muted); line-height: 1.35}
-
-    .pillwrap{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-    }
+    .pillwrap{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
     .pill{
       background: linear-gradient(180deg, #fff 0%, #fffaf0 100%);
-      border: 1px solid rgba(0,0,0,.10);
+      border: 1px solid var(--border);
       border-radius: 999px;
       padding: 9px 12px;
       font-size: 12px;
       box-shadow: 0 10px 20px rgba(0,0,0,.06);
     }
-    .pill b{font-size: 13px}
+    .pill b{font-size:13px}
+
+    .actions{display:flex;gap:8px;flex-wrap:wrap}
 
     table{
       width:100%;
       border-collapse: separate;
       border-spacing: 0;
-      border: 1px solid rgba(0,0,0,.10);
+      border: 1px solid var(--border);
       border-radius: 16px;
       overflow:hidden;
       background:#fff;
@@ -229,10 +177,8 @@
       font-size: 12px;
       text-align:left;
       padding: 11px 10px;
-      border-bottom: 1px solid rgba(0,0,0,.10);
-      position: sticky;
-      top: 0;
-      z-index: 1;
+      border-bottom: 1px solid var(--border);
+      position: sticky; top:0; z-index:1;
     }
     tbody td{
       padding: 11px 10px;
@@ -240,104 +186,50 @@
       font-size: 13px;
       vertical-align: top;
     }
-    tbody tr:hover{background: #fffdf2}
+    tbody tr:hover{background:#fffdf2}
     tbody tr:last-child td{border-bottom:0}
 
-    .actions{display:flex; gap:8px; flex-wrap:wrap}
-
     .tag{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
+      display:inline-flex;align-items:center;gap:8px;
       border:1px solid rgba(0,0,0,.10);
-      padding:6px 10px;
-      border-radius:999px;
-      font-size:12px;
-      font-weight:900;
-      white-space:nowrap;
+      padding:6px 10px;border-radius:999px;
+      font-size:12px;font-weight:900;white-space:nowrap;
     }
-    .tagIn{
-      background: rgba(255,208,0,.25);
-      color:#3a2a00;
-    }
-    .tagOut{
-      background: rgba(239,68,68,.12);
-      color:#7f1d1d;
-    }
+    .tagIn{background: rgba(255,208,0,.25); color:#3a2a00;}
+    .tagOut{background: rgba(239,68,68,.12); color:#7f1d1d;}
     .ok{color: var(--green); font-weight: 900}
     .no{color: var(--red); font-weight: 900}
 
     .toplist{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:end;
-      justify-content:space-between;
-      margin-bottom: 10px;
+      display:flex;gap:10px;flex-wrap:wrap;align-items:end;justify-content:space-between;margin-bottom:10px
     }
+
+    .hidden{display:none !important;}
   </style>
 </head>
 
 <body>
 <header>
-  <div class="titlebar">
-    <div class="brand">
-      <div class="badgeLogo" aria-hidden="true"></div>
-      <div>
-        <h1>Controle de Caixa</h1>
-        <div class="sub">
-          Secretária lança • Você marca <b>OK</b> • Saldo só conta o que estiver <b>OK</b>
-        </div>
-      </div>
-    </div>
-    <div class="hint">
-      ✅ Regra: se não tiver certeza, lança como <b>Entrada</b> e deixa <b>sem OK</b>.<br>
-      Você confere depois e marca OK.
+  <div class="brand">
+    <div class="logo" aria-hidden="true"></div>
+    <div>
+      <h1>Controle de Caixa</h1>
+      <div class="sub">📥 Lançamentos para secretária • 🛠 Administrador para você (iniciais, zerar, saldos)</div>
     </div>
   </div>
+
+  <nav class="tabs" aria-label="Menu">
+    <button class="tabbtn active" id="tabLanc" onclick="openTab('lanc')">📥 Lançamentos</button>
+    <button class="tabbtn" id="tabAdm" onclick="openTab('adm')">🛠 Administrador</button>
+  </nav>
 </header>
 
 <div class="wrap">
-
-  <div class="grid2">
-    <!-- Caixa inicial -->
-    <section class="card">
-      <h2>Caixa inicial (se já tem dinheiro)</h2>
-      <div class="small">Preencha uma vez. Se mudar, ele recalcula o saldo.</div>
-
-      <div class="row" style="grid-template-columns:repeat(5,1fr)">
-        <div>
-          <label>Dinheiro (Gaveta)</label>
-          <input id="ini_gaveta" type="text" inputmode="decimal" placeholder="0,00">
-        </div>
-        <div>
-          <label>Stone</label>
-          <input id="ini_stone" type="text" inputmode="decimal" placeholder="0,00">
-        </div>
-        <div>
-          <label>Cresol</label>
-          <input id="ini_cresol" type="text" inputmode="decimal" placeholder="0,00">
-        </div>
-        <div>
-          <label>Infinity Pay</label>
-          <input id="ini_infinity" type="text" inputmode="decimal" placeholder="0,00">
-        </div>
-        <div>
-          <label>Conta Vini</label>
-          <input id="ini_vini" type="text" inputmode="decimal" placeholder="0,00">
-        </div>
-      </div>
-
-      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
-        <button class="btnMain" id="saveIni">Salvar iniciais</button>
-        <button class="btnSoft" id="resetIni">Zerar iniciais</button>
-      </div>
-    </section>
-
-    <!-- Novo lançamento -->
-    <section class="card">
+  <!-- ABA: LANÇAMENTOS -->
+  <section id="viewLanc" class="">
+    <div class="card">
       <h2>Novo lançamento</h2>
-      <div class="small">Preencha só isso e clique <b>Adicionar</b>.</div>
+      <div class="small">Secretária preenche e clica <b>Adicionar</b>. Você depois marca <b>OK</b> quando conferir.</div>
 
       <div class="row">
         <div>
@@ -379,87 +271,138 @@
         <button class="btnMain" id="add">Adicionar</button>
         <button class="btnSoft" id="limpar">Limpar</button>
       </div>
-    </section>
-  </div>
-
-  <!-- Totais por conta -->
-  <section class="card">
-    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between">
-      <div class="pillwrap" id="totais"></div>
-      <div class="actions">
-        <button class="btnDanger" id="zerarGaveta">Zerar Gaveta</button>
-        <button class="btnDanger" id="zerarStone">Zerar Stone</button>
-        <button class="btnDanger" id="zerarCresol">Zerar Cresol</button>
-        <button class="btnDanger" id="zerarInfinity">Zerar Infinity</button>
-        <button class="btnDanger" id="zerarVini">Zerar Conta Vini</button>
-      </div>
     </div>
-    <div class="small" style="margin-top:8px">
-      “Zerar” cria uma <b>Saída OK</b> do saldo atual daquela conta (fica registrado no histórico).
+
+    <div class="card">
+      <div class="toplist">
+        <div style="min-width:260px;flex:1">
+          <label>Buscar</label>
+          <input id="q" type="text" placeholder="Buscar por descrição...">
+        </div>
+
+        <div style="min-width:180px">
+          <label>Filtro</label>
+          <select id="filtro">
+            <option value="todos">Todos</option>
+            <option value="pendente">Somente pendentes</option>
+            <option value="ok">Somente OK</option>
+          </select>
+        </div>
+
+        <div style="min-width:220px">
+          <label>Ordenar</label>
+          <select id="ord">
+            <option value="data_desc">Data (mais recente)</option>
+            <option value="data_asc">Data (mais antiga)</option>
+            <option value="valor_desc">Valor (maior)</option>
+            <option value="valor_asc">Valor (menor)</option>
+          </select>
+        </div>
+
+        <div class="pill"><span id="count">0</span> lançamentos</div>
+      </div>
+
+      <div style="overflow:auto">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:110px">OK?</th>
+              <th>Data / Descrição</th>
+              <th style="width:190px">Onde entrou</th>
+              <th style="width:150px">Tipo</th>
+              <th style="width:150px">Valor</th>
+              <th style="width:260px">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tb"></tbody>
+        </table>
+      </div>
+
+      <div class="small" style="margin-top:10px">
+        Lembrete: Pendentes não entram no saldo. Só entra quando você marcar <b>OK</b>.
+      </div>
     </div>
   </section>
 
-  <!-- Lista -->
-  <section class="card">
-    <div class="toplist">
-      <div style="min-width:260px;flex:1">
-        <label>Buscar</label>
-        <input id="q" type="text" placeholder="Buscar por descrição...">
-      </div>
-
-      <div style="min-width:180px">
-        <label>Filtro</label>
-        <select id="filtro">
-          <option value="todos">Todos</option>
-          <option value="pendente">Somente pendentes</option>
-          <option value="ok">Somente OK</option>
-        </select>
-      </div>
-
-      <div style="min-width:220px">
-        <label>Ordenar</label>
-        <select id="ord">
-          <option value="data_desc">Data (mais recente)</option>
-          <option value="data_asc">Data (mais antiga)</option>
-          <option value="valor_desc">Valor (maior)</option>
-          <option value="valor_asc">Valor (menor)</option>
-        </select>
-      </div>
-
-      <div class="pill"><span id="count">0</span> lançamentos</div>
+  <!-- ABA: ADMIN -->
+  <section id="viewAdm" class="hidden">
+    <div class="card">
+      <h2>Contabilização (Saldos por conta)</h2>
+      <div class="small">Aqui você vê o saldo por conta e o total (considera <b>iniciais + entradas OK − saídas OK</b>).</div>
+      <div class="pillwrap" id="totais"></div>
     </div>
 
-    <div style="overflow:auto">
-      <table>
-        <thead>
-          <tr>
-            <th style="width:110px">OK?</th>
-            <th>Data / Descrição</th>
-            <th style="width:190px">Onde entrou</th>
-            <th style="width:150px">Tipo</th>
-            <th style="width:150px">Valor</th>
-            <th style="width:260px">Ações</th>
-          </tr>
-        </thead>
-        <tbody id="tb"></tbody>
-      </table>
+    <div class="card">
+      <h2>Caixa inicial (se já tem dinheiro)</h2>
+      <div class="small">Preencha uma vez. Se mudar, ele recalcula o saldo.</div>
+
+      <div class="row" style="grid-template-columns:repeat(5,1fr)">
+        <div>
+          <label>Dinheiro (Gaveta)</label>
+          <input id="ini_gaveta" type="text" inputmode="decimal" placeholder="0,00">
+        </div>
+        <div>
+          <label>Stone</label>
+          <input id="ini_stone" type="text" inputmode="decimal" placeholder="0,00">
+        </div>
+        <div>
+          <label>Cresol</label>
+          <input id="ini_cresol" type="text" inputmode="decimal" placeholder="0,00">
+        </div>
+        <div>
+          <label>Infinity Pay</label>
+          <input id="ini_infinity" type="text" inputmode="decimal" placeholder="0,00">
+        </div>
+        <div>
+          <label>Conta Vini</label>
+          <input id="ini_vini" type="text" inputmode="decimal" placeholder="0,00">
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
+        <button class="btnMain" id="saveIni">Salvar iniciais</button>
+        <button class="btnSoft" id="resetIni">Zerar iniciais</button>
+      </div>
     </div>
 
-    <div class="small" style="margin-top:10px">
-      Lembrete: Pendentes não entram no saldo. Só entra quando você marcar <b>OK</b>.
+    <div class="card">
+      <h2>Zerar contas (retirada/pagamento)</h2>
+      <div class="small">“Zerar” cria uma <b>Saída OK</b> do saldo atual daquela conta (fica registrado no histórico).</div>
+      <div class="actions" style="margin-top:10px">
+        <button class="btnDanger" id="zerarGaveta">Zerar Gaveta</button>
+        <button class="btnDanger" id="zerarStone">Zerar Stone</button>
+        <button class="btnDanger" id="zerarCresol">Zerar Cresol</button>
+        <button class="btnDanger" id="zerarInfinity">Zerar Infinity Pay</button>
+        <button class="btnDanger" id="zerarVini">Zerar Conta Vini</button>
+      </div>
     </div>
   </section>
 
 </div>
 
 <script>
-  const LS = "caixa_amarelo_v3";
+  // ====== MENU (ABAS) ======
+  window.openTab = (which) => {
+    const isLanc = which === "lanc";
+    document.getElementById("viewLanc").classList.toggle("hidden", !isLanc);
+    document.getElementById("viewAdm").classList.toggle("hidden", isLanc);
 
+    document.getElementById("tabLanc").classList.toggle("active", isLanc);
+    document.getElementById("tabAdm").classList.toggle("active", !isLanc);
+
+    // quando abre Admin, atualiza totais
+    if(!isLanc) renderTotals();
+  };
+
+  // ====== APP ======
+  const LS = "caixa_2abas_v1";
   const el = id => document.getElementById(id);
 
   const dt = el("dt"), desc = el("desc"), val = el("val"), conta = el("conta"), tipo = el("tipo");
   const tb = el("tb"), totais = el("totais"), count = el("count");
   const q = el("q"), filtro = el("filtro"), ord = el("ord");
+
+  const ACCOUNTS = ["Dinheiro (Gaveta)","Stone","Cresol","Infinity Pay","Conta Vini"];
 
   const iniInputs = {
     "Dinheiro (Gaveta)": el("ini_gaveta"),
@@ -469,17 +412,13 @@
     "Conta Vini": el("ini_vini"),
   };
 
-  const ACCOUNTS = ["Dinheiro (Gaveta)","Stone","Cresol","Infinity Pay","Conta Vini"];
-
   function today(){
     const d = new Date();
     const off = d.getTimezoneOffset();
     return new Date(d.getTime() - off*60000).toISOString().slice(0,10);
   }
 
-  function brl(n){
-    return n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
-  }
+  function brl(n){ return n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"}); }
 
   function parseMoney(s){
     if(!s) return NaN;
@@ -493,9 +432,7 @@
     if(Number.isFinite(v)) input.value = v.toLocaleString("pt-BR",{minimumFractionDigits:2, maximumFractionDigits:2});
   }
 
-  function uid(){
-    return Math.random().toString(16).slice(2) + Date.now().toString(16);
-  }
+  function uid(){ return Math.random().toString(16).slice(2) + Date.now().toString(16); }
 
   function escapeHtml(s){
     return String(s).replace(/[&<>"']/g, m => ({
@@ -525,9 +462,7 @@
     }
   }
 
-  function save(){
-    localStorage.setItem(LS, JSON.stringify(state));
-  }
+  function save(){ localStorage.setItem(LS, JSON.stringify(state)); }
 
   let state = load();
   dt.value = today();
@@ -545,9 +480,7 @@
 
     let arr = state.items.slice();
 
-    if(text){
-      arr = arr.filter(x => (x.desc||"").toLowerCase().includes(text));
-    }
+    if(text) arr = arr.filter(x => (x.desc||"").toLowerCase().includes(text));
     if(fil === "pendente") arr = arr.filter(x => !x.ok);
     if(fil === "ok") arr = arr.filter(x => x.ok);
 
@@ -571,7 +504,6 @@
       if(!x.ok) continue;
       const v = Number(x.val);
       if(!Number.isFinite(v)) continue;
-
       if(x.tipo === "entrada") bal[x.conta] += Math.abs(v);
       else bal[x.conta] -= Math.abs(v);
     }
@@ -630,12 +562,11 @@
   }
 
   function render(){
-    renderTotals();
     renderTable();
     save();
   }
 
-  // Adicionar
+  // ===== AÇÕES: LANÇAR =====
   el("add").addEventListener("click", () => {
     const d = dt.value || today();
     const ds = desc.value.trim();
@@ -671,7 +602,6 @@
 
   // formatar dinheiro
   val.addEventListener("blur", () => fmtInputMoney(val));
-  Object.values(iniInputs).forEach(inp => inp.addEventListener("blur", () => fmtInputMoney(inp)));
 
   // filtros
   [q, filtro, ord].forEach(x => {
@@ -679,14 +609,17 @@
     x.addEventListener("change", renderTable);
   });
 
-  // iniciais
+  // ===== ADMIN: INICIAIS =====
+  Object.values(iniInputs).forEach(inp => inp.addEventListener("blur", () => fmtInputMoney(inp)));
+
   el("saveIni").addEventListener("click", () => {
     for(const a of ACCOUNTS){
       const v = parseMoney(iniInputs[a].value);
       state.initial[a] = Number.isFinite(v) ? v : 0;
     }
     fillInitialInputs();
-    render();
+    save();
+    renderTotals();
     alert("Valores iniciais salvos ✅");
   });
 
@@ -694,10 +627,11 @@
     if(!confirm("Zerar todos os valores iniciais?")) return;
     for(const a of ACCOUNTS) state.initial[a] = 0;
     fillInitialInputs();
-    render();
+    save();
+    renderTotals();
   });
 
-  // Globais (tabela)
+  // ===== TABELA: FUNÇÕES GLOBAIS =====
   window.toggleOk = (id) => {
     const x = state.items.find(a => a.id === id);
     if(!x) return;
@@ -737,6 +671,7 @@
     x.val = Math.abs(v);
     x.conta = cc;
     x.tipo = tt;
+    save();
     render();
   };
 
@@ -745,10 +680,11 @@
     if(!x) return;
     if(!confirm("Excluir este lançamento?")) return;
     state.items = state.items.filter(a => a.id !== id);
+    save();
     render();
   };
 
-  // Zerar (cria saída OK do saldo atual)
+  // ===== ADMIN: ZERAR =====
   function zerarConta(nomeConta){
     const {bal} = calcBalances();
     const saldo = bal[nomeConta] || 0;
@@ -769,7 +705,9 @@
       ok: true
     });
 
+    save();
     render();
+    renderTotals();
   }
 
   el("zerarGaveta").addEventListener("click", () => zerarConta("Dinheiro (Gaveta)"));
@@ -778,7 +716,9 @@
   el("zerarInfinity").addEventListener("click", () => zerarConta("Infinity Pay"));
   el("zerarVini").addEventListener("click", () => zerarConta("Conta Vini"));
 
+  // render inicial
   render();
+  // ao abrir Admin, ele atualiza os totais pelo menu
 </script>
 </body>
 </html>
