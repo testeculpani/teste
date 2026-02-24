@@ -2,8 +2,10 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- trava boa contra zoom “acidental” em celular (ainda permite acessibilidade em alguns casos) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>Controle de Caixa — 2 Abas</title>
+
   <style>
     :root{
       --bg1:#fff7cc; --bg2:#fff0a6; --card:#ffffff;
@@ -14,7 +16,15 @@
       --radius: 18px;
       --border: rgba(0,0,0,.10);
     }
+
     *{box-sizing:border-box}
+
+    /* ↓↓↓ Anti-zoom “acidental” / ajuste de texto no iPhone */
+    html, body{
+      touch-action: manipulation;      /* reduz zoom por duplo toque */
+      -webkit-text-size-adjust: 100%;  /* evita ajuste automático de fonte */
+    }
+
     body{
       margin:0;
       font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial;
@@ -32,9 +42,7 @@
       justify-content:space-between;
       gap: 12px;
     }
-    .brand{
-      display:flex; align-items:center; gap:12px;
-    }
+    .brand{display:flex; align-items:center; gap:12px;}
     .logo{
       width:46px;height:46px;border-radius:16px;
       background: linear-gradient(135deg, var(--yellow) 0%, var(--yellow2) 55%, var(--orange) 100%);
@@ -55,7 +63,7 @@
     .tabbtn{
       border:0;
       cursor:pointer;
-      padding: 10px 12px;
+      padding: 12px 14px;              /* maior para dedo */
       border-radius: 999px;
       font-weight: 900;
       background: transparent;
@@ -63,6 +71,7 @@
       letter-spacing:.2px;
       display:flex; align-items:center; gap:8px;
       transition: .12s ease;
+      font-size: 14px;                 /* um pouco maior */
     }
     .tabbtn:hover{filter: brightness(1.02)}
     .tabbtn.active{
@@ -95,12 +104,14 @@
     .small{font-size:12px;color:var(--muted);line-height:1.35}
 
     label{display:block;font-size:12px;color:var(--muted);margin:8px 0 6px;font-weight:800}
+
+    /* ✅ PRINCIPAL: 16px nos inputs para evitar zoom automático no iPhone */
     input, select{
       width:100%;
-      padding: 11px 12px;
+      padding: 12px 12px;              /* maior para dedo */
       border: 1px solid rgba(0,0,0,.12);
       border-radius: 14px;
-      font-size: 14px;
+      font-size: 16px;                 /* evita zoom no iPhone */
       background:#fff;
     }
     input:focus, select:focus{
@@ -120,11 +131,12 @@
     button{
       border:0;
       border-radius: 14px;
-      padding: 11px 14px;
+      padding: 12px 14px;              /* maior para dedo */
       font-weight: 900;
       cursor:pointer;
       transition: transform .06s ease, filter .12s ease;
       letter-spacing:.2px;
+      font-size: 14px;                 /* maior */
     }
     button:active{transform: translateY(1px)}
     .btnMain{
@@ -226,7 +238,7 @@
 
 <div class="wrap">
   <!-- ABA: LANÇAMENTOS -->
-  <section id="viewLanc" class="">
+  <section id="viewLanc">
     <div class="card">
       <h2>Novo lançamento</h2>
       <div class="small">Secretária preenche e clica <b>Adicionar</b>. Você depois marca <b>OK</b> quando conferir.</div>
@@ -377,7 +389,6 @@
       </div>
     </div>
   </section>
-
 </div>
 
 <script>
@@ -390,12 +401,11 @@
     document.getElementById("tabLanc").classList.toggle("active", isLanc);
     document.getElementById("tabAdm").classList.toggle("active", !isLanc);
 
-    // quando abre Admin, atualiza totais
     if(!isLanc) renderTotals();
   };
 
   // ====== APP ======
-  const LS = "caixa_2abas_v1";
+  const LS = "caixa_2abas_v2";
   const el = id => document.getElementById(id);
 
   const dt = el("dt"), desc = el("desc"), val = el("val"), conta = el("conta"), tipo = el("tipo");
@@ -566,7 +576,7 @@
     save();
   }
 
-  // ===== AÇÕES: LANÇAR =====
+  // ===== LANÇAR =====
   el("add").addEventListener("click", () => {
     const d = dt.value || today();
     const ds = desc.value.trim();
@@ -631,7 +641,7 @@
     renderTotals();
   });
 
-  // ===== TABELA: FUNÇÕES GLOBAIS =====
+  // ===== TABELA =====
   window.toggleOk = (id) => {
     const x = state.items.find(a => a.id === id);
     if(!x) return;
@@ -718,7 +728,6 @@
 
   // render inicial
   render();
-  // ao abrir Admin, ele atualiza os totais pelo menu
 </script>
 </body>
 </html>
