@@ -1,733 +1,510 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <!-- trava boa contra zoom “acidental” em celular (ainda permite acessibilidade em alguns casos) -->
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Controle de Caixa — 2 Abas</title>
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cadastro Rápido - Segunda Linha</title>
   <style>
-    :root{
-      --bg1:#fff7cc; --bg2:#fff0a6; --card:#ffffff;
-      --text:#141414; --muted:#5b5b5b;
-      --yellow:#ffd000; --yellow2:#ffb700; --orange:#ff8a00;
-      --green:#16a34a; --red:#ef4444; --gray:#f3f4f6;
-      --shadow: 0 14px 34px rgba(0,0,0,.12);
+    :root {
+      --bg: #f3f4f6;
+      --card: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --accent: #f59e0b;
+      --accent-2: #fbbf24;
+      --ok: #16a34a;
+      --warn: #ea580c;
+      --off: #dc2626;
+      --soft: #f9fafb;
       --radius: 18px;
-      --border: rgba(0,0,0,.10);
+      --shadow: 0 8px 24px rgba(0,0,0,0.08);
     }
 
-    *{box-sizing:border-box}
+    * { box-sizing: border-box; }
 
-    /* ↓↓↓ Anti-zoom “acidental” / ajuste de texto no iPhone */
-    html, body{
-      touch-action: manipulation;      /* reduz zoom por duplo toque */
-      -webkit-text-size-adjust: 100%;  /* evita ajuste automático de fonte */
-    }
-
-    body{
-      margin:0;
-      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial;
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
       color: var(--text);
-      background: radial-gradient(circle at 15% 0%, var(--bg2) 0%, #fff 35%, #fff 60%, var(--bg1) 100%);
     }
 
-    header{
-      max-width: 1150px;
-      margin: 0 auto;
-      padding: 18px 16px 10px;
-      display:flex;
-      flex-wrap:wrap;
-      align-items:center;
-      justify-content:space-between;
+    .container {
+      width: min(1100px, calc(100% - 20px));
+      margin: 16px auto 30px;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #fff7ed, #ffffff);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+    }
+
+    .header h1 {
+      margin: 0 0 6px;
+      font-size: clamp(24px, 4vw, 32px);
+    }
+
+    .header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .panel h2 {
+      margin: 0 0 14px;
+      font-size: 20px;
+    }
+
+    .form-grid {
+      display: grid;
       gap: 12px;
     }
-    .brand{display:flex; align-items:center; gap:12px;}
-    .logo{
-      width:46px;height:46px;border-radius:16px;
-      background: linear-gradient(135deg, var(--yellow) 0%, var(--yellow2) 55%, var(--orange) 100%);
-      box-shadow: 0 14px 28px rgba(255,183,0,.30);
-      border: 1px solid rgba(0,0,0,.10);
-    }
-    h1{margin:0;font-size:18px;letter-spacing:.2px}
-    .sub{margin-top:4px;font-size:12px;color:var(--muted);line-height:1.35}
 
-    .tabs{
-      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
-      background: rgba(255,208,0,.25);
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      padding: 6px;
-      box-shadow: 0 10px 24px rgba(0,0,0,.06);
-    }
-    .tabbtn{
-      border:0;
-      cursor:pointer;
-      padding: 12px 14px;              /* maior para dedo */
-      border-radius: 999px;
-      font-weight: 900;
-      background: transparent;
-      color:#2b2b2b;
-      letter-spacing:.2px;
-      display:flex; align-items:center; gap:8px;
-      transition: .12s ease;
-      font-size: 14px;                 /* um pouco maior */
-    }
-    .tabbtn:hover{filter: brightness(1.02)}
-    .tabbtn.active{
-      background: linear-gradient(135deg, var(--yellow) 0%, var(--yellow2) 60%, var(--orange) 100%);
-      border: 1px solid rgba(0,0,0,.10);
-      box-shadow: 0 12px 26px rgba(255,183,0,.28);
+    label {
+      display: grid;
+      gap: 6px;
+      font-size: 14px;
+      font-weight: 700;
     }
 
-    .wrap{max-width:1150px;margin:0 auto;padding: 6px 16px 28px;display:grid;gap:14px}
-
-    .card{
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 14px;
-      box-shadow: var(--shadow);
-      position: relative;
-      overflow:hidden;
-    }
-    .card::before{
-      content:"";
-      position:absolute;
-      inset:-90px -90px auto auto;
-      width: 240px; height: 240px;
-      background: radial-gradient(circle at 30% 30%, rgba(255,208,0,.55), rgba(255,208,0,0));
-      transform: rotate(15deg);
-      pointer-events:none;
-    }
-    .card h2{margin:0 0 8px;font-size:14px;letter-spacing:.2px}
-    .small{font-size:12px;color:var(--muted);line-height:1.35}
-
-    label{display:block;font-size:12px;color:var(--muted);margin:8px 0 6px;font-weight:800}
-
-    /* ✅ PRINCIPAL: 16px nos inputs para evitar zoom automático no iPhone */
-    input, select{
-      width:100%;
-      padding: 12px 12px;              /* maior para dedo */
-      border: 1px solid rgba(0,0,0,.12);
+    input, textarea, select {
+      width: 100%;
+      padding: 12px 14px;
       border-radius: 14px;
-      font-size: 16px;                 /* evita zoom no iPhone */
-      background:#fff;
-    }
-    input:focus, select:focus{
-      outline:none;
-      border-color: rgba(255,183,0,.95);
-      box-shadow: 0 0 0 4px rgba(255,208,0,.28);
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      font-size: 15px;
+      outline: none;
     }
 
-    .row{
-      display:grid;
-      grid-template-columns: repeat(5, 1fr);
+    input:focus, textarea:focus, select:focus {
+      border-color: #f59e0b;
+      box-shadow: 0 0 0 3px rgba(245,158,11,0.15);
+    }
+
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    .preview {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      display: none;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: var(--soft);
+    }
+
+    .actions {
+      display: grid;
       gap: 10px;
     }
-    @media (max-width: 980px){.row{grid-template-columns: 1fr 1fr}}
-    @media (max-width: 520px){.row{grid-template-columns: 1fr}}
 
-    button{
-      border:0;
+    button {
+      border: none;
       border-radius: 14px;
-      padding: 12px 14px;              /* maior para dedo */
-      font-weight: 900;
-      cursor:pointer;
-      transition: transform .06s ease, filter .12s ease;
-      letter-spacing:.2px;
-      font-size: 14px;                 /* maior */
-    }
-    button:active{transform: translateY(1px)}
-    .btnMain{
-      background: linear-gradient(135deg, var(--yellow) 0%, var(--yellow2) 60%, var(--orange) 100%);
-      color:#1b1b1b;
-      box-shadow: 0 12px 26px rgba(255,183,0,.28);
-      border: 1px solid rgba(0,0,0,.10);
-    }
-    .btnSoft{
-      background: var(--gray);
-      color: #111;
-      border: 1px solid rgba(0,0,0,.10);
-    }
-    .btnOk{
-      background: rgba(22,163,74,.14);
-      color: #0f4d24;
-      border: 1px solid rgba(22,163,74,.26);
-    }
-    .btnDanger{
-      background: rgba(239,68,68,.12);
-      color: #7f1d1d;
-      border: 1px solid rgba(239,68,68,.25);
+      padding: 13px 14px;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
     }
 
-    .pillwrap{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .pill{
-      background: linear-gradient(180deg, #fff 0%, #fffaf0 100%);
-      border: 1px solid var(--border);
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #111827;
+    }
+
+    .btn-soft {
+      background: #f3f4f6;
+      color: #111827;
+      border: 1px solid var(--line);
+    }
+
+    .helper {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr 200px;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      overflow: hidden;
+    }
+
+    .card-image {
+      height: 170px;
+      background: var(--soft);
+      position: relative;
+    }
+
+    .card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      padding: 6px 10px;
       border-radius: 999px;
-      padding: 9px 12px;
       font-size: 12px;
-      box-shadow: 0 10px 20px rgba(0,0,0,.06);
+      font-weight: 700;
+      background: #fff;
+      border: 1px solid var(--line);
     }
-    .pill b{font-size:13px}
 
-    .actions{display:flex;gap:8px;flex-wrap:wrap}
+    .status-ok { color: var(--ok); }
+    .status-warn { color: var(--warn); }
+    .status-off { color: var(--off); }
 
-    table{
-      width:100%;
-      border-collapse: separate;
-      border-spacing: 0;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      overflow:hidden;
-      background:#fff;
+    .card-body {
+      padding: 14px;
     }
-    thead th{
-      background: linear-gradient(180deg, #fff5c2 0%, #fff0a6 100%);
-      color: #3a3a3a;
-      font-size: 12px;
-      text-align:left;
-      padding: 11px 10px;
-      border-bottom: 1px solid var(--border);
-      position: sticky; top:0; z-index:1;
+
+    .card h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      line-height: 1.3;
     }
-    tbody td{
+
+    .price {
+      font-size: 25px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+      min-height: 40px;
+    }
+
+    .stock {
+      margin-top: 12px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .card-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .mini {
       padding: 11px 10px;
-      border-bottom: 1px solid rgba(0,0,0,.08);
       font-size: 13px;
-      vertical-align: top;
-    }
-    tbody tr:hover{background:#fffdf2}
-    tbody tr:last-child td{border-bottom:0}
-
-    .tag{
-      display:inline-flex;align-items:center;gap:8px;
-      border:1px solid rgba(0,0,0,.10);
-      padding:6px 10px;border-radius:999px;
-      font-size:12px;font-weight:900;white-space:nowrap;
-    }
-    .tagIn{background: rgba(255,208,0,.25); color:#3a2a00;}
-    .tagOut{background: rgba(239,68,68,.12); color:#7f1d1d;}
-    .ok{color: var(--green); font-weight: 900}
-    .no{color: var(--red); font-weight: 900}
-
-    .toplist{
-      display:flex;gap:10px;flex-wrap:wrap;align-items:end;justify-content:space-between;margin-bottom:10px
     }
 
-    .hidden{display:none !important;}
+    .empty {
+      text-align: center;
+      padding: 26px 16px;
+      color: var(--muted);
+      border: 1px dashed var(--line);
+      border-radius: 16px;
+      background: #fff;
+    }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .container { width: min(100% - 12px, 1100px); }
+      .panel, .header { padding: 14px; }
+      .toolbar, .card-actions { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
-
 <body>
-<header>
-  <div class="brand">
-    <div class="logo" aria-hidden="true"></div>
-    <div>
-      <h1>Controle de Caixa</h1>
-      <div class="sub">📥 Lançamentos para secretária • 🛠 Administrador para você (iniciais, zerar, saldos)</div>
-    </div>
+  <div class="container">
+    <section class="header">
+      <h1>Cadastro rápido de produtos</h1>
+      <p>Modelo simples para cadastrar foto, valor e quantidade, e depois baixar o estoque.</p>
+    </section>
+
+    <section class="layout">
+      <div class="panel">
+        <h2>Novo produto</h2>
+        <div class="form-grid">
+          <label>
+            Foto
+            <input type="file" id="photoInput" accept="image/*" />
+            <img id="preview" class="preview" alt="Prévia da imagem" />
+          </label>
+
+          <label>
+            Produto
+            <input type="text" id="nameInput" placeholder="Nome do produto" />
+          </label>
+
+          <label>
+            Valor
+            <input type="number" id="priceInput" placeholder="0,00" step="0.01" min="0" />
+          </label>
+
+          <label>
+            Quantidade
+            <input type="number" id="stockInput" placeholder="0" min="0" step="1" />
+          </label>
+
+          <label>
+            Observação
+            <textarea id="noteInput" placeholder="Detalhe rápido do produto"></textarea>
+          </label>
+
+          <div class="actions">
+            <button class="btn-primary" id="saveBtn">Salvar produto</button>
+            <button class="btn-soft" id="fillDemoBtn" type="button">Preencher exemplo</button>
+            <button class="btn-soft" id="clearBtn" type="button">Limpar</button>
+          </div>
+
+          <div class="helper">Pensado para o operador usar sem tela poluída.</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Produtos</h2>
+
+        <div class="toolbar">
+          <input type="text" id="searchInput" placeholder="Buscar produto" />
+          <select id="filterSelect">
+            <option value="all">Todos</option>
+            <option value="available">Disponíveis</option>
+            <option value="soldout">Esgotados</option>
+          </select>
+        </div>
+
+        <div id="cards" class="cards"></div>
+      </div>
+    </section>
   </div>
 
-  <nav class="tabs" aria-label="Menu">
-    <button class="tabbtn active" id="tabLanc" onclick="openTab('lanc')">📥 Lançamentos</button>
-    <button class="tabbtn" id="tabAdm" onclick="openTab('adm')">🛠 Administrador</button>
-  </nav>
-</header>
+  <script>
+    const photoInput = document.getElementById('photoInput');
+    const preview = document.getElementById('preview');
+    const nameInput = document.getElementById('nameInput');
+    const priceInput = document.getElementById('priceInput');
+    const stockInput = document.getElementById('stockInput');
+    const noteInput = document.getElementById('noteInput');
+    const saveBtn = document.getElementById('saveBtn');
+    const fillDemoBtn = document.getElementById('fillDemoBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const cards = document.getElementById('cards');
+    const searchInput = document.getElementById('searchInput');
+    const filterSelect = document.getElementById('filterSelect');
 
-<div class="wrap">
-  <!-- ABA: LANÇAMENTOS -->
-  <section id="viewLanc">
-    <div class="card">
-      <h2>Novo lançamento</h2>
-      <div class="small">Secretária preenche e clica <b>Adicionar</b>. Você depois marca <b>OK</b> quando conferir.</div>
+    let currentImage = '';
+    let products = JSON.parse(localStorage.getItem('segundaLinhaProductsSimple') || '[]');
 
-      <div class="row">
-        <div>
-          <label>Data</label>
-          <input id="dt" type="date">
-        </div>
+    function money(v) {
+      return Number(v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
 
-        <div style="grid-column: span 2;">
-          <label>Descrição</label>
-          <input id="desc" type="text" placeholder="Ex: Venda / Pix / Acessório / Pagamento fornecedor">
-        </div>
+    function saveData() {
+      localStorage.setItem('segundaLinhaProductsSimple', JSON.stringify(products));
+    }
 
-        <div>
-          <label>Valor (R$)</label>
-          <input id="val" type="text" inputmode="decimal" placeholder="Ex: 1299,90">
-        </div>
+    function getStatus(stock) {
+      if (stock <= 0) return { label: 'Esgotado', className: 'status-off' };
+      if (stock <= 2) return { label: 'Poucas unid.', className: 'status-warn' };
+      return { label: 'Disponível', className: 'status-ok' };
+    }
 
-        <div>
-          <label>Onde entrou</label>
-          <select id="conta">
-            <option value="Dinheiro (Gaveta)">Dinheiro (Gaveta)</option>
-            <option value="Stone">Stone</option>
-            <option value="Cresol">Cresol</option>
-            <option value="Infinity Pay">Infinity Pay</option>
-            <option value="Conta Vini">Conta Vini</option>
-          </select>
-        </div>
+    function clearForm() {
+      nameInput.value = '';
+      priceInput.value = '';
+      stockInput.value = '';
+      noteInput.value = '';
+      photoInput.value = '';
+      preview.src = '';
+      preview.style.display = 'none';
+      currentImage = '';
+    }
 
-        <div>
-          <label>Tipo</label>
-          <select id="tipo">
-            <option value="entrada">Entrada</option>
-            <option value="saida">Saída (pagou/retirou)</option>
-          </select>
-        </div>
-      </div>
+    photoInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        currentImage = reader.result;
+        preview.src = currentImage;
+        preview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    });
 
-      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
-        <button class="btnMain" id="add">Adicionar</button>
-        <button class="btnSoft" id="limpar">Limpar</button>
-      </div>
-    </div>
+    fillDemoBtn.addEventListener('click', () => {
+      nameInput.value = 'Grelha Inox 40cm';
+      priceInput.value = '79.90';
+      stockInput.value = '5';
+      noteInput.value = 'Pequeno detalhe estético';
+    });
 
-    <div class="card">
-      <div class="toplist">
-        <div style="min-width:260px;flex:1">
-          <label>Buscar</label>
-          <input id="q" type="text" placeholder="Buscar por descrição...">
-        </div>
+    clearBtn.addEventListener('click', clearForm);
 
-        <div style="min-width:180px">
-          <label>Filtro</label>
-          <select id="filtro">
-            <option value="todos">Todos</option>
-            <option value="pendente">Somente pendentes</option>
-            <option value="ok">Somente OK</option>
-          </select>
-        </div>
+    saveBtn.addEventListener('click', () => {
+      const name = nameInput.value.trim();
+      const price = parseFloat(priceInput.value);
+      const stock = parseInt(stockInput.value, 10);
+      const note = noteInput.value.trim();
 
-        <div style="min-width:220px">
-          <label>Ordenar</label>
-          <select id="ord">
-            <option value="data_desc">Data (mais recente)</option>
-            <option value="data_asc">Data (mais antiga)</option>
-            <option value="valor_desc">Valor (maior)</option>
-            <option value="valor_asc">Valor (menor)</option>
-          </select>
-        </div>
+      if (!name) return alert('Digite o nome do produto.');
+      if (Number.isNaN(price) || price < 0) return alert('Digite um valor válido.');
+      if (Number.isNaN(stock) || stock < 0) return alert('Digite uma quantidade válida.');
 
-        <div class="pill"><span id="count">0</span> lançamentos</div>
-      </div>
+      products.unshift({
+        id: Date.now(),
+        name,
+        price,
+        stock,
+        note,
+        image: currentImage || 'https://images.unsplash.com/photo-1519710164239-da123dc03ef4?auto=format&fit=crop&w=900&q=80'
+      });
 
-      <div style="overflow:auto">
-        <table>
-          <thead>
-            <tr>
-              <th style="width:110px">OK?</th>
-              <th>Data / Descrição</th>
-              <th style="width:190px">Onde entrou</th>
-              <th style="width:150px">Tipo</th>
-              <th style="width:150px">Valor</th>
-              <th style="width:260px">Ações</th>
-            </tr>
-          </thead>
-          <tbody id="tb"></tbody>
-        </table>
-      </div>
+      saveData();
+      render();
+      clearForm();
+    });
 
-      <div class="small" style="margin-top:10px">
-        Lembrete: Pendentes não entram no saldo. Só entra quando você marcar <b>OK</b>.
-      </div>
-    </div>
-  </section>
+    function decreaseStock(id) {
+      const item = products.find(p => p.id === id);
+      if (!item || item.stock <= 0) return;
+      item.stock -= 1;
+      saveData();
+      render();
+    }
 
-  <!-- ABA: ADMIN -->
-  <section id="viewAdm" class="hidden">
-    <div class="card">
-      <h2>Contabilização (Saldos por conta)</h2>
-      <div class="small">Aqui você vê o saldo por conta e o total (considera <b>iniciais + entradas OK − saídas OK</b>).</div>
-      <div class="pillwrap" id="totais"></div>
-    </div>
+    function markSoldOut(id) {
+      const item = products.find(p => p.id === id);
+      if (!item) return;
+      item.stock = 0;
+      saveData();
+      render();
+    }
 
-    <div class="card">
-      <h2>Caixa inicial (se já tem dinheiro)</h2>
-      <div class="small">Preencha uma vez. Se mudar, ele recalcula o saldo.</div>
+    function removeProduct(id) {
+      products = products.filter(p => p.id !== id);
+      saveData();
+      render();
+    }
 
-      <div class="row" style="grid-template-columns:repeat(5,1fr)">
-        <div>
-          <label>Dinheiro (Gaveta)</label>
-          <input id="ini_gaveta" type="text" inputmode="decimal" placeholder="0,00">
-        </div>
-        <div>
-          <label>Stone</label>
-          <input id="ini_stone" type="text" inputmode="decimal" placeholder="0,00">
-        </div>
-        <div>
-          <label>Cresol</label>
-          <input id="ini_cresol" type="text" inputmode="decimal" placeholder="0,00">
-        </div>
-        <div>
-          <label>Infinity Pay</label>
-          <input id="ini_infinity" type="text" inputmode="decimal" placeholder="0,00">
-        </div>
-        <div>
-          <label>Conta Vini</label>
-          <input id="ini_vini" type="text" inputmode="decimal" placeholder="0,00">
-        </div>
-      </div>
+    function copyWhatsAppText(id) {
+      const item = products.find(p => p.id === id);
+      if (!item) return;
+      const text = `${item.name}
+Valor: ${money(item.price)}
+Quantidade: ${item.stock}
+Observação: ${item.note || 'Sem observação'}`;
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Texto copiado.');
+      });
+    }
 
-      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
-        <button class="btnMain" id="saveIni">Salvar iniciais</button>
-        <button class="btnSoft" id="resetIni">Zerar iniciais</button>
-      </div>
-    </div>
+    function renderCards() {
+      const term = searchInput.value.trim().toLowerCase();
+      const filter = filterSelect.value;
 
-    <div class="card">
-      <h2>Zerar contas (retirada/pagamento)</h2>
-      <div class="small">“Zerar” cria uma <b>Saída OK</b> do saldo atual daquela conta (fica registrado no histórico).</div>
-      <div class="actions" style="margin-top:10px">
-        <button class="btnDanger" id="zerarGaveta">Zerar Gaveta</button>
-        <button class="btnDanger" id="zerarStone">Zerar Stone</button>
-        <button class="btnDanger" id="zerarCresol">Zerar Cresol</button>
-        <button class="btnDanger" id="zerarInfinity">Zerar Infinity Pay</button>
-        <button class="btnDanger" id="zerarVini">Zerar Conta Vini</button>
-      </div>
-    </div>
-  </section>
-</div>
+      let filtered = products.filter(p => p.name.toLowerCase().includes(term));
 
-<script>
-  // ====== MENU (ABAS) ======
-  window.openTab = (which) => {
-    const isLanc = which === "lanc";
-    document.getElementById("viewLanc").classList.toggle("hidden", !isLanc);
-    document.getElementById("viewAdm").classList.toggle("hidden", isLanc);
+      if (filter === 'available') filtered = filtered.filter(p => p.stock > 0);
+      if (filter === 'soldout') filtered = filtered.filter(p => p.stock <= 0);
 
-    document.getElementById("tabLanc").classList.toggle("active", isLanc);
-    document.getElementById("tabAdm").classList.toggle("active", !isLanc);
-
-    if(!isLanc) renderTotals();
-  };
-
-  // ====== APP ======
-  const LS = "caixa_2abas_v2";
-  const el = id => document.getElementById(id);
-
-  const dt = el("dt"), desc = el("desc"), val = el("val"), conta = el("conta"), tipo = el("tipo");
-  const tb = el("tb"), totais = el("totais"), count = el("count");
-  const q = el("q"), filtro = el("filtro"), ord = el("ord");
-
-  const ACCOUNTS = ["Dinheiro (Gaveta)","Stone","Cresol","Infinity Pay","Conta Vini"];
-
-  const iniInputs = {
-    "Dinheiro (Gaveta)": el("ini_gaveta"),
-    "Stone": el("ini_stone"),
-    "Cresol": el("ini_cresol"),
-    "Infinity Pay": el("ini_infinity"),
-    "Conta Vini": el("ini_vini"),
-  };
-
-  function today(){
-    const d = new Date();
-    const off = d.getTimezoneOffset();
-    return new Date(d.getTime() - off*60000).toISOString().slice(0,10);
-  }
-
-  function brl(n){ return n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"}); }
-
-  function parseMoney(s){
-    if(!s) return NaN;
-    s = String(s).trim().replace(/[^\d,.-]/g,"");
-    if(s.includes(",")) s = s.replace(/\./g,"").replace(",",".");
-    return Number(s);
-  }
-
-  function fmtInputMoney(input){
-    const v = parseMoney(input.value);
-    if(Number.isFinite(v)) input.value = v.toLocaleString("pt-BR",{minimumFractionDigits:2, maximumFractionDigits:2});
-  }
-
-  function uid(){ return Math.random().toString(16).slice(2) + Date.now().toString(16); }
-
-  function escapeHtml(s){
-    return String(s).replace(/[&<>"']/g, m => ({
-      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-    }[m]));
-  }
-
-  function defaultState(){
-    const initial = {};
-    for(const a of ACCOUNTS) initial[a] = 0;
-    return { initial, items: [] };
-  }
-
-  function load(){
-    try{
-      const raw = localStorage.getItem(LS);
-      if(!raw) return defaultState();
-      const j = JSON.parse(raw);
-      if(!j.initial) j.initial = {};
-      if(!Array.isArray(j.items)) j.items = [];
-      for(const a of ACCOUNTS){
-        if(typeof j.initial[a] !== "number") j.initial[a] = 0;
+      if (!filtered.length) {
+        cards.innerHTML = '<div class="empty">Nenhum produto cadastrado.</div>';
+        return;
       }
-      return j;
-    }catch(e){
-      return defaultState();
-    }
-  }
 
-  function save(){ localStorage.setItem(LS, JSON.stringify(state)); }
-
-  let state = load();
-  dt.value = today();
-
-  function fillInitialInputs(){
-    for(const a of ACCOUNTS){
-      iniInputs[a].value = (state.initial[a]||0).toLocaleString("pt-BR",{minimumFractionDigits:2, maximumFractionDigits:2});
-    }
-  }
-  fillInitialInputs();
-
-  function getFiltered(){
-    const text = q.value.trim().toLowerCase();
-    const fil = filtro.value;
-
-    let arr = state.items.slice();
-
-    if(text) arr = arr.filter(x => (x.desc||"").toLowerCase().includes(text));
-    if(fil === "pendente") arr = arr.filter(x => !x.ok);
-    if(fil === "ok") arr = arr.filter(x => x.ok);
-
-    const byDate = (a,b)=> (a.dt||"").localeCompare(b.dt||"");
-    const byVal  = (a,b)=> (Math.abs(a.val)||0) - (Math.abs(b.val)||0);
-
-    switch(ord.value){
-      case "data_asc": arr.sort(byDate); break;
-      case "data_desc": arr.sort((a,b)=>byDate(b,a)); break;
-      case "valor_asc": arr.sort(byVal); break;
-      case "valor_desc": arr.sort((a,b)=>byVal(b,a)); break;
-    }
-    return arr;
-  }
-
-  function calcBalances(){
-    const bal = {};
-    for(const a of ACCOUNTS) bal[a] = state.initial[a] || 0;
-
-    for(const x of state.items){
-      if(!x.ok) continue;
-      const v = Number(x.val);
-      if(!Number.isFinite(v)) continue;
-      if(x.tipo === "entrada") bal[x.conta] += Math.abs(v);
-      else bal[x.conta] -= Math.abs(v);
-    }
-    const total = ACCOUNTS.reduce((s,a)=>s+(bal[a]||0),0);
-    return {bal, total};
-  }
-
-  function renderTotals(){
-    const {bal, total} = calcBalances();
-    totais.innerHTML = `
-      <div class="pill">Dinheiro (Gaveta): <b>${brl(bal["Dinheiro (Gaveta)"])}</b></div>
-      <div class="pill">Stone: <b>${brl(bal["Stone"])}</b></div>
-      <div class="pill">Cresol: <b>${brl(bal["Cresol"])}</b></div>
-      <div class="pill">Infinity Pay: <b>${brl(bal["Infinity Pay"])}</b></div>
-      <div class="pill">Conta Vini: <b>${brl(bal["Conta Vini"])}</b></div>
-      <div class="pill">Total: <b>${brl(total)}</b></div>
-    `;
-    return {bal, total};
-  }
-
-  function renderTable(){
-    const arr = getFiltered();
-    count.textContent = arr.length;
-
-    tb.innerHTML = arr.map(x => {
-      const dBR = new Date((x.dt||today())+"T00:00:00").toLocaleDateString("pt-BR");
-      const okTxt = x.ok ? `<span class="ok">OK</span>` : `<span class="no">NÃO</span>`;
-      const tipoTag = x.tipo === "entrada"
-        ? `<span class="tag tagIn">ENTRADA</span>`
-        : `<span class="tag tagOut">SAÍDA</span>`;
-
-      return `
-        <tr>
-          <td>${okTxt}</td>
-          <td>
-            <div style="font-weight:900">${escapeHtml(x.desc || "(sem descrição)")}</div>
-            <div class="small">${dBR}</div>
-          </td>
-          <td style="font-weight:900">${escapeHtml(x.conta)}</td>
-          <td>${tipoTag}</td>
-          <td style="font-weight:900;white-space:nowrap">${brl(Math.abs(x.val))}</td>
-          <td>
-            <div class="actions">
-              <button class="btnOk" onclick="toggleOk('${x.id}')">OK</button>
-              <button class="btnSoft" onclick="editItem('${x.id}')">Editar</button>
-              <button class="btnDanger" onclick="delItem('${x.id}')">Excluir</button>
+      cards.innerHTML = filtered.map(item => {
+        const status = getStatus(item.stock);
+        return `
+          <article class="card">
+            <div class="card-image">
+              <img src="${item.image}" alt="${item.name}" />
+              <div class="badge ${status.className}">${status.label}</div>
             </div>
-          </td>
-        </tr>
-      `;
-    }).join("");
-
-    if(!arr.length){
-      tb.innerHTML = `<tr><td colspan="6" class="small" style="padding:14px">Nenhum lançamento.</td></tr>`;
-    }
-  }
-
-  function render(){
-    renderTable();
-    save();
-  }
-
-  // ===== LANÇAR =====
-  el("add").addEventListener("click", () => {
-    const d = dt.value || today();
-    const ds = desc.value.trim();
-    const v = parseMoney(val.value);
-
-    if(!ds){ alert("Preencha a descrição."); desc.focus(); return; }
-    if(!Number.isFinite(v) || v <= 0){ alert("Valor inválido."); val.focus(); return; }
-
-    state.items.unshift({
-      id: uid(),
-      dt: d,
-      desc: ds,
-      val: Math.abs(v),
-      conta: conta.value,
-      tipo: tipo.value,
-      ok: false
-    });
-
-    desc.value = "";
-    val.value = "";
-    desc.focus();
-    render();
-  });
-
-  el("limpar").addEventListener("click", () => {
-    dt.value = today();
-    desc.value = "";
-    val.value = "";
-    conta.value = "Dinheiro (Gaveta)";
-    tipo.value = "entrada";
-    desc.focus();
-  });
-
-  // formatar dinheiro
-  val.addEventListener("blur", () => fmtInputMoney(val));
-
-  // filtros
-  [q, filtro, ord].forEach(x => {
-    x.addEventListener("input", renderTable);
-    x.addEventListener("change", renderTable);
-  });
-
-  // ===== ADMIN: INICIAIS =====
-  Object.values(iniInputs).forEach(inp => inp.addEventListener("blur", () => fmtInputMoney(inp)));
-
-  el("saveIni").addEventListener("click", () => {
-    for(const a of ACCOUNTS){
-      const v = parseMoney(iniInputs[a].value);
-      state.initial[a] = Number.isFinite(v) ? v : 0;
-    }
-    fillInitialInputs();
-    save();
-    renderTotals();
-    alert("Valores iniciais salvos ✅");
-  });
-
-  el("resetIni").addEventListener("click", () => {
-    if(!confirm("Zerar todos os valores iniciais?")) return;
-    for(const a of ACCOUNTS) state.initial[a] = 0;
-    fillInitialInputs();
-    save();
-    renderTotals();
-  });
-
-  // ===== TABELA =====
-  window.toggleOk = (id) => {
-    const x = state.items.find(a => a.id === id);
-    if(!x) return;
-    x.ok = !x.ok;
-    render();
-  };
-
-  window.editItem = (id) => {
-    const x = state.items.find(a => a.id === id);
-    if(!x) return;
-
-    const nd = prompt("Descrição:", x.desc);
-    if(nd === null) return;
-
-    const nv = prompt("Valor (R$):", String(x.val).replace(".",","));
-    if(nv === null) return;
-    const v = parseMoney(nv);
-    if(!Number.isFinite(v) || v <= 0){ alert("Valor inválido."); return; }
-
-    const nc = prompt("Onde entrou (escreva igual): Dinheiro (Gaveta) / Stone / Cresol / Infinity Pay / Conta Vini", x.conta);
-    if(nc === null) return;
-    const cc = nc.trim();
-    if(!ACCOUNTS.includes(cc)){
-      alert("Conta inválida. Use exatamente: " + ACCOUNTS.join(", "));
-      return;
+            <div class="card-body">
+              <h3>${item.name}</h3>
+              <div class="price">${money(item.price)}</div>
+              <div class="meta">${item.note || 'Sem observação.'}</div>
+              <div class="stock">
+                <span>Quantidade</span>
+                <strong>${item.stock}</strong>
+              </div>
+              <div class="card-actions">
+                <button class="btn-primary mini" onclick="decreaseStock(${item.id})">Baixar 1</button>
+                <button class="btn-soft mini" onclick="copyWhatsAppText(${item.id})">Copiar</button>
+                <button class="btn-soft mini" onclick="markSoldOut(${item.id})">Esgotado</button>
+                <button class="btn-soft mini" onclick="removeProduct(${item.id})">Excluir</button>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
     }
 
-    const nt = prompt("Tipo (entrada ou saida):", x.tipo);
-    if(nt === null) return;
-    const tt = nt.trim().toLowerCase();
-    if(tt !== "entrada" && tt !== "saida"){
-      alert("Tipo inválido. Use: entrada ou saida.");
-      return;
+    function render() {
+      renderCards();
     }
 
-    x.desc = nd.trim() || x.desc;
-    x.val = Math.abs(v);
-    x.conta = cc;
-    x.tipo = tt;
-    save();
+    searchInput.addEventListener('input', renderCards);
+    filterSelect.addEventListener('change', renderCards);
+
+    window.decreaseStock = decreaseStock;
+    window.copyWhatsAppText = copyWhatsAppText;
+    window.markSoldOut = markSoldOut;
+    window.removeProduct = removeProduct;
+
     render();
-  };
-
-  window.delItem = (id) => {
-    const x = state.items.find(a => a.id === id);
-    if(!x) return;
-    if(!confirm("Excluir este lançamento?")) return;
-    state.items = state.items.filter(a => a.id !== id);
-    save();
-    render();
-  };
-
-  // ===== ADMIN: ZERAR =====
-  function zerarConta(nomeConta){
-    const {bal} = calcBalances();
-    const saldo = bal[nomeConta] || 0;
-
-    if(saldo <= 0){
-      alert("Essa conta já está zerada (ou negativa).");
-      return;
-    }
-    if(!confirm(`Zerar "${nomeConta}": vai lançar uma SAÍDA OK de ${brl(saldo)}. Continuar?`)) return;
-
-    state.items.unshift({
-      id: uid(),
-      dt: today(),
-      desc: `ZERAR ${nomeConta} (retirada/pagamento)`,
-      val: Math.abs(saldo),
-      conta: nomeConta,
-      tipo: "saida",
-      ok: true
-    });
-
-    save();
-    render();
-    renderTotals();
-  }
-
-  el("zerarGaveta").addEventListener("click", () => zerarConta("Dinheiro (Gaveta)"));
-  el("zerarStone").addEventListener("click", () => zerarConta("Stone"));
-  el("zerarCresol").addEventListener("click", () => zerarConta("Cresol"));
-  el("zerarInfinity").addEventListener("click", () => zerarConta("Infinity Pay"));
-  el("zerarVini").addEventListener("click", () => zerarConta("Conta Vini"));
-
-  // render inicial
-  render();
-</script>
+  </script>
 </body>
 </html>
