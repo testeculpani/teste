@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cadastro Rápido - Segunda Linha</title>
+  <title>Cadastro de Assistência - Gabinetes e Peças</title>
   <style>
     :root {
       --bg: #f3f4f6;
@@ -11,8 +11,8 @@
       --text: #111827;
       --muted: #6b7280;
       --line: #e5e7eb;
-      --accent: #f59e0b;
-      --accent-2: #fbbf24;
+      --accent: #2563eb;
+      --accent-2: #60a5fa;
       --ok: #16a34a;
       --warn: #ea580c;
       --off: #dc2626;
@@ -31,12 +31,12 @@
     }
 
     .container {
-      width: min(1100px, calc(100% - 20px));
+      width: min(1180px, calc(100% - 20px));
       margin: 16px auto 30px;
     }
 
     .header {
-      background: linear-gradient(135deg, #fff7ed, #ffffff);
+      background: linear-gradient(135deg, #eff6ff, #ffffff);
       border: 1px solid var(--line);
       border-radius: 22px;
       padding: 18px;
@@ -57,7 +57,7 @@
 
     .layout {
       display: grid;
-      grid-template-columns: 320px 1fr;
+      grid-template-columns: 360px 1fr;
       gap: 16px;
       align-items: start;
     }
@@ -99,12 +99,12 @@
     }
 
     input:focus, textarea:focus, select:focus {
-      border-color: #f59e0b;
-      box-shadow: 0 0 0 3px rgba(245,158,11,0.15);
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
     }
 
     textarea {
-      min-height: 80px;
+      min-height: 100px;
       resize: vertical;
     }
 
@@ -134,7 +134,7 @@
 
     .btn-primary {
       background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      color: #111827;
+      color: #ffffff;
     }
 
     .btn-soft {
@@ -151,14 +151,14 @@
 
     .toolbar {
       display: grid;
-      grid-template-columns: 1fr 200px;
+      grid-template-columns: 1fr 190px 190px;
       gap: 10px;
       margin-bottom: 14px;
     }
 
     .cards {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
       gap: 14px;
     }
 
@@ -170,7 +170,7 @@
     }
 
     .card-image {
-      height: 170px;
+      height: 180px;
       background: var(--soft);
       position: relative;
     }
@@ -194,9 +194,9 @@
       border: 1px solid var(--line);
     }
 
-    .status-ok { color: var(--ok); }
-    .status-warn { color: var(--warn); }
-    .status-off { color: var(--off); }
+    .status-open { color: var(--warn); }
+    .status-progress { color: var(--accent); }
+    .status-done { color: var(--ok); }
 
     .card-body {
       padding: 14px;
@@ -208,29 +208,42 @@
       line-height: 1.3;
     }
 
-    .price {
-      font-size: 25px;
-      font-weight: 800;
-      margin-bottom: 8px;
-    }
-
-    .meta {
+    .subinfo {
       color: var(--muted);
       font-size: 14px;
+      margin-bottom: 8px;
       line-height: 1.45;
-      min-height: 40px;
     }
 
-    .stock {
-      margin-top: 12px;
+    .desc {
+      color: #374151;
+      font-size: 14px;
+      line-height: 1.5;
+      min-height: 70px;
       background: var(--soft);
       border: 1px solid var(--line);
       border-radius: 12px;
       padding: 10px 12px;
-      display: flex;
-      justify-content: space-between;
-      font-size: 14px;
-      font-weight: 700;
+    }
+
+    .meta-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .meta-box {
+      background: var(--soft);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 13px;
+    }
+
+    .meta-box b {
+      display: block;
+      margin-bottom: 4px;
     }
 
     .card-actions {
@@ -254,73 +267,90 @@
       background: #fff;
     }
 
-    @media (max-width: 900px) {
+    @media (max-width: 980px) {
       .layout { grid-template-columns: 1fr; }
     }
 
-    @media (max-width: 640px) {
-      .container { width: min(100% - 12px, 1100px); }
+    @media (max-width: 720px) {
+      .container { width: min(100% - 12px, 1180px); }
       .panel, .header { padding: 14px; }
-      .toolbar, .card-actions { grid-template-columns: 1fr; }
+      .toolbar, .card-actions, .meta-row { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <section class="header">
-      <h1>Cadastro rápido de produtos</h1>
-      <p>Modelo simples para cadastrar foto, valor e quantidade, e depois baixar o estoque.</p>
+      <h1>Cadastro de assistência técnica</h1>
+      <p>Protótipo para registrar informações de gabinetes e peças gerais com imagem e descrição do atendimento.</p>
     </section>
 
     <section class="layout">
       <div class="panel">
-        <h2>Novo produto</h2>
+        <h2>Novo cadastro</h2>
         <div class="form-grid">
           <label>
-            Foto
+            Imagem
             <input type="file" id="photoInput" accept="image/*" />
             <img id="preview" class="preview" alt="Prévia da imagem" />
           </label>
 
           <label>
-            Produto
-            <input type="text" id="nameInput" placeholder="Nome do produto" />
+            Cliente ou empresa
+            <input type="text" id="clientInput" placeholder="Nome do cliente ou empresa" />
           </label>
 
           <label>
-            Valor
-            <input type="number" id="priceInput" placeholder="0,00" step="0.01" min="0" />
+            Produto / peça
+            <input type="text" id="itemInput" placeholder="Ex.: gabinete, fonte, cooler, placa" />
           </label>
 
           <label>
-            Quantidade
-            <input type="number" id="stockInput" placeholder="0" min="0" step="1" />
+            Número / código
+            <input type="text" id="codeInput" placeholder="Nº da OS, patrimônio ou código interno" />
           </label>
 
           <label>
-            Observação
-            <textarea id="noteInput" placeholder="Detalhe rápido do produto"></textarea>
+            Status
+            <select id="statusInput">
+              <option value="Aberto">Aberto</option>
+              <option value="Em análise">Em análise</option>
+              <option value="Concluído">Concluído</option>
+            </select>
+          </label>
+
+          <label>
+            Descrição
+            <textarea id="descInput" placeholder="Descreva o defeito, análise, observações ou serviço realizado"></textarea>
           </label>
 
           <div class="actions">
-            <button class="btn-primary" id="saveBtn">Salvar produto</button>
+            <button class="btn-primary" id="saveBtn">Salvar cadastro</button>
             <button class="btn-soft" id="fillDemoBtn" type="button">Preencher exemplo</button>
             <button class="btn-soft" id="clearBtn" type="button">Limpar</button>
           </div>
 
-          <div class="helper">Pensado para o operador usar sem tela poluída.</div>
+          <div class="helper">Modelo simples para registrar atendimento, peça e observações com foto.</div>
         </div>
       </div>
 
       <div class="panel">
-        <h2>Produtos</h2>
+        <h2>Cadastros</h2>
 
         <div class="toolbar">
-          <input type="text" id="searchInput" placeholder="Buscar produto" />
-          <select id="filterSelect">
-            <option value="all">Todos</option>
-            <option value="available">Disponíveis</option>
-            <option value="soldout">Esgotados</option>
+          <input type="text" id="searchInput" placeholder="Buscar cliente, peça ou código" />
+          <select id="filterStatus">
+            <option value="Todos">Todos status</option>
+            <option value="Aberto">Aberto</option>
+            <option value="Em análise">Em análise</option>
+            <option value="Concluído">Concluído</option>
+          </select>
+          <select id="filterType">
+            <option value="Todos">Todos itens</option>
+            <option value="gabinete">Gabinete</option>
+            <option value="fonte">Fonte</option>
+            <option value="cooler">Cooler</option>
+            <option value="placa">Placa</option>
           </select>
         </div>
 
@@ -332,43 +362,42 @@
   <script>
     const photoInput = document.getElementById('photoInput');
     const preview = document.getElementById('preview');
-    const nameInput = document.getElementById('nameInput');
-    const priceInput = document.getElementById('priceInput');
-    const stockInput = document.getElementById('stockInput');
-    const noteInput = document.getElementById('noteInput');
+    const clientInput = document.getElementById('clientInput');
+    const itemInput = document.getElementById('itemInput');
+    const codeInput = document.getElementById('codeInput');
+    const statusInput = document.getElementById('statusInput');
+    const descInput = document.getElementById('descInput');
     const saveBtn = document.getElementById('saveBtn');
     const fillDemoBtn = document.getElementById('fillDemoBtn');
     const clearBtn = document.getElementById('clearBtn');
     const cards = document.getElementById('cards');
     const searchInput = document.getElementById('searchInput');
-    const filterSelect = document.getElementById('filterSelect');
+    const filterStatus = document.getElementById('filterStatus');
+    const filterType = document.getElementById('filterType');
 
     let currentImage = '';
-    let products = JSON.parse(localStorage.getItem('segundaLinhaProductsSimple') || '[]');
-
-    function money(v) {
-      return Number(v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    }
+    let records = JSON.parse(localStorage.getItem('assistenciaGabinetesRecords') || '[]');
 
     function saveData() {
-      localStorage.setItem('segundaLinhaProductsSimple', JSON.stringify(products));
-    }
-
-    function getStatus(stock) {
-      if (stock <= 0) return { label: 'Esgotado', className: 'status-off' };
-      if (stock <= 2) return { label: 'Poucas unid.', className: 'status-warn' };
-      return { label: 'Disponível', className: 'status-ok' };
+      localStorage.setItem('assistenciaGabinetesRecords', JSON.stringify(records));
     }
 
     function clearForm() {
-      nameInput.value = '';
-      priceInput.value = '';
-      stockInput.value = '';
-      noteInput.value = '';
+      clientInput.value = '';
+      itemInput.value = '';
+      codeInput.value = '';
+      statusInput.value = 'Aberto';
+      descInput.value = '';
       photoInput.value = '';
       preview.src = '';
       preview.style.display = 'none';
       currentImage = '';
+    }
+
+    function badgeClass(status) {
+      if (status === 'Concluído') return 'status-done';
+      if (status === 'Em análise') return 'status-progress';
+      return 'status-open';
     }
 
     photoInput.addEventListener('change', (e) => {
@@ -384,31 +413,35 @@
     });
 
     fillDemoBtn.addEventListener('click', () => {
-      nameInput.value = 'Grelha Inox 40cm';
-      priceInput.value = '79.90';
-      stockInput.value = '5';
-      noteInput.value = 'Pequeno detalhe estético';
+      clientInput.value = 'Empresa Exemplo';
+      itemInput.value = 'Gabinete ATX';
+      codeInput.value = 'OS-1045';
+      statusInput.value = 'Em análise';
+      descInput.value = 'Gabinete com lateral amassada e análise de encaixe da tampa. Cliente pediu avaliação e registro com imagem.';
     });
 
     clearBtn.addEventListener('click', clearForm);
 
     saveBtn.addEventListener('click', () => {
-      const name = nameInput.value.trim();
-      const price = parseFloat(priceInput.value);
-      const stock = parseInt(stockInput.value, 10);
-      const note = noteInput.value.trim();
+      const client = clientInput.value.trim();
+      const item = itemInput.value.trim();
+      const code = codeInput.value.trim();
+      const status = statusInput.value;
+      const desc = descInput.value.trim();
 
-      if (!name) return alert('Digite o nome do produto.');
-      if (Number.isNaN(price) || price < 0) return alert('Digite um valor válido.');
-      if (Number.isNaN(stock) || stock < 0) return alert('Digite uma quantidade válida.');
+      if (!client) return alert('Digite o cliente ou empresa.');
+      if (!item) return alert('Digite o produto ou peça.');
+      if (!desc) return alert('Digite a descrição.');
 
-      products.unshift({
+      records.unshift({
         id: Date.now(),
-        name,
-        price,
-        stock,
-        note,
-        image: currentImage || 'https://images.unsplash.com/photo-1519710164239-da123dc03ef4?auto=format&fit=crop&w=900&q=80'
+        client,
+        item,
+        code,
+        status,
+        desc,
+        image: currentImage || 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&w=900&q=80',
+        date: new Date().toLocaleString('pt-BR')
       });
 
       saveData();
@@ -416,80 +449,74 @@
       clearForm();
     });
 
-    function decreaseStock(id) {
-      const item = products.find(p => p.id === id);
-      if (!item || item.stock <= 0) return;
-      item.stock -= 1;
+    function removeRecord(id) {
+      records = records.filter(r => r.id !== id);
       saveData();
       render();
     }
 
-    function markSoldOut(id) {
-      const item = products.find(p => p.id === id);
+    function copyRecord(id) {
+      const item = records.find(r => r.id === id);
       if (!item) return;
-      item.stock = 0;
-      saveData();
-      render();
+      const text = `Cliente: ${item.client}\nItem: ${item.item}\nCódigo: ${item.code || '-'}\nStatus: ${item.status}\nDescrição: ${item.desc}`;
+      navigator.clipboard.writeText(text).then(() => alert('Cadastro copiado.'));
     }
 
-    function removeProduct(id) {
-      products = products.filter(p => p.id !== id);
-      saveData();
-      render();
-    }
-
-    function copyWhatsAppText(id) {
-      const item = products.find(p => p.id === id);
+    function advanceStatus(id) {
+      const item = records.find(r => r.id === id);
       if (!item) return;
-      const text = `${item.name}
-Valor: ${money(item.price)}
-Quantidade: ${item.stock}
-Observação: ${item.note || 'Sem observação'}`;
-      navigator.clipboard.writeText(text).then(() => {
-        alert('Texto copiado.');
-      });
+      if (item.status === 'Aberto') item.status = 'Em análise';
+      else if (item.status === 'Em análise') item.status = 'Concluído';
+      else item.status = 'Aberto';
+      saveData();
+      render();
     }
 
     function renderCards() {
       const term = searchInput.value.trim().toLowerCase();
-      const filter = filterSelect.value;
+      const statusFilter = filterStatus.value;
+      const typeFilter = filterType.value.toLowerCase();
 
-      let filtered = products.filter(p => p.name.toLowerCase().includes(term));
+      let filtered = records.filter(r => {
+        const text = `${r.client} ${r.item} ${r.code} ${r.desc}`.toLowerCase();
+        return text.includes(term);
+      });
 
-      if (filter === 'available') filtered = filtered.filter(p => p.stock > 0);
-      if (filter === 'soldout') filtered = filtered.filter(p => p.stock <= 0);
+      if (statusFilter !== 'Todos') {
+        filtered = filtered.filter(r => r.status === statusFilter);
+      }
+
+      if (filterType.value !== 'Todos') {
+        filtered = filtered.filter(r => r.item.toLowerCase().includes(typeFilter));
+      }
 
       if (!filtered.length) {
-        cards.innerHTML = '<div class="empty">Nenhum produto cadastrado.</div>';
+        cards.innerHTML = '<div class="empty">Nenhum cadastro encontrado.</div>';
         return;
       }
 
-      cards.innerHTML = filtered.map(item => {
-        const status = getStatus(item.stock);
-        return `
-          <article class="card">
-            <div class="card-image">
-              <img src="${item.image}" alt="${item.name}" />
-              <div class="badge ${status.className}">${status.label}</div>
+      cards.innerHTML = filtered.map(item => `
+        <article class="card">
+          <div class="card-image">
+            <img src="${item.image}" alt="${item.item}" />
+            <div class="badge ${badgeClass(item.status)}">${item.status}</div>
+          </div>
+          <div class="card-body">
+            <h3>${item.item}</h3>
+            <div class="subinfo"><b>Cliente:</b> ${item.client}</div>
+            <div class="desc">${item.desc}</div>
+            <div class="meta-row">
+              <div class="meta-box"><b>Código</b>${item.code || '-'}</div>
+              <div class="meta-box"><b>Data</b>${item.date}</div>
             </div>
-            <div class="card-body">
-              <h3>${item.name}</h3>
-              <div class="price">${money(item.price)}</div>
-              <div class="meta">${item.note || 'Sem observação.'}</div>
-              <div class="stock">
-                <span>Quantidade</span>
-                <strong>${item.stock}</strong>
-              </div>
-              <div class="card-actions">
-                <button class="btn-primary mini" onclick="decreaseStock(${item.id})">Baixar 1</button>
-                <button class="btn-soft mini" onclick="copyWhatsAppText(${item.id})">Copiar</button>
-                <button class="btn-soft mini" onclick="markSoldOut(${item.id})">Esgotado</button>
-                <button class="btn-soft mini" onclick="removeProduct(${item.id})">Excluir</button>
-              </div>
+            <div class="card-actions">
+              <button class="btn-primary mini" onclick="advanceStatus(${item.id})">Trocar status</button>
+              <button class="btn-soft mini" onclick="copyRecord(${item.id})">Copiar</button>
+              <button class="btn-soft mini" onclick="removeRecord(${item.id})">Excluir</button>
             </div>
-          </article>
-        `;
-      }).join('');
+          </div>
+        </article>
+      `).join('');
     }
 
     function render() {
@@ -497,12 +524,12 @@ Observação: ${item.note || 'Sem observação'}`;
     }
 
     searchInput.addEventListener('input', renderCards);
-    filterSelect.addEventListener('change', renderCards);
+    filterStatus.addEventListener('change', renderCards);
+    filterType.addEventListener('change', renderCards);
 
-    window.decreaseStock = decreaseStock;
-    window.copyWhatsAppText = copyWhatsAppText;
-    window.markSoldOut = markSoldOut;
-    window.removeProduct = removeProduct;
+    window.removeRecord = removeRecord;
+    window.copyRecord = copyRecord;
+    window.advanceStatus = advanceStatus;
 
     render();
   </script>
