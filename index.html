@@ -3,80 +3,74 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cadastro de Assistência - Gabinetes e Peças</title>
+  <title>Abrir B.O. de Assistência</title>
   <style>
     :root {
-      --bg: #f3f4f6;
+      --bg: #f3f6fb;
       --card: #ffffff;
-      --text: #111827;
-      --muted: #6b7280;
-      --line: #e5e7eb;
-      --accent: #2563eb;
-      --accent-2: #60a5fa;
-      --ok: #16a34a;
-      --warn: #ea580c;
-      --off: #dc2626;
-      --soft: #f9fafb;
+      --line: #dbe4f0;
+      --text: #152033;
+      --muted: #66758f;
+      --primary: #2563eb;
+      --primary-2: #60a5fa;
+      --soft: #eef4ff;
+      --ok-bg: #ecfdf5;
+      --ok-text: #166534;
+      --error-bg: #fef2f2;
+      --error-text: #991b1b;
       --radius: 18px;
-      --shadow: 0 8px 24px rgba(0,0,0,0.08);
+      --shadow: 0 10px 24px rgba(21, 32, 51, 0.08);
     }
 
     * { box-sizing: border-box; }
-
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
-      background: var(--bg);
+      background: linear-gradient(180deg, #eef4ff 0%, #f8fbff 100%);
       color: var(--text);
     }
 
-    .container {
-      width: min(1180px, calc(100% - 20px));
-      margin: 16px auto 30px;
+    .wrap {
+      width: min(760px, calc(100% - 18px));
+      margin: 18px auto 28px;
     }
 
-    .header {
-      background: linear-gradient(135deg, #eff6ff, #ffffff);
+    .hero, .card {
+      background: var(--card);
       border: 1px solid var(--line);
       border-radius: 22px;
-      padding: 18px;
       box-shadow: var(--shadow);
-      margin-bottom: 16px;
     }
 
-    .header h1 {
-      margin: 0 0 6px;
+    .hero {
+      padding: 18px;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #eff6ff, #ffffff);
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
       font-size: clamp(24px, 4vw, 32px);
     }
 
-    .header p {
+    .hero p {
       margin: 0;
       color: var(--muted);
-      font-size: 15px;
+      line-height: 1.5;
     }
 
-    .layout {
-      display: grid;
-      grid-template-columns: 360px 1fr;
-      gap: 16px;
-      align-items: start;
-    }
-
-    .panel {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
+    .card {
       padding: 16px;
-      box-shadow: var(--shadow);
     }
 
-    .panel h2 {
-      margin: 0 0 14px;
-      font-size: 20px;
-    }
-
-    .form-grid {
+    .grid {
       display: grid;
+      gap: 12px;
+    }
+
+    .cols-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 12px;
     }
 
@@ -90,8 +84,8 @@
     input, textarea, select {
       width: 100%;
       padding: 12px 14px;
-      border-radius: 14px;
       border: 1px solid var(--line);
+      border-radius: 14px;
       background: #fff;
       color: var(--text);
       font-size: 15px;
@@ -99,28 +93,29 @@
     }
 
     input:focus, textarea:focus, select:focus {
-      border-color: #2563eb;
-      box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
     }
 
     textarea {
-      min-height: 100px;
+      min-height: 110px;
       resize: vertical;
     }
 
     .preview {
+      display: none;
       width: 100%;
       aspect-ratio: 4 / 3;
       object-fit: cover;
-      display: none;
-      border-radius: 14px;
       border: 1px solid var(--line);
-      background: var(--soft);
+      border-radius: 16px;
+      background: #f8fafc;
     }
 
     .actions {
       display: grid;
       gap: 10px;
+      margin-top: 6px;
     }
 
     button {
@@ -133,15 +128,26 @@
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      color: #ffffff;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white;
     }
 
     .btn-soft {
       background: #f3f4f6;
-      color: #111827;
+      color: var(--text);
       border: 1px solid var(--line);
     }
+
+    .msg {
+      display: none;
+      padding: 11px 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .ok { background: var(--ok-bg); color: var(--ok-text); border: 1px solid #bbf7d0; }
+    .error { background: var(--error-bg); color: var(--error-text); border: 1px solid #fecaca; }
 
     .helper {
       color: var(--muted);
@@ -149,362 +155,131 @@
       line-height: 1.5;
     }
 
-    .save-status {
-      display: none;
-      padding: 10px 12px;
-      border-radius: 12px;
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-    .save-ok {
-      background: #ecfdf5;
-      color: #166534;
-      border: 1px solid #bbf7d0;
-    }
-
-    .save-error {
-      background: #fef2f2;
-      color: #991b1b;
-      border: 1px solid #fecaca;
-    }
-
-    .toolbar {
-      display: grid;
-      grid-template-columns: 1fr 190px 190px;
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
-      gap: 14px;
-    }
-
-    .card {
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      overflow: hidden;
-    }
-
-    .card-image {
-      height: 180px;
-      background: var(--soft);
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .card-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    .badge {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 700;
-      background: #fff;
-      border: 1px solid var(--line);
-    }
-
-    .status-open { color: var(--warn); }
-    .status-progress { color: var(--accent); }
-    .status-done { color: var(--ok); }
-
-    .card-body {
-      padding: 14px;
-    }
-
-    .card h3 {
-      margin: 0 0 8px;
-      font-size: 18px;
-      line-height: 1.3;
-    }
-
-    .subinfo {
-      color: var(--muted);
-      font-size: 14px;
-      margin-bottom: 8px;
-      line-height: 1.45;
-    }
-
-    .desc {
-      color: #374151;
-      font-size: 14px;
-      line-height: 1.5;
-      min-height: 70px;
-      background: var(--soft);
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 10px 12px;
-    }
-
-    .meta-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 12px;
-    }
-
-    .meta-box {
-      background: var(--soft);
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 10px 12px;
-      font-size: 13px;
-    }
-
-    .meta-box b {
-      display: block;
-      margin-bottom: 4px;
-    }
-
-    .card-actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 12px;
-    }
-
-    .mini {
-      padding: 11px 10px;
-      font-size: 13px;
-    }
-
-    .empty {
-      text-align: center;
-      padding: 26px 16px;
-      color: var(--muted);
-      border: 1px dashed var(--line);
-      border-radius: 16px;
-      background: #fff;
-    }
-
-    @media (max-width: 980px) {
-      .layout { grid-template-columns: 1fr; }
-    }
-
-    @media (max-width: 720px) {
-      .container { width: min(100% - 12px, 1180px); }
-      .panel, .header { padding: 14px; }
-      .toolbar, .card-actions, .meta-row { grid-template-columns: 1fr; }
+    @media (max-width: 640px) {
+      .cols-2 { grid-template-columns: 1fr; }
+      .wrap { width: min(100% - 12px, 760px); }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <section class="header">
-      <h1>Cadastro de assistência técnica</h1>
-      <p>Agora o salvamento usa IndexedDB, que aguenta melhor os registros com imagem do que localStorage.</p>
+  <div class="wrap">
+    <section class="hero">
+      <h1>Abrir B.O. de assistência</h1>
+      <p>Preencha as informações do produto e do problema. O cadastro será enviado para análise do administrativo.</p>
     </section>
 
-    <section class="layout">
-      <div class="panel">
-        <h2>Novo cadastro</h2>
-        <form id="assistForm" class="form-grid">
+    <section class="card">
+      <form id="boForm" class="grid">
+        <div class="cols-2">
           <label>
-            Imagem
-            <input type="file" id="photoInput" accept="image/*" />
-            <img id="preview" class="preview" alt="Prévia da imagem" />
+            Nome do cliente / empresa
+            <input type="text" id="cliente" required placeholder="Nome do cliente ou empresa" />
           </label>
-
           <label>
-            Cliente ou empresa
-            <input type="text" id="clientInput" placeholder="Nome do cliente ou empresa" required />
+            Nome do representante
+            <input type="text" id="representante" placeholder="Quem está abrindo o chamado" />
           </label>
-
-          <label>
-            Produto / peça
-            <input type="text" id="itemInput" placeholder="Ex.: gabinete, fonte, cooler, placa" required />
-          </label>
-
-          <label>
-            Número / código
-            <input type="text" id="codeInput" placeholder="Nº da OS, patrimônio ou código interno" />
-          </label>
-
-          <label>
-            Status
-            <select id="statusInput">
-              <option value="Aberto">Aberto</option>
-              <option value="Em análise">Em análise</option>
-              <option value="Concluído">Concluído</option>
-            </select>
-          </label>
-
-          <label>
-            Descrição
-            <textarea id="descInput" placeholder="Descreva o defeito, análise, observações ou serviço realizado" required></textarea>
-          </label>
-
-          <div class="actions">
-            <button class="btn-primary" type="submit">Salvar cadastro</button>
-            <button class="btn-soft" id="fillDemoBtn" type="button">Preencher exemplo</button>
-            <button class="btn-soft" id="clearBtn" type="button">Limpar</button>
-          </div>
-
-          <div id="saveStatus" class="save-status"></div>
-          <div class="helper">Se ainda falhar dentro da visualização do canvas, a versão final para GitHub/Firebase não terá essa limitação.</div>
-        </form>
-      </div>
-
-      <div class="panel">
-        <h2>Cadastros</h2>
-
-        <div class="toolbar">
-          <input type="text" id="searchInput" placeholder="Buscar cliente, peça ou código" />
-          <select id="filterStatus">
-            <option value="Todos">Todos status</option>
-            <option value="Aberto">Aberto</option>
-            <option value="Em análise">Em análise</option>
-            <option value="Concluído">Concluído</option>
-          </select>
-          <select id="filterType">
-            <option value="Todos">Todos itens</option>
-            <option value="gabinete">Gabinete</option>
-            <option value="fonte">Fonte</option>
-            <option value="cooler">Cooler</option>
-            <option value="placa">Placa</option>
-          </select>
         </div>
 
-        <div id="cards" class="cards"></div>
-      </div>
+        <div class="cols-2">
+          <label>
+            Telefone
+            <input type="text" id="telefone" placeholder="(00) 00000-0000" />
+          </label>
+          <label>
+            E-mail
+            <input type="email" id="email" placeholder="email@empresa.com" />
+          </label>
+        </div>
+
+        <div class="cols-2">
+          <label>
+            Produto / peça
+            <input type="text" id="produto" required placeholder="Ex.: gabinete, fonte, cooler, placa" />
+          </label>
+          <label>
+            Marca / modelo
+            <input type="text" id="modelo" placeholder="Marca ou modelo" />
+          </label>
+        </div>
+
+        <div class="cols-2">
+          <label>
+            Número da nota / pedido
+            <input type="text" id="pedido" placeholder="NF, pedido ou referência" />
+          </label>
+          <label>
+            Número de série
+            <input type="text" id="serial" placeholder="Serial, lote ou patrimônio" />
+          </label>
+        </div>
+
+        <label>
+          Descrição do problema
+          <textarea id="descricao" required placeholder="Explique o defeito, avaria ou situação encontrada"></textarea>
+        </label>
+
+        <label>
+          Anexar imagem
+          <input type="file" id="imagem" accept="image/*" />
+          <img id="preview" class="preview" alt="Prévia da imagem" />
+        </label>
+
+        <div class="actions">
+          <button type="submit" class="btn-primary">Enviar B.O.</button>
+          <button type="button" id="btnLimpar" class="btn-soft">Limpar</button>
+        </div>
+
+        <div id="msg" class="msg"></div>
+        <div class="helper">Neste protótipo, os dados são enviados para o mesmo navegador usando IndexedDB. Na versão final, isso pode ir para Firebase.</div>
+      </form>
     </section>
   </div>
 
   <script>
-    const DB_NAME = 'assistenciaDB';
-    const STORE_NAME = 'cadastros';
-
-    const assistForm = document.getElementById('assistForm');
-    const photoInput = document.getElementById('photoInput');
-    const preview = document.getElementById('preview');
-    const clientInput = document.getElementById('clientInput');
-    const itemInput = document.getElementById('itemInput');
-    const codeInput = document.getElementById('codeInput');
-    const statusInput = document.getElementById('statusInput');
-    const descInput = document.getElementById('descInput');
-    const fillDemoBtn = document.getElementById('fillDemoBtn');
-    const clearBtn = document.getElementById('clearBtn');
-    const cards = document.getElementById('cards');
-    const searchInput = document.getElementById('searchInput');
-    const filterStatus = document.getElementById('filterStatus');
-    const filterType = document.getElementById('filterType');
-    const saveStatus = document.getElementById('saveStatus');
-
-    let currentImage = '';
-    let records = [];
+    const DB_NAME = 'assistenciaBO';
+    const STORE_NAME = 'chamados';
     let db = null;
+    let imagemAtual = '';
+
+    const boForm = document.getElementById('boForm');
+    const imagem = document.getElementById('imagem');
+    const preview = document.getElementById('preview');
+    const btnLimpar = document.getElementById('btnLimpar');
+    const msg = document.getElementById('msg');
 
     function showMessage(text, type = 'ok') {
-      saveStatus.textContent = text;
-      saveStatus.className = `save-status ${type === 'ok' ? 'save-ok' : 'save-error'}`;
-      saveStatus.style.display = 'block';
-      clearTimeout(window.__saveTimer);
-      window.__saveTimer = setTimeout(() => {
-        saveStatus.style.display = 'none';
-      }, 2600);
+      msg.textContent = text;
+      msg.className = `msg ${type}`;
+      msg.style.display = 'block';
+      clearTimeout(window.__msgTimer);
+      window.__msgTimer = setTimeout(() => msg.style.display = 'none', 2600);
     }
 
     function openDatabase() {
       return new Promise((resolve, reject) => {
-        if (!window.indexedDB) {
-          reject(new Error('IndexedDB não suportado neste navegador.'));
-          return;
-        }
-
         const request = indexedDB.open(DB_NAME, 1);
-
         request.onupgradeneeded = (event) => {
           const database = event.target.result;
           if (!database.objectStoreNames.contains(STORE_NAME)) {
             database.createObjectStore(STORE_NAME, { keyPath: 'id' });
           }
         };
-
-        request.onsuccess = () => {
-          db = request.result;
-          resolve(db);
-        };
-
-        request.onerror = () => reject(request.error || new Error('Erro ao abrir banco.'));
+        request.onsuccess = () => { db = request.result; resolve(db); };
+        request.onerror = () => reject(request.error || new Error('Erro ao abrir banco'));
       });
     }
 
     function getStore(mode = 'readonly') {
-      const transaction = db.transaction(STORE_NAME, mode);
-      return transaction.objectStore(STORE_NAME);
-    }
-
-    function loadData() {
-      return new Promise((resolve, reject) => {
-        const request = getStore('readonly').getAll();
-        request.onsuccess = () => {
-          records = (request.result || []).sort((a, b) => b.id - a.id);
-          resolve(records);
-        };
-        request.onerror = () => reject(request.error || new Error('Erro ao carregar cadastros.'));
-      });
+      return db.transaction(STORE_NAME, mode).objectStore(STORE_NAME);
     }
 
     function addRecord(record) {
       return new Promise((resolve, reject) => {
         const request = getStore('readwrite').add(record);
         request.onsuccess = () => resolve(true);
-        request.onerror = () => reject(request.error || new Error('Erro ao salvar cadastro.'));
+        request.onerror = () => reject(request.error || new Error('Erro ao salvar'));
       });
-    }
-
-    function updateRecord(record) {
-      return new Promise((resolve, reject) => {
-        const request = getStore('readwrite').put(record);
-        request.onsuccess = () => resolve(true);
-        request.onerror = () => reject(request.error || new Error('Erro ao atualizar cadastro.'));
-      });
-    }
-
-    function deleteRecordFromDB(id) {
-      return new Promise((resolve, reject) => {
-        const request = getStore('readwrite').delete(id);
-        request.onsuccess = () => resolve(true);
-        request.onerror = () => reject(request.error || new Error('Erro ao excluir cadastro.'));
-      });
-    }
-
-    function clearForm() {
-      assistForm.reset();
-      statusInput.value = 'Aberto';
-      preview.src = '';
-      preview.style.display = 'none';
-      currentImage = '';
-    }
-
-    function badgeClass(status) {
-      if (status === 'Concluído') return 'status-done';
-      if (status === 'Em análise') return 'status-progress';
-      return 'status-open';
-    }
-
-    function escapeHtml(text) {
-      return String(text || '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
     }
 
     function resizeImage(file, maxWidth = 1200, quality = 0.82) {
@@ -529,180 +304,68 @@
       });
     }
 
-    photoInput.addEventListener('change', async (e) => {
+    imagem.addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (!file) return;
       try {
-        currentImage = await resizeImage(file);
-        preview.src = currentImage;
+        imagemAtual = await resizeImage(file);
+        preview.src = imagemAtual;
         preview.style.display = 'block';
-      } catch (error) {
-        currentImage = '';
+      } catch {
+        imagemAtual = '';
         preview.style.display = 'none';
         showMessage('Erro ao processar a imagem.', 'error');
       }
     });
 
-    fillDemoBtn.addEventListener('click', () => {
-      clientInput.value = 'Empresa Exemplo';
-      itemInput.value = 'Gabinete ATX';
-      codeInput.value = 'OS-1045';
-      statusInput.value = 'Em análise';
-      descInput.value = 'Gabinete com lateral amassada e análise de encaixe da tampa. Cliente pediu avaliação e registro com imagem.';
+    btnLimpar.addEventListener('click', () => {
+      boForm.reset();
+      imagemAtual = '';
+      preview.src = '';
+      preview.style.display = 'none';
     });
 
-    clearBtn.addEventListener('click', clearForm);
-
-    assistForm.addEventListener('submit', async (event) => {
+    boForm.addEventListener('submit', async (event) => {
       event.preventDefault();
-
-      const client = clientInput.value.trim();
-      const item = itemInput.value.trim();
-      const code = codeInput.value.trim();
-      const status = statusInput.value;
-      const desc = descInput.value.trim();
-
-      if (!client) return clientInput.focus();
-      if (!item) return itemInput.focus();
-      if (!desc) return descInput.focus();
-
       const record = {
         id: Date.now(),
-        client,
-        item,
-        code,
-        status,
-        desc,
-        image: currentImage || '',
-        date: new Date().toLocaleString('pt-BR')
+        origem: 'cliente',
+        cliente: document.getElementById('cliente').value.trim(),
+        representante: document.getElementById('representante').value.trim(),
+        telefone: document.getElementById('telefone').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        produto: document.getElementById('produto').value.trim(),
+        modelo: document.getElementById('modelo').value.trim(),
+        pedido: document.getElementById('pedido').value.trim(),
+        serial: document.getElementById('serial').value.trim(),
+        descricao: document.getElementById('descricao').value.trim(),
+        imagem: imagemAtual || '',
+        status: 'Novo',
+        dataAbertura: new Date().toLocaleString('pt-BR')
       };
 
-      try {
-        await addRecord(record);
-        records.unshift(record);
-        render();
-        clearForm();
-        showMessage('Cadastro salvo com sucesso.', 'ok');
-      } catch (error) {
-        console.error(error);
-        showMessage('Não foi possível salvar neste ambiente de teste.', 'error');
-      }
-    });
-
-    async function removeRecord(id) {
-      try {
-        await deleteRecordFromDB(id);
-        records = records.filter(r => r.id !== id);
-        render();
-        showMessage('Cadastro excluído.', 'ok');
-      } catch (error) {
-        console.error(error);
-        showMessage('Erro ao excluir cadastro.', 'error');
-      }
-    }
-
-    function copyRecord(id) {
-      const item = records.find(r => r.id === id);
-      if (!item) return;
-      const text = `Cliente: ${item.client}
-Item: ${item.item}
-Código: ${item.code || '-'}
-Status: ${item.status}
-Descrição: ${item.desc}`;
-      navigator.clipboard.writeText(text)
-        .then(() => showMessage('Cadastro copiado.', 'ok'))
-        .catch(() => showMessage('Não foi possível copiar.', 'error'));
-    }
-
-    async function advanceStatus(id) {
-      const item = records.find(r => r.id === id);
-      if (!item) return;
-      if (item.status === 'Aberto') item.status = 'Em análise';
-      else if (item.status === 'Em análise') item.status = 'Concluído';
-      else item.status = 'Aberto';
-
-      try {
-        await updateRecord(item);
-        render();
-        showMessage('Status atualizado.', 'ok');
-      } catch (error) {
-        console.error(error);
-        showMessage('Erro ao atualizar status.', 'error');
-      }
-    }
-
-    function renderCards() {
-      const term = searchInput.value.trim().toLowerCase();
-      const statusFilter = filterStatus.value;
-      const typeFilter = filterType.value.toLowerCase();
-
-      let filtered = records.filter(r => {
-        const text = `${r.client} ${r.item} ${r.code} ${r.desc}`.toLowerCase();
-        return text.includes(term);
-      });
-
-      if (statusFilter !== 'Todos') filtered = filtered.filter(r => r.status === statusFilter);
-      if (filterType.value !== 'Todos') filtered = filtered.filter(r => r.item.toLowerCase().includes(typeFilter));
-
-      if (!filtered.length) {
-        cards.innerHTML = '<div class="empty">Nenhum cadastro encontrado.</div>';
+      if (!record.cliente || !record.produto || !record.descricao) {
+        showMessage('Preencha cliente, produto e descrição.', 'error');
         return;
       }
 
-      cards.innerHTML = filtered.map(item => {
-        const imageHtml = item.image
-          ? `<img src="${item.image}" alt="${escapeHtml(item.item)}">`
-          : 'Sem imagem';
-
-        return `
-          <article class="card">
-            <div class="card-image">
-              ${imageHtml}
-              <div class="badge ${badgeClass(item.status)}">${escapeHtml(item.status)}</div>
-            </div>
-            <div class="card-body">
-              <h3>${escapeHtml(item.item)}</h3>
-              <div class="subinfo"><b>Cliente:</b> ${escapeHtml(item.client)}</div>
-              <div class="desc">${escapeHtml(item.desc)}</div>
-              <div class="meta-row">
-                <div class="meta-box"><b>Código</b>${escapeHtml(item.code || '-')}</div>
-                <div class="meta-box"><b>Data</b>${escapeHtml(item.date)}</div>
-              </div>
-              <div class="card-actions">
-                <button class="btn-primary mini" onclick="advanceStatus(${item.id})">Trocar status</button>
-                <button class="btn-soft mini" onclick="copyRecord(${item.id})">Copiar</button>
-                <button class="btn-soft mini" onclick="removeRecord(${item.id})">Excluir</button>
-              </div>
-            </div>
-          </article>
-        `;
-      }).join('');
-    }
-
-    function render() {
-      renderCards();
-    }
-
-    searchInput.addEventListener('input', renderCards);
-    filterStatus.addEventListener('change', renderCards);
-    filterType.addEventListener('change', renderCards);
-
-    window.removeRecord = removeRecord;
-    window.copyRecord = copyRecord;
-    window.advanceStatus = advanceStatus;
-
-    (async function init() {
       try {
-        await openDatabase();
-        await loadData();
-        render();
-        showMessage('Sistema pronto para uso.', 'ok');
+        await addRecord(record);
+        boForm.reset();
+        imagemAtual = '';
+        preview.src = '';
+        preview.style.display = 'none';
+        showMessage('B.O. enviado com sucesso.', 'ok');
       } catch (error) {
         console.error(error);
-        render();
-        showMessage('Este ambiente de teste pode bloquear o armazenamento local.', 'error');
+        showMessage('Não foi possível enviar neste ambiente.', 'error');
       }
-    })();
+    });
+
+    openDatabase().catch((error) => {
+      console.error(error);
+      showMessage('Este ambiente de teste pode bloquear o armazenamento.', 'error');
+    });
   </script>
 </body>
 </html>
