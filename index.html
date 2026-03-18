@@ -149,6 +149,17 @@
       line-height: 1.5;
     }
 
+    .save-status {
+      display: none;
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      background: #ecfdf5;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+
     .toolbar {
       display: grid;
       grid-template-columns: 1fr 190px 190px;
@@ -173,6 +184,11 @@
       height: 180px;
       background: var(--soft);
       position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 14px;
     }
 
     .card-image img {
@@ -288,7 +304,7 @@
     <section class="layout">
       <div class="panel">
         <h2>Novo cadastro</h2>
-        <div class="form-grid">
+        <form id="assistForm" class="form-grid">
           <label>
             Imagem
             <input type="file" id="photoInput" accept="image/*" />
@@ -297,12 +313,12 @@
 
           <label>
             Cliente ou empresa
-            <input type="text" id="clientInput" placeholder="Nome do cliente ou empresa" />
+            <input type="text" id="clientInput" placeholder="Nome do cliente ou empresa" required />
           </label>
 
           <label>
             Produto / peça
-            <input type="text" id="itemInput" placeholder="Ex.: gabinete, fonte, cooler, placa" />
+            <input type="text" id="itemInput" placeholder="Ex.: gabinete, fonte, cooler, placa" required />
           </label>
 
           <label>
@@ -321,17 +337,18 @@
 
           <label>
             Descrição
-            <textarea id="descInput" placeholder="Descreva o defeito, análise, observações ou serviço realizado"></textarea>
+            <textarea id="descInput" placeholder="Descreva o defeito, análise, observações ou serviço realizado" required></textarea>
           </label>
 
           <div class="actions">
-            <button class="btn-primary" id="saveBtn">Salvar cadastro</button>
+            <button class="btn-primary" id="saveBtn" type="submit">Salvar cadastro</button>
             <button class="btn-soft" id="fillDemoBtn" type="button">Preencher exemplo</button>
             <button class="btn-soft" id="clearBtn" type="button">Limpar</button>
           </div>
 
-          <div class="helper">Modelo simples para registrar atendimento, peça e observações com foto.</div>
-        </div>
+          <div id="saveStatus" class="save-status">Cadastro salvo com sucesso.</div>
+          <div class="helper">Agora o salvamento foi ajustado para funcionar corretamente no navegador.</div>
+        </form>
       </div>
 
       <div class="panel">
@@ -360,6 +377,7 @@
   </div>
 
   <script>
+    const assistForm = document.getElementById('assistForm');
     const photoInput = document.getElementById('photoInput');
     const preview = document.getElementById('preview');
     const clientInput = document.getElementById('clientInput');
@@ -367,28 +385,50 @@
     const codeInput = document.getElementById('codeInput');
     const statusInput = document.getElementById('statusInput');
     const descInput = document.getElementById('descInput');
-    const saveBtn = document.getElementById('saveBtn');
     const fillDemoBtn = document.getElementById('fillDemoBtn');
     const clearBtn = document.getElementById('clearBtn');
     const cards = document.getElementById('cards');
     const searchInput = document.getElementById('searchInput');
     const filterStatus = document.getElementById('filterStatus');
     const filterType = document.getElementById('filterType');
+    const saveStatus = document.getElementById('saveStatus');
 
     let currentImage = '';
-    let records = JSON.parse(localStorage.getItem('assistenciaGabinetesRecords') || '[]');
+    let records = [];
+
+    function loadData() {
+      try {
+        const saved = localStorage.getItem('assistenciaGabinetesRecords');
+        records = saved ? JSON.parse(saved) : [];
+      } catch (error) {
+        records = [];
+        console.error('Erro ao ler dados salvos:', error);
+      }
+    }
 
     function saveData() {
-      localStorage.setItem('assistenciaGabinetesRecords', JSON.stringify(records));
+      try {
+        localStorage.setItem('assistenciaGabinetesRecords', JSON.stringify(records));
+        return true;
+      } catch (error) {
+        alert('Não foi possível salvar no navegador.');
+        console.error('Erro ao salvar:', error);
+        return false;
+      }
+    }
+
+    function showSavedMessage(text) {
+      saveStatus.textContent = text;
+      saveStatus.style.display = 'block';
+      clearTimeout(window.__saveTimer);
+      window.__saveTimer = setTimeout(() => {
+        saveStatus.style.display = 'none';
+      }, 2200);
     }
 
     function clearForm() {
-      clientInput.value = '';
-      itemInput.value = '';
-      codeInput.value = '';
+      assistForm.reset();
       statusInput.value = 'Aberto';
-      descInput.value = '';
-      photoInput.value = '';
       preview.src = '';
       preview.style.display = 'none';
       currentImage = '';
@@ -398,6 +438,15 @@
       if (status === 'Concluído') return 'status-done';
       if (status === 'Em análise') return 'status-progress';
       return 'status-open';
+    }
+
+    function escapeHtml(text) {
+      return String(text || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
     }
 
     photoInput.addEventListener('change', (e) => {
@@ -422,16 +471,32 @@
 
     clearBtn.addEventListener('click', clearForm);
 
-    saveBtn.addEventListener('click', () => {
+    assistForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+
       const client = clientInput.value.trim();
       const item = itemInput.value.trim();
       const code = codeInput.value.trim();
       const status = statusInput.value;
       const desc = descInput.value.trim();
 
-      if (!client) return alert('Digite o cliente ou empresa.');
-      if (!item) return alert('Digite o produto ou peça.');
-      if (!desc) return alert('Digite a descrição.');
+      if (!client) {
+        alert('Digite o cliente ou empresa.');
+        clientInput.focus();
+        return;
+      }
+
+      if (!item) {
+        alert('Digite o produto ou peça.');
+        itemInput.focus();
+        return;
+      }
+
+      if (!desc) {
+        alert('Digite a descrição.');
+        descInput.focus();
+        return;
+      }
 
       records.unshift({
         id: Date.now(),
@@ -440,26 +505,33 @@
         code,
         status,
         desc,
-        image: currentImage || 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&w=900&q=80',
+        image: currentImage || '',
         date: new Date().toLocaleString('pt-BR')
       });
 
-      saveData();
+      if (!saveData()) return;
+
       render();
       clearForm();
+      showSavedMessage('Cadastro salvo com sucesso.');
     });
 
     function removeRecord(id) {
       records = records.filter(r => r.id !== id);
-      saveData();
+      if (!saveData()) return;
       render();
+      showSavedMessage('Cadastro excluído.');
     }
 
     function copyRecord(id) {
       const item = records.find(r => r.id === id);
       if (!item) return;
-      const text = `Cliente: ${item.client}\nItem: ${item.item}\nCódigo: ${item.code || '-'}\nStatus: ${item.status}\nDescrição: ${item.desc}`;
-      navigator.clipboard.writeText(text).then(() => alert('Cadastro copiado.'));
+      const text = `Cliente: ${item.client}
+Item: ${item.item}
+Código: ${item.code || '-'}
+Status: ${item.status}
+Descrição: ${item.desc}`;
+      navigator.clipboard.writeText(text).then(() => showSavedMessage('Cadastro copiado.'));
     }
 
     function advanceStatus(id) {
@@ -468,8 +540,9 @@
       if (item.status === 'Aberto') item.status = 'Em análise';
       else if (item.status === 'Em análise') item.status = 'Concluído';
       else item.status = 'Aberto';
-      saveData();
+      if (!saveData()) return;
       render();
+      showSavedMessage('Status atualizado.');
     }
 
     function renderCards() {
@@ -495,28 +568,34 @@
         return;
       }
 
-      cards.innerHTML = filtered.map(item => `
-        <article class="card">
-          <div class="card-image">
-            <img src="${item.image}" alt="${item.item}" />
-            <div class="badge ${badgeClass(item.status)}">${item.status}</div>
-          </div>
-          <div class="card-body">
-            <h3>${item.item}</h3>
-            <div class="subinfo"><b>Cliente:</b> ${item.client}</div>
-            <div class="desc">${item.desc}</div>
-            <div class="meta-row">
-              <div class="meta-box"><b>Código</b>${item.code || '-'}</div>
-              <div class="meta-box"><b>Data</b>${item.date}</div>
+      cards.innerHTML = filtered.map(item => {
+        const imageHtml = item.image
+          ? `<img src="${item.image}" alt="${escapeHtml(item.item)}">`
+          : 'Sem imagem';
+
+        return `
+          <article class="card">
+            <div class="card-image">
+              ${imageHtml}
+              <div class="badge ${badgeClass(item.status)}">${escapeHtml(item.status)}</div>
             </div>
-            <div class="card-actions">
-              <button class="btn-primary mini" onclick="advanceStatus(${item.id})">Trocar status</button>
-              <button class="btn-soft mini" onclick="copyRecord(${item.id})">Copiar</button>
-              <button class="btn-soft mini" onclick="removeRecord(${item.id})">Excluir</button>
+            <div class="card-body">
+              <h3>${escapeHtml(item.item)}</h3>
+              <div class="subinfo"><b>Cliente:</b> ${escapeHtml(item.client)}</div>
+              <div class="desc">${escapeHtml(item.desc)}</div>
+              <div class="meta-row">
+                <div class="meta-box"><b>Código</b>${escapeHtml(item.code || '-')}</div>
+                <div class="meta-box"><b>Data</b>${escapeHtml(item.date)}</div>
+              </div>
+              <div class="card-actions">
+                <button class="btn-primary mini" onclick="advanceStatus(${item.id})">Trocar status</button>
+                <button class="btn-soft mini" onclick="copyRecord(${item.id})">Copiar</button>
+                <button class="btn-soft mini" onclick="removeRecord(${item.id})">Excluir</button>
+              </div>
             </div>
-          </div>
-        </article>
-      `).join('');
+          </article>
+        `;
+      }).join('');
     }
 
     function render() {
@@ -531,6 +610,7 @@
     window.copyRecord = copyRecord;
     window.advanceStatus = advanceStatus;
 
+    loadData();
     render();
   </script>
 </body>
